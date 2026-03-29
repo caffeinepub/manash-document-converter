@@ -1,8 +1,11 @@
 import {
+  Bot,
   ChevronRight,
   Image,
+  MessageCircle,
   Monitor,
   Scissors,
+  Send,
   Star,
   Wand2,
   Zap,
@@ -48,6 +51,76 @@ export function HomePage({ navigate }: Props) {
     }, 12000);
     return () => clearInterval(id);
   }, []);
+
+  // Chat Widget State
+  type ChatMode = "chat" | "image";
+  interface ChatMessage {
+    role: "user" | "assistant";
+    text: string;
+    imageUrl?: string;
+  }
+  const GEMINI_KEY = "AIzaSyCLjvyMd0-jeQBGRjkD9c1JgAv77niQXC8";
+  const [chatMode, setChatMode] = useState<ChatMode>("chat");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatBottomRef = useRef<HTMLDivElement>(null);
+
+  const handleChatSend = async () => {
+    if (!chatInput.trim() || chatLoading) return;
+    const userMsg: ChatMessage = { role: "user", text: chatInput.trim() };
+    const history = [...chatMessages, userMsg];
+    setChatMessages(history);
+    setChatInput("");
+    setChatLoading(true);
+    setTimeout(
+      () => chatBottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+      100,
+    );
+
+    try {
+      if (chatMode === "chat") {
+        const contents = history.map((m) => ({
+          role: m.role === "user" ? "user" : "model",
+          parts: [{ text: m.text }],
+        }));
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents }),
+          },
+        );
+        const data = await res.json();
+        const text =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text ??
+          "Sorry, I could not get a response.";
+        setChatMessages([...history, { role: "assistant", text }]);
+      } else {
+        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(userMsg.text)}?width=512&height=512&nologo=true`;
+        setChatMessages([
+          ...history,
+          {
+            role: "assistant",
+            text: `Here is your generated image for: "${userMsg.text}"`,
+            imageUrl,
+          },
+        ]);
+      }
+    } catch {
+      setChatMessages([
+        ...history,
+        { role: "assistant", text: "Network error. Please try again." },
+      ]);
+    } finally {
+      setChatLoading(false);
+      setTimeout(
+        () => chatBottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+        100,
+      );
+    }
+  };
 
   const categories = [
     {
@@ -235,6 +308,196 @@ export function HomePage({ navigate }: Props) {
             >
               View All Products
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Manash 2.0 Chat Widget */}
+      <section
+        className="py-16 px-6 bg-gradient-to-br from-[#0B2A4A] via-[#0d3460] to-[#1a1a2e]"
+        data-ocid="chat.section"
+      >
+        <div className="max-w-3xl mx-auto">
+          {/* Section Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center">
+                <Bot size={22} className="text-white" />
+              </div>
+              <div>
+                <h2 className="text-white font-bold text-xl leading-tight">
+                  Chat with Manash 2.0
+                </h2>
+                <p className="text-blue-300 text-xs">
+                  AI Assistant · Powered by Gemini
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              {/* Mode Toggle */}
+              <div className="flex bg-[#0a2040] rounded-full p-1 gap-1 border border-blue-800">
+                <button
+                  type="button"
+                  onClick={() => setChatMode("chat")}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                    chatMode === "chat"
+                      ? "bg-blue-500 text-white shadow"
+                      : "text-blue-300 hover:text-white"
+                  }`}
+                  data-ocid="chat.tab"
+                >
+                  💬 Chat
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChatMode("image")}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                    chatMode === "image"
+                      ? "bg-purple-500 text-white shadow"
+                      : "text-blue-300 hover:text-white"
+                  }`}
+                  data-ocid="chat.tab"
+                >
+                  🎨 Image
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate("ai-chat")}
+                className="text-xs text-blue-300 hover:text-white border border-blue-700 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1"
+                data-ocid="chat.open_modal_button"
+              >
+                <MessageCircle size={12} />
+                Full Chat
+              </button>
+            </div>
+          </div>
+
+          {/* Chat Messages */}
+          <div className="bg-[#0a2040] border border-blue-800 rounded-2xl overflow-hidden">
+            <div
+              className="h-80 overflow-y-auto px-4 py-4 space-y-4"
+              data-ocid="chat.panel"
+            >
+              {chatMessages.length === 0 && (
+                <div
+                  className="flex flex-col items-center justify-center h-full text-center"
+                  data-ocid="chat.empty_state"
+                >
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center mb-3">
+                    <Bot size={28} className="text-white" />
+                  </div>
+                  <p className="text-white font-semibold mb-1">
+                    Hello! I'm Manash 2.0
+                  </p>
+                  <p className="text-blue-400 text-xs max-w-xs">
+                    {chatMode === "chat"
+                      ? "Ask me anything — products, jobs, documents & more."
+                      : "Describe what image you want me to generate."}
+                  </p>
+                </div>
+              )}
+              {chatMessages.map((msg, i) => (
+                <div
+                  key={`${msg.role}-${i}-${msg.text.slice(0, 10)}`}
+                  className={`flex gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
+                  data-ocid={`chat.item.${i + 1}`}
+                >
+                  <div
+                    className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs ${
+                      msg.role === "user"
+                        ? "bg-blue-500"
+                        : "bg-gradient-to-br from-blue-400 to-cyan-400"
+                    }`}
+                  >
+                    {msg.role === "user" ? (
+                      "U"
+                    ) : (
+                      <Bot size={13} className="text-white" />
+                    )}
+                  </div>
+                  <div
+                    className={`max-w-[78%] rounded-xl px-3 py-2 text-sm ${
+                      msg.role === "user"
+                        ? "bg-blue-600 text-white rounded-tr-sm"
+                        : "bg-[#0d3460] text-blue-100 border border-blue-800 rounded-tl-sm"
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap leading-relaxed">
+                      {msg.text}
+                    </p>
+                    {msg.imageUrl && (
+                      <img
+                        src={msg.imageUrl}
+                        alt="Generated"
+                        className="mt-2 rounded-lg max-w-full"
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+              {chatLoading && (
+                <div className="flex gap-2" data-ocid="chat.loading_state">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center">
+                    <Bot size={13} className="text-white" />
+                  </div>
+                  <div className="bg-[#0d3460] border border-blue-800 rounded-xl rounded-tl-sm px-3 py-2">
+                    <div className="flex gap-1 items-center">
+                      <span
+                        className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0ms" }}
+                      />
+                      <span
+                        className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "150ms" }}
+                      />
+                      <span
+                        className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "300ms" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={chatBottomRef} />
+            </div>
+
+            {/* Input */}
+            <div className="border-t border-blue-800 bg-[#0B2A4A] px-4 py-3">
+              <div className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleChatSend();
+                    }
+                  }}
+                  placeholder={
+                    chatMode === "chat"
+                      ? "Ask Manash 2.0 anything..."
+                      : "Describe an image to generate..."
+                  }
+                  className="flex-1 bg-[#0d3460] border border-blue-700 rounded-xl px-4 py-2.5 text-white placeholder-blue-400 text-sm outline-none focus:border-blue-500"
+                  data-ocid="chat.input"
+                />
+                <button
+                  type="button"
+                  onClick={handleChatSend}
+                  disabled={!chatInput.trim() || chatLoading}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all flex-shrink-0 ${
+                    chatMode === "image"
+                      ? "bg-purple-600 hover:bg-purple-500 disabled:bg-purple-900/50"
+                      : "bg-blue-600 hover:bg-blue-500 disabled:bg-blue-900/50"
+                  } disabled:cursor-not-allowed`}
+                  data-ocid="chat.submit_button"
+                >
+                  <Send size={16} className="text-white" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
