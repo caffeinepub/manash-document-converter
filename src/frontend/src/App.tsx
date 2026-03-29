@@ -6,6 +6,7 @@ import { AdminPage } from "./pages/AdminPage";
 import { AiChatPage } from "./pages/AiChatPage";
 import { AuthPage } from "./pages/AuthPage";
 import { CartPage } from "./pages/CartPage";
+import { CertificateAlbumPage } from "./pages/CertificateAlbumPage";
 import { CheckoutPage } from "./pages/CheckoutPage";
 import { ContactUsPage } from "./pages/ContactUsPage";
 import { ConverterPage } from "./pages/ConverterPage";
@@ -31,7 +32,8 @@ export type Page =
   | "job-updates"
   | "gov-documents"
   | "contact-us"
-  | "ai-chat";
+  | "ai-chat"
+  | "certificate-album";
 
 export default function App() {
   const [page, setPage] = useState<Page>("home");
@@ -90,6 +92,7 @@ export default function App() {
       {page === "gov-documents" && <GovDocumentsPage />}
       {page === "contact-us" && <ContactUsPage />}
       {page === "ai-chat" && <AiChatPage />}
+      {page === "certificate-album" && <CertificateAlbumPage />}
       <Toaster />
     </div>
   );

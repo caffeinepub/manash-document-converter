@@ -84,7 +84,7 @@ export function ProductsPage({ navigate, cart, setCart }: Props) {
           {filtered.map((p) => (
             <div
               key={p.id}
-              className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+              className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden hover-lift"
             >
               <button
                 type="button"

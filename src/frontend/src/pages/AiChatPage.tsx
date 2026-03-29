@@ -2,7 +2,7 @@ import { Bot, Image, Send, Trash2, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 const GEMINI_API_KEY = "AIzaSyCLjvyMd0-jeQBGRjkD9c1JgAv77niQXC8";
-const CHAT_MODEL = "gemini-1.5-flash";
+const CHAT_MODEL = "gemini-2.0-flash";
 
 type Mode = "chat" | "image";
 
@@ -86,10 +86,11 @@ export function AiChatPage() {
       );
 
       if (!res.ok) {
-        const errData = (await res.json().catch(() => ({}))) as {
-          error?: { message?: string };
-        };
-        throw new Error(errData?.error?.message || `API error ${res.status}`);
+        const errText = await res.text().catch(() => "");
+        console.error("Gemini API error response:", errText);
+        throw new Error(
+          `Sorry, I couldn't get a response. Please try again. (Error: ${res.status})`,
+        );
       }
 
       if (!res.body) throw new Error("No response body");
@@ -98,32 +99,45 @@ export function AiChatPage() {
       const decoder = new TextDecoder();
       let accumulated = "";
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split("\n")) {
-          if (!line.startsWith("data: ")) continue;
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === "[DONE]") continue;
-          try {
-            const parsed = JSON.parse(jsonStr) as {
-              candidates?: [{ content?: { parts?: [{ text?: string }] } }];
-            };
-            const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (text) {
-              accumulated += text;
-              const snap = accumulated;
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId
-                    ? { ...m, text: snap, streaming: true }
-                    : m,
-                ),
-              );
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          for (const line of chunk.split("\n")) {
+            if (!line.startsWith("data: ")) continue;
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr === "[DONE]") continue;
+            try {
+              const parsed = JSON.parse(jsonStr) as {
+                candidates?: [{ content?: { parts?: [{ text?: string }] } }];
+              };
+              const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (text) {
+                accumulated += text;
+                const snap = accumulated;
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantId
+                      ? { ...m, text: snap, streaming: true }
+                      : m,
+                  ),
+                );
+              }
+            } catch (parseErr) {
+              console.error("Failed to parse SSE line:", jsonStr, parseErr);
             }
-          } catch {
-            // skip malformed lines
+          }
+        }
+      } catch (streamErr: unknown) {
+        const isAbort =
+          streamErr instanceof DOMException && streamErr.name === "AbortError";
+        if (!isAbort) {
+          console.error("SSE stream parsing error:", streamErr);
+          if (!accumulated) {
+            throw new Error(
+              "Sorry, I couldn't get a response. Please try again. (Stream error)",
+            );
           }
         }
       }
@@ -144,14 +158,16 @@ export function AiChatPage() {
     } catch (err: unknown) {
       const isAbort = err instanceof DOMException && err.name === "AbortError";
       if (!isAbort) {
+        const errMsg =
+          err instanceof Error
+            ? err.message
+            : "Network error. Please check your connection and try again.";
         setMessages((prev) =>
           prev.map((m) =>
             m.id === assistantId
               ? {
                   ...m,
-                  text:
-                    m.text ||
-                    "Network error. Please check your connection and try again.",
+                  text: m.text || errMsg,
                   streaming: false,
                 }
               : m,

@@ -8,7 +8,79 @@ import {
   Send,
   Youtube,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const AUTHORISED_LOGOS = [
+  {
+    src: "/assets/generated/logo-airtel-payments-bank.dim_200x80.png",
+    alt: "Airtel Payment Bank",
+  },
+  { src: "/assets/generated/logo-sbi-bank.dim_200x80.png", alt: "SBI Bank" },
+  {
+    src: "/assets/generated/logo-csc-service.dim_200x80.png",
+    alt: "CSC Service",
+  },
+  {
+    src: "/assets/generated/logo-digital-india.dim_200x80.png",
+    alt: "Digital India",
+  },
+  { src: "/assets/generated/logo-aadhaar.dim_200x80.png", alt: "Aadhaar" },
+  {
+    src: "/assets/generated/logo-income-tax.dim_200x80.png",
+    alt: "Income Tax",
+  },
+  {
+    src: "/assets/generated/logo-assam-govt.dim_200x80.png",
+    alt: "Assam Government",
+  },
+];
+
+function AuthorisedCarousel() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  // Duplicate logos for seamless infinite loop
+  const logos = [...AUTHORISED_LOGOS, ...AUTHORISED_LOGOS, ...AUTHORISED_LOGOS];
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    let pos = 0;
+    const cardWidth = 200 + 24; // card width + gap
+    const totalOriginal = AUTHORISED_LOGOS.length * cardWidth;
+    let raf: number;
+    const step = () => {
+      pos += 0.6;
+      if (pos >= totalOriginal) pos = 0;
+      track.style.transform = `translateX(-${pos}px)`;
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <div
+      className="overflow-hidden w-full"
+      aria-label="Authorised logos carousel"
+    >
+      <div ref={trackRef} className="flex gap-6 will-change-transform">
+        {logos.map((logo, i) => (
+          <div
+            key={`${logo.alt}-${i}`}
+            className="flex-shrink-0 w-[160px] md:w-[200px] bg-white rounded-xl shadow-md border border-gray-100 flex items-center justify-center p-4"
+            style={{ height: "90px" }}
+          >
+            <img
+              src={logo.src}
+              alt={logo.alt}
+              className="max-w-full max-h-full object-contain"
+              loading="lazy"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function ContactUsPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -32,7 +104,7 @@ export function ContactUsPage() {
         }}
       >
         <div className="absolute inset-0 bg-black/50" />
-        <h1 className="relative text-3xl md:text-4xl font-bold text-white tracking-wide">
+        <h1 className="relative text-3xl md:text-4xl font-bold text-white tracking-wide animate-fade-up">
           Contact Us
         </h1>
       </div>
@@ -40,7 +112,7 @@ export function ContactUsPage() {
       <div className="max-w-5xl mx-auto px-4 py-12">
         <div className="grid md:grid-cols-2 gap-10">
           {/* Left — Info */}
-          <div className="space-y-8">
+          <div className="space-y-8 animate-fade-left">
             <div className="bg-white rounded-xl shadow p-6 flex gap-6">
               <div className="flex-1 space-y-4">
                 <div>
@@ -143,7 +215,7 @@ export function ContactUsPage() {
           </div>
 
           {/* Right — Contact Form */}
-          <div className="bg-white rounded-xl shadow p-6">
+          <div className="bg-white rounded-xl shadow p-6 animate-fade-right">
             <h2 className="text-xl font-bold text-[#0B2A4A] mb-1">
               Send a Message
             </h2>
@@ -230,6 +302,42 @@ export function ContactUsPage() {
               </button>
             </form>
           </div>
+        </div>
+      </div>
+
+      {/* ✅ We Are Authorised Section */}
+      <div className="bg-gradient-to-b from-white to-gray-50 py-12 px-4">
+        <div className="max-w-5xl mx-auto">
+          {/* Headline */}
+          <div className="text-center mb-10 animate-fade-up">
+            <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4 uppercase tracking-wider border border-amber-300">
+              ✅ Officially Recognised
+            </div>
+            <h2
+              className="text-3xl md:text-4xl font-extrabold mb-3"
+              style={{
+                background:
+                  "linear-gradient(135deg, #0B2A4A 0%, #008080 50%, #1E88FF 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              We Are Authorised
+            </h2>
+            <div className="flex items-center justify-center gap-3">
+              <div className="h-px w-16 bg-gradient-to-r from-transparent to-amber-400" />
+              <span className="text-2xl">🏅</span>
+              <div className="h-px w-16 bg-gradient-to-l from-transparent to-amber-400" />
+            </div>
+            <p className="text-gray-500 text-sm mt-3 max-w-lg mx-auto">
+              NextGen IT Hub is an authorised service provider for these
+              government and banking institutions
+            </p>
+          </div>
+
+          {/* Carousel */}
+          <AuthorisedCarousel />
         </div>
       </div>
 

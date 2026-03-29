@@ -10,11 +10,13 @@ import {
   GraduationCap,
   Search,
 } from "lucide-react";
+import { useRef } from "react";
 import { useState } from "react";
 import AdBanner from "../components/AdBanner";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
+import { useInView } from "../hooks/useInView";
 
 const JOB_CATEGORIES = [
   "All",
@@ -284,10 +286,11 @@ export function JobUpdatesPage() {
               <p>No jobs found for your search.</p>
             </div>
           ) : (
-            filtered.map((job) => (
+            filtered.map((job, idx) => (
               <div
                 key={job.id}
-                className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow hover-lift animate-fade-up"
+                style={{ animationDelay: `${idx * 0.07}s` }}
               >
                 <div className="p-4 md:p-5">
                   <div className="flex flex-wrap items-start justify-between gap-2 mb-2">

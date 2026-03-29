@@ -1,4 +1,5 @@
 import {
+  Award,
   Bot,
   Briefcase,
   FileImage,
@@ -33,12 +34,13 @@ export function Header({ page, navigate, cartCount }: Props) {
     { label: "Gov Documents", page: "gov-documents" },
     { label: "Contact Us", page: "contact-us" },
     { label: "Manash 2.0", page: "ai-chat" },
+    { label: "Cert & Album", page: "certificate-album" },
   ];
 
   return (
     <header className="sticky top-0 z-50 shadow-md">
       {/* Top utility bar */}
-      <div className="bg-gray-100 text-xs py-1 px-4 text-right text-gray-600">
+      <div className="bg-gray-100 text-xs py-1 px-4 text-right text-gray-600 animate-slide-in-top">
         Formerly Manash PC World &nbsp;|&nbsp; NextGen IT Hub
       </div>
 
@@ -49,7 +51,7 @@ export function Header({ page, navigate, cartCount }: Props) {
           <button
             type="button"
             onClick={() => navigate("home")}
-            className="flex items-center gap-3 min-w-0"
+            className="flex items-center gap-3 min-w-0 hover-scale"
             data-ocid="nav.link"
           >
             <img
@@ -78,8 +80,10 @@ export function Header({ page, navigate, cartCount }: Props) {
                 key={l.page}
                 onClick={() => navigate(l.page)}
                 data-ocid={`nav.${l.page}.link`}
-                className={`hover:text-blue-300 transition-colors flex items-center gap-1 ${
-                  page === l.page ? "text-blue-300 font-semibold" : ""
+                className={`nav-underline hover:text-blue-300 transition-all duration-200 flex items-center gap-1 ${
+                  page === l.page
+                    ? "text-blue-300 font-semibold active-link"
+                    : ""
                 }`}
               >
                 {l.page === "converter" && <FileText size={14} />}
@@ -88,6 +92,7 @@ export function Header({ page, navigate, cartCount }: Props) {
                 {l.page === "gov-documents" && <ScrollText size={14} />}
                 {l.page === "contact-us" && <Mail size={14} />}
                 {l.page === "ai-chat" && <Bot size={14} />}
+                {l.page === "certificate-album" && <Award size={14} />}
                 {l.label}
               </button>
             ))}
@@ -115,7 +120,7 @@ export function Header({ page, navigate, cartCount }: Props) {
             >
               <ShoppingCart size={22} />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#1E88FF] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                <span className="absolute -top-2 -right-2 bg-[#1E88FF] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-bounce">
                   {cartCount}
                 </span>
               )}
@@ -123,7 +128,7 @@ export function Header({ page, navigate, cartCount }: Props) {
 
             <button
               type="button"
-              className="md:hidden"
+              className="md:hidden transition-transform duration-200 hover:scale-110"
               onClick={() => setMenuOpen(!menuOpen)}
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -132,10 +137,10 @@ export function Header({ page, navigate, cartCount }: Props) {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — slide down animation */}
       {menuOpen && (
-        <div className="md:hidden bg-[#0B2A4A] border-t border-blue-900 px-4 pb-4">
-          {navLinks.map((l) => (
+        <div className="md:hidden bg-[#0B2A4A] border-t border-blue-900 px-4 pb-4 animate-slide-down">
+          {navLinks.map((l, i) => (
             <button
               type="button"
               key={l.page}
@@ -143,7 +148,8 @@ export function Header({ page, navigate, cartCount }: Props) {
                 navigate(l.page);
                 setMenuOpen(false);
               }}
-              className="block w-full text-left py-2 text-white hover:text-blue-300 text-sm"
+              className="block w-full text-left py-2 text-white hover:text-blue-300 text-sm transition-colors"
+              style={{ animationDelay: `${i * 40}ms` }}
             >
               {l.label}
             </button>
