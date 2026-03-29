@@ -1,16 +1,21 @@
 import { Bot, Image, Send, Trash2, User } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const GEMINI_API_KEY = "AIzaSyCLjvyMd0-jeQBGRjkD9c1JgAv77niQXC8";
 const CHAT_MODEL = "gemini-1.5-flash";
-// image model placeholder
 
 type Mode = "chat" | "image";
 
 interface Message {
+  id: string;
   role: "user" | "assistant";
   text: string;
   imageUrl?: string;
+  streaming?: boolean;
+}
+
+function makeId() {
+  return Math.random().toString(36).slice(2);
 }
 
 export function AiChatPage() {
@@ -19,21 +24,30 @@ export function AiChatPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const scrollToBottom = () =>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional scroll on message change
+  useEffect(() => {
     setTimeout(
       () => bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-      100,
+      50,
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages.length]);
 
   const sendChat = async () => {
     if (!input.trim() || loading) return;
-    const userMsg: Message = { role: "user", text: input.trim() };
+    const userMsg: Message = { id: makeId(), role: "user", text: input.trim() };
+    const assistantId = makeId();
     const history = [...messages, userMsg];
-    setMessages(history);
+    setMessages([
+      ...history,
+      { id: assistantId, role: "assistant", text: "", streaming: true },
+    ]);
     setInput("");
     setLoading(true);
-    scrollToBottom();
+
+    abortRef.current = new AbortController();
 
     try {
       const contents = history.map((m) => ({
@@ -41,66 +55,168 @@ export function AiChatPage() {
         parts: [{ text: m.text }],
       }));
 
+      const systemContext = [
+        {
+          role: "user",
+          parts: [
+            {
+              text: "You are Manash 2.0, a helpful AI assistant for NextGen IT Hub. Be concise, friendly, and helpful. You can assist with general questions, NextGen IT Hub services (electrical products, internet cafe, photo & binding), government documents, job updates, and more.",
+            },
+          ],
+        },
+        {
+          role: "model",
+          parts: [
+            {
+              text: "Hello! I'm Manash 2.0, your AI assistant for NextGen IT Hub. How can I help you today?",
+            },
+          ],
+        },
+        ...contents,
+      ];
+
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${CHAT_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${CHAT_MODEL}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents }),
+          body: JSON.stringify({ contents: systemContext }),
+          signal: abortRef.current.signal,
         },
       );
-      const data = await res.json();
-      const text =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text ??
-        "Sorry, I could not get a response. Please try again.";
-      setMessages([...history, { role: "assistant", text }]);
-    } catch {
-      setMessages([
-        ...history,
-        {
-          role: "assistant",
-          text: "Network error. Please check your connection and try again.",
-        },
-      ]);
+
+      if (!res.ok) {
+        const errData = (await res.json().catch(() => ({}))) as {
+          error?: { message?: string };
+        };
+        throw new Error(errData?.error?.message || `API error ${res.status}`);
+      }
+
+      if (!res.body) throw new Error("No response body");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        for (const line of chunk.split("\n")) {
+          if (!line.startsWith("data: ")) continue;
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(jsonStr) as {
+              candidates?: [{ content?: { parts?: [{ text?: string }] } }];
+            };
+            const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+              accumulated += text;
+              const snap = accumulated;
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, text: snap, streaming: true }
+                    : m,
+                ),
+              );
+            }
+          } catch {
+            // skip malformed lines
+          }
+        }
+      }
+
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantId
+            ? {
+                ...m,
+                text:
+                  accumulated ||
+                  "Sorry, I could not generate a response. Please try again.",
+                streaming: false,
+              }
+            : m,
+        ),
+      );
+    } catch (err: unknown) {
+      const isAbort = err instanceof DOMException && err.name === "AbortError";
+      if (!isAbort) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantId
+              ? {
+                  ...m,
+                  text:
+                    m.text ||
+                    "Network error. Please check your connection and try again.",
+                  streaming: false,
+                }
+              : m,
+          ),
+        );
+      }
     } finally {
       setLoading(false);
-      scrollToBottom();
+      abortRef.current = null;
     }
   };
 
   const generateImage = async () => {
     if (!input.trim() || loading) return;
     const prompt = input.trim();
-    const userMsg: Message = { role: "user", text: prompt };
+    const userMsg: Message = { id: makeId(), role: "user", text: prompt };
+    const assistantId = makeId();
     const history = [...messages, userMsg];
-    setMessages(history);
+    setMessages([
+      ...history,
+      {
+        id: assistantId,
+        role: "assistant",
+        text: `Generating image for: "${prompt}"...`,
+        streaming: true,
+      },
+    ]);
     setInput("");
     setLoading(true);
-    scrollToBottom();
 
     try {
-      // Use Gemini to describe/enhance the prompt and generate an image via Pollinations AI (free)
-      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true`;
-      // Verify URL loads by adding as image
-      setMessages([
-        ...history,
-        {
-          role: "assistant",
-          text: `Here is your generated image for: "${prompt}"`,
-          imageUrl,
-        },
-      ]);
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true&seed=${Date.now()}`;
+      await new Promise<void>((resolve) => {
+        const img = new window.Image();
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+        img.src = imageUrl;
+        setTimeout(resolve, 10000);
+      });
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantId
+            ? {
+                ...m,
+                text: `Here is your generated image for: "${prompt}"`,
+                imageUrl,
+                streaming: false,
+              }
+            : m,
+        ),
+      );
     } catch {
-      setMessages([
-        ...history,
-        {
-          role: "assistant",
-          text: "Image generation failed. Please try again.",
-        },
-      ]);
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantId
+            ? {
+                ...m,
+                text: "Image generation failed. Please try again with a different description.",
+                streaming: false,
+              }
+            : m,
+        ),
+      );
     } finally {
       setLoading(false);
-      scrollToBottom();
     }
   };
 
@@ -125,13 +241,15 @@ export function AiChatPage() {
             <h1 className="text-white font-bold text-lg leading-tight">
               Manash 2.0
             </h1>
-            <p className="text-blue-300 text-xs">
-              AI Assistant · Powered by Gemini
-            </p>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <p className="text-blue-300 text-xs">
+                AI Assistant · Powered by Gemini · Live
+              </p>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* Mode Toggle */}
           <div className="flex bg-[#0d3460] rounded-full p-1 gap-1">
             <button
               type="button"
@@ -158,7 +276,11 @@ export function AiChatPage() {
           </div>
           <button
             type="button"
-            onClick={() => setMessages([])}
+            onClick={() => {
+              abortRef.current?.abort();
+              setMessages([]);
+              setLoading(false);
+            }}
             className="text-blue-400 hover:text-red-400 transition-colors p-2"
             title="Clear chat"
           >
@@ -183,49 +305,41 @@ export function AiChatPage() {
                 : "Describe what image you want to create and I'll generate it for you."}
             </p>
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
-              {mode === "chat"
+              {(mode === "chat"
                 ? [
                     "What are the government job updates?",
                     "How to apply for Aadhaar card?",
                     "Tell me about NextGen IT Hub services",
                     "How to convert a PDF to JPG?",
-                  ].map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => {
-                        setInput(s);
-                      }}
-                      className="text-left bg-[#0d3460] hover:bg-blue-800 border border-blue-700 rounded-xl px-4 py-3 text-blue-200 text-sm transition-colors"
-                    >
-                      {s}
-                    </button>
-                  ))
+                  ]
                 : [
                     "A beautiful sunset over mountains",
                     "A futuristic city at night",
                     "A cute dog in a park",
                     "Abstract colorful art",
-                  ].map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setInput(s)}
-                      className="text-left bg-[#0d3460] hover:bg-purple-900 border border-purple-700 rounded-xl px-4 py-3 text-purple-200 text-sm transition-colors"
-                    >
-                      {s}
-                    </button>
-                  ))}
+                  ]
+              ).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setInput(s)}
+                  className={`text-left rounded-xl px-4 py-3 text-sm transition-colors border ${
+                    mode === "chat"
+                      ? "bg-[#0d3460] hover:bg-blue-800 border-blue-700 text-blue-200"
+                      : "bg-[#0d3460] hover:bg-purple-900 border-purple-700 text-purple-200"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
             </div>
           </div>
         )}
 
         {messages.map((msg) => (
           <div
-            key={msg.role + msg.text.slice(0, 20)}
-            className={`flex gap-3 ${
-              msg.role === "user" ? "flex-row-reverse" : "flex-row"
-            }`}
+            key={msg.id}
+            className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
           >
             <div
               className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center ${
@@ -249,6 +363,9 @@ export function AiChatPage() {
             >
               <p className="text-sm whitespace-pre-wrap leading-relaxed">
                 {msg.text}
+                {msg.streaming && (
+                  <span className="inline-block w-0.5 h-4 bg-blue-400 ml-0.5 animate-pulse align-middle" />
+                )}
               </p>
               {msg.imageUrl && (
                 <img
@@ -264,30 +381,6 @@ export function AiChatPage() {
             </div>
           </div>
         ))}
-
-        {loading && (
-          <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center">
-              <Bot size={16} className="text-white" />
-            </div>
-            <div className="bg-[#0d3460] border border-blue-800 rounded-2xl rounded-tl-sm px-4 py-3">
-              <div className="flex gap-1 items-center">
-                <span
-                  className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
-                  style={{ animationDelay: "0ms" }}
-                />
-                <span
-                  className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
-                  style={{ animationDelay: "150ms" }}
-                />
-                <span
-                  className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
-                  style={{ animationDelay: "300ms" }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
         <div ref={bottomRef} />
       </div>
 
@@ -317,20 +410,27 @@ export function AiChatPage() {
           </div>
           <button
             type="button"
-            onClick={handleSend}
-            disabled={!input.trim() || loading}
+            onClick={loading ? () => abortRef.current?.abort() : handleSend}
+            disabled={!loading && !input.trim()}
             className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
-              mode === "image"
-                ? "bg-purple-600 hover:bg-purple-500 disabled:bg-purple-900"
-                : "bg-blue-600 hover:bg-blue-500 disabled:bg-blue-900"
+              loading
+                ? "bg-red-600 hover:bg-red-500"
+                : mode === "image"
+                  ? "bg-purple-600 hover:bg-purple-500 disabled:bg-purple-900"
+                  : "bg-blue-600 hover:bg-blue-500 disabled:bg-blue-900"
             } disabled:cursor-not-allowed`}
+            title={loading ? "Stop generating" : "Send"}
           >
-            <Send size={18} className="text-white" />
+            {loading ? (
+              <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Send size={18} className="text-white" />
+            )}
           </button>
         </div>
         <p className="text-center text-blue-500 text-xs mt-2">
-          Manash 2.0 · AI by Google Gemini · Responses may not always be
-          accurate
+          Manash 2.0 · Real-time AI by Google Gemini · Responses may not always
+          be accurate
         </p>
       </div>
     </div>
