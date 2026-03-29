@@ -10,7 +10,116 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface _SERVICE {}
+export interface CartItem { 'productId' : string, 'quantity' : bigint }
+export type Category = { 'InternetCafe' : null } |
+  { 'Electrical' : null } |
+  { 'PhotoBinding' : null };
+export type DeliveryType = { 'Delivery' : null } |
+  { 'Pickup' : null };
+export interface Order {
+  'id' : bigint,
+  'customerName' : string,
+  'deliveryAddress' : [] | [string],
+  'paymentMethod' : PaymentMethod,
+  'customerPhone' : string,
+  'orderStatus' : OrderStatus,
+  'deliveryType' : DeliveryType,
+  'totalAmount' : bigint,
+  'timestamp' : bigint,
+  'customerId' : Principal,
+  'items' : Array<CartItem>,
+  'customerEmail' : string,
+}
+export type OrderStatus = { 'Cancelled' : null } |
+  { 'Processing' : null } |
+  { 'Completed' : null } |
+  { 'Pending' : null };
+export type PaymentMethod = { 'COD' : null } |
+  { 'UPI' : null } |
+  { 'Card' : null };
+export interface Product {
+  'id' : string,
+  'stockQuantity' : bigint,
+  'name' : string,
+  'isAvailable' : boolean,
+  'description' : string,
+  'imageUrl' : string,
+  'category' : Category,
+  'price' : bigint,
+}
+export interface ShoppingItem {
+  'productName' : string,
+  'currency' : string,
+  'quantity' : bigint,
+  'priceInCents' : bigint,
+  'productDescription' : string,
+}
+export interface StripeConfiguration {
+  'allowedCountries' : Array<string>,
+  'secretKey' : string,
+}
+export type StripeSessionStatus = {
+    'completed' : { 'userPrincipal' : [] | [string], 'response' : string }
+  } |
+  { 'failed' : { 'error' : string } };
+export interface TransformationInput {
+  'context' : Uint8Array,
+  'response' : http_request_result,
+}
+export interface TransformationOutput {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
+}
+export interface UserProfile {
+  'name' : string,
+  'email' : string,
+  'phone' : string,
+}
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
+export interface http_header { 'value' : string, 'name' : string }
+export interface http_request_result {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
+}
+export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'addProduct' : ActorMethod<[Product], undefined>,
+  'addToCart' : ActorMethod<[string, bigint], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'clearCart' : ActorMethod<[], undefined>,
+  'createCheckoutSession' : ActorMethod<
+    [Array<ShoppingItem>, string, string],
+    string
+  >,
+  'createOrder' : ActorMethod<
+    [string, string, string, PaymentMethod, DeliveryType, [] | [string]],
+    bigint
+  >,
+  'getAllOrders' : ActorMethod<[], Array<Order>>,
+  'getAllProducts' : ActorMethod<[], Array<Product>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getCart' : ActorMethod<[], Array<CartItem>>,
+  'getOrder' : ActorMethod<[bigint], [] | [Order]>,
+  'getOrdersByCustomer' : ActorMethod<[string], Array<Order>>,
+  'getProductById' : ActorMethod<[string], [] | [Product]>,
+  'getProductsByCategory' : ActorMethod<[Category], Array<Product>>,
+  'getStripeSessionStatus' : ActorMethod<[string], StripeSessionStatus>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'isStripeConfigured' : ActorMethod<[], boolean>,
+  'removeFromCart' : ActorMethod<[string], undefined>,
+  'removeProduct' : ActorMethod<[string], undefined>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'setStripeConfiguration' : ActorMethod<[StripeConfiguration], undefined>,
+  'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
+  'updateOrderStatus' : ActorMethod<[bigint, OrderStatus], undefined>,
+  'updateProduct' : ActorMethod<[Product], undefined>,
+}
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];
 export declare const idlFactory: IDL.InterfaceFactory;

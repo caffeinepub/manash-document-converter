@@ -1,32 +1,95 @@
-import { Toaster } from "@/components/ui/sonner";
-import { useState } from "react";
-import { FeaturesSection } from "./components/FeaturesSection";
-import { Footer } from "./components/Footer";
+import { useEffect, useState } from "react";
 import { Header } from "./components/Header";
-import { HeroSection } from "./components/HeroSection";
-import { PopularConversions } from "./components/PopularConversions";
-import type { FileFormat } from "./utils/converter";
+import { Toaster } from "./components/ui/sonner";
+import { AccountPage } from "./pages/AccountPage";
+import { AdminPage } from "./pages/AdminPage";
+import { AiChatPage } from "./pages/AiChatPage";
+import { AuthPage } from "./pages/AuthPage";
+import { CartPage } from "./pages/CartPage";
+import { CheckoutPage } from "./pages/CheckoutPage";
+import { ContactUsPage } from "./pages/ContactUsPage";
+import { ConverterPage } from "./pages/ConverterPage";
+import { GovDocumentsPage } from "./pages/GovDocumentsPage";
+import { HomePage } from "./pages/HomePage";
+import { ImageToolsPage } from "./pages/ImageToolsPage";
+import { JobUpdatesPage } from "./pages/JobUpdatesPage";
+import { ProductDetailPage } from "./pages/ProductDetailPage";
+import { ProductsPage } from "./pages/ProductsPage";
+import type { CartItem } from "./types";
+
+export type Page =
+  | "home"
+  | "shop"
+  | "cart"
+  | "checkout"
+  | "auth"
+  | "account"
+  | "admin"
+  | "product"
+  | "converter"
+  | "image-tools"
+  | "job-updates"
+  | "gov-documents"
+  | "contact-us"
+  | "ai-chat";
 
 export default function App() {
-  const [presetFrom, setPresetFrom] = useState<FileFormat | undefined>(
-    undefined,
+  const [page, setPage] = useState<Page>("home");
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null,
   );
-  const [presetTo, setPresetTo] = useState<FileFormat | undefined>(undefined);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("cart") || "[]");
+    } catch {
+      return [];
+    }
+  });
 
-  const handleSelectConversion = (from: FileFormat, to: FileFormat) => {
-    setPresetFrom(from);
-    setPresetTo(to);
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
+  const navigate = (p: Page, extra?: { productId?: string }) => {
+    setPage(p);
+    if (extra?.productId) setSelectedProductId(extra.productId);
+    window.scrollTo(0, 0);
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        <HeroSection presetFrom={presetFrom} presetTo={presetTo} />
-        <PopularConversions onSelect={handleSelectConversion} />
-        <FeaturesSection />
-      </main>
-      <Footer />
+    <div className="min-h-screen bg-white">
+      <Header
+        page={page}
+        navigate={navigate}
+        cartCount={cart.reduce((s, i) => s + i.qty, 0)}
+      />
+      {page === "home" && <HomePage navigate={navigate} />}
+      {page === "shop" && (
+        <ProductsPage navigate={navigate} cart={cart} setCart={setCart} />
+      )}
+      {page === "product" && selectedProductId && (
+        <ProductDetailPage
+          productId={selectedProductId}
+          navigate={navigate}
+          cart={cart}
+          setCart={setCart}
+        />
+      )}
+      {page === "cart" && (
+        <CartPage navigate={navigate} cart={cart} setCart={setCart} />
+      )}
+      {page === "checkout" && (
+        <CheckoutPage navigate={navigate} cart={cart} setCart={setCart} />
+      )}
+      {page === "auth" && <AuthPage navigate={navigate} />}
+      {page === "account" && <AccountPage navigate={navigate} />}
+      {page === "admin" && <AdminPage navigate={navigate} />}
+      {page === "converter" && <ConverterPage />}
+      {page === "image-tools" && <ImageToolsPage navigate={navigate} />}
+      {page === "job-updates" && <JobUpdatesPage />}
+      {page === "gov-documents" && <GovDocumentsPage />}
+      {page === "contact-us" && <ContactUsPage />}
+      {page === "ai-chat" && <AiChatPage />}
       <Toaster />
     </div>
   );
