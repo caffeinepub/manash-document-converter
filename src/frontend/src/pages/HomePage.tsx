@@ -9,6 +9,7 @@ import {
   Sparkles,
   Star,
   Wand2,
+  X,
   Zap,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -32,6 +33,12 @@ function getAndIncrementVisits(): number {
   return next;
 }
 
+function shouldShowTribute(): boolean {
+  const last = localStorage.getItem("tributeShownDate");
+  const today = new Date().toDateString();
+  return last !== today;
+}
+
 export function HomePage({ navigate }: Props) {
   const products = getProducts();
   const featured = products.slice(0, 4);
@@ -41,6 +48,9 @@ export function HomePage({ navigate }: Props) {
   const [onlineNow, setOnlineNow] = useState(
     () => Math.floor(Math.random() * 28) + 8,
   );
+
+  // Tribute popup state
+  const [showTribute, setShowTribute] = useState(false);
 
   // InView hooks for scroll-triggered sections
   const { ref: categoriesRef, inView: categoriesInView } = useInView();
@@ -61,6 +71,29 @@ export function HomePage({ navigate }: Props) {
     }, 12000);
     return () => clearInterval(id);
   }, []);
+
+  // Show tribute popup after short delay, once per day
+  useEffect(() => {
+    if (shouldShowTribute()) {
+      const timer = setTimeout(() => setShowTribute(true), 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // Escape key handler
+  useEffect(() => {
+    if (!showTribute) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeTribute();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [showTribute]);
+
+  function closeTribute() {
+    setShowTribute(false);
+    localStorage.setItem("tributeShownDate", new Date().toDateString());
+  }
 
   // Chat Widget State
   type ChatMode = "chat" | "image";
@@ -155,6 +188,116 @@ export function HomePage({ navigate }: Props) {
 
   return (
     <div className="bg-white">
+      {/* ===================== TRIBUTE POPUP ===================== */}
+      {showTribute && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+          style={{ background: "rgba(0,0,0,0.85)" }}
+          data-ocid="tribute.modal"
+        >
+          <div
+            className="relative max-w-sm w-full rounded-2xl overflow-hidden"
+            style={{
+              background: "linear-gradient(160deg, #0d0d0d 0%, #1a1a1a 100%)",
+              boxShadow:
+                "0 0 60px rgba(255,215,100,0.18), 0 0 0 1px rgba(255,215,100,0.25)",
+              animation: "tributeIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both",
+            }}
+          >
+            {/* Gold top bar */}
+            <div
+              style={{
+                height: "3px",
+                background:
+                  "linear-gradient(90deg, transparent, #f5c842, #fff8dc, #f5c842, transparent)",
+              }}
+            />
+
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={closeTribute}
+              className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+              style={{ background: "rgba(255,255,255,0.08)" }}
+              data-ocid="tribute.close_button"
+            >
+              <X size={16} className="text-white/70" />
+            </button>
+
+            {/* Candle / header icon area */}
+            <div className="pt-8 pb-4 px-6 text-center">
+              <div className="text-3xl mb-1" aria-hidden="true">
+                🕯️
+              </div>
+              <p
+                className="text-xs tracking-[0.3em] uppercase font-semibold mb-1"
+                style={{ color: "#f5c842" }}
+              >
+                REST IN PEACE
+              </p>
+            </div>
+
+            {/* Photo */}
+            <div className="px-6">
+              <div
+                className="rounded-xl overflow-hidden"
+                style={{
+                  boxShadow: "0 0 24px rgba(245,200,66,0.25)",
+                  border: "1px solid rgba(245,200,66,0.3)",
+                }}
+              >
+                <img
+                  src="/assets/snapinsta.to_553129600_18324633577233129_2006804391735675249_n-019d443a-cd58-7251-8311-e1824608e229.jpg"
+                  alt="Zubeen Daa"
+                  className="w-full object-cover"
+                  style={{ maxHeight: "340px", objectPosition: "top" }}
+                />
+              </div>
+            </div>
+
+            {/* Title & tagline */}
+            <div className="px-6 pt-5 pb-3 text-center">
+              <h2
+                className="text-2xl font-extrabold tracking-wide text-white mb-1"
+                style={{ textShadow: "0 0 18px rgba(245,200,66,0.5)" }}
+              >
+                Tribute to Zubeen Daa
+              </h2>
+              <p className="text-sm text-white/50 leading-relaxed">
+                A legendary voice, a timeless soul.
+              </p>
+            </div>
+
+            {/* Bottom gold bar */}
+            <div
+              className="mx-6 mb-6 mt-3 h-px"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent, rgba(245,200,66,0.4), transparent)",
+              }}
+            />
+            <div className="pb-6 text-center">
+              <button
+                type="button"
+                onClick={closeTribute}
+                className="text-xs text-white/40 hover:text-white/70 transition-colors tracking-widest uppercase"
+                data-ocid="tribute.cancel_button"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+
+          <style>{`
+            @keyframes tributeIn {
+              from { opacity: 0; transform: scale(0.82) translateY(24px); }
+              to   { opacity: 1; transform: scale(1) translateY(0); }
+            }
+          `}</style>
+        </div>
+      )}
+      {/* ================== END TRIBUTE POPUP ================== */}
+
       {/* Hero Banner */}
       <section className="w-full overflow-hidden">
         <img
