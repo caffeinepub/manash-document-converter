@@ -207,3 +207,259 @@ export function getAdminConfig(): AdminConfig {
     return {} as AdminConfig;
   }
 }
+
+// ─── Job Updates Types ───────────────────────────────────────────────────────
+
+export interface Job {
+  id: string;
+  title: string;
+  org: string;
+  category: string;
+  posts: string;
+  lastDate: string;
+  status: "Active" | "Result" | "Exam" | "Closed";
+  type: string;
+  description: string;
+  applyLink: string;
+}
+
+export interface AdmitCard {
+  id: string;
+  title: string;
+  date: string;
+  link: string;
+}
+
+export interface JobResult {
+  id: string;
+  title: string;
+  date: string;
+  link: string;
+}
+
+export const SEED_JOBS: Job[] = [
+  {
+    id: "j1",
+    title: "SSC CGL 2024 Recruitment",
+    org: "Staff Selection Commission",
+    category: "SSC",
+    posts: "17727 Posts",
+    lastDate: "31 Jul 2025",
+    status: "Active",
+    type: "Central Govt",
+    description:
+      "Combined Graduate Level Examination 2024. Graduate pass candidates can apply online.",
+    applyLink: "https://ssc.gov.in",
+  },
+  {
+    id: "j2",
+    title: "RRB NTPC 2025 Recruitment",
+    org: "Railway Recruitment Board",
+    category: "Railway",
+    posts: "11558 Posts",
+    lastDate: "15 Aug 2025",
+    status: "Active",
+    type: "Central Govt",
+    description:
+      "Non-Technical Popular Categories recruitment for various railway zones across India.",
+    applyLink: "https://indianrailways.gov.in",
+  },
+  {
+    id: "j3",
+    title: "IBPS PO 2025",
+    org: "IBPS – Institute of Banking Personnel Selection",
+    category: "Banking",
+    posts: "4455 Posts",
+    lastDate: "10 Aug 2025",
+    status: "Active",
+    type: "Banking Sector",
+    description:
+      "Probationary Officer recruitment for participating public sector banks.",
+    applyLink: "https://ibps.in",
+  },
+  {
+    id: "j4",
+    title: "UP Police Constable 2025",
+    org: "Uttar Pradesh Police Recruitment Board",
+    category: "Police",
+    posts: "60244 Posts",
+    lastDate: "20 Jul 2025",
+    status: "Active",
+    type: "State Govt",
+    description:
+      "Constable Civil Police and PAC recruitment for Uttar Pradesh Police Department.",
+    applyLink: "https://uppbpb.gov.in",
+  },
+  {
+    id: "j5",
+    title: "CTET July 2025",
+    org: "Central Board of Secondary Education",
+    category: "Teaching",
+    posts: "Open",
+    lastDate: "25 Jul 2025",
+    status: "Active",
+    type: "Central Govt",
+    description:
+      "Central Teacher Eligibility Test for Paper I (Class I-V) and Paper II (Class VI-VIII).",
+    applyLink: "https://ctet.nic.in",
+  },
+  {
+    id: "j6",
+    title: "NDA & NA Exam II 2025",
+    org: "Union Public Service Commission",
+    category: "Defence",
+    posts: "404 Posts",
+    lastDate: "22 Jul 2025",
+    status: "Active",
+    type: "Central Govt",
+    description:
+      "National Defence Academy and Naval Academy Examination for Army, Navy and Air Force.",
+    applyLink: "https://upsc.gov.in",
+  },
+  {
+    id: "j7",
+    title: "BPSC 70th CCE 2025",
+    org: "Bihar Public Service Commission",
+    category: "State PSC",
+    posts: "1929 Posts",
+    lastDate: "05 Aug 2025",
+    status: "Active",
+    type: "State Govt",
+    description:
+      "Bihar 70th Combined Competitive Examination for various Group A & B posts.",
+    applyLink: "https://bpsc.bih.nic.in",
+  },
+  {
+    id: "j8",
+    title: "RRB Group D 2025",
+    org: "Railway Recruitment Board",
+    category: "Railway",
+    posts: "32438 Posts",
+    lastDate: "28 Jul 2025",
+    status: "Active",
+    type: "Central Govt",
+    description:
+      "Level-1 posts recruitment in various departments of Indian Railways.",
+    applyLink: "https://indianrailways.gov.in",
+  },
+  {
+    id: "j9",
+    title: "SBI Clerk 2025 Junior Associate",
+    org: "State Bank of India",
+    category: "Banking",
+    posts: "13735 Posts",
+    lastDate: "18 Aug 2025",
+    status: "Active",
+    type: "Banking Sector",
+    description:
+      "Junior Associates (Customer Support & Sales) recruitment for SBI branches across India.",
+    applyLink: "https://sbi.co.in",
+  },
+  {
+    id: "j10",
+    title: "UPSC Civil Services 2025",
+    org: "Union Public Service Commission",
+    category: "Govt Jobs",
+    posts: "979 Posts",
+    lastDate: "Closed – Result Awaited",
+    status: "Result",
+    type: "Central Govt",
+    description:
+      "IAS, IPS, IFS and allied services. Prelims held, Mains result awaited.",
+    applyLink: "https://upsc.gov.in",
+  },
+  {
+    id: "j11",
+    title: "MP Police Constable 2025",
+    org: "Madhya Pradesh Police Recruitment Board",
+    category: "Police",
+    posts: "7090 Posts",
+    lastDate: "Closed – Exam Soon",
+    status: "Exam",
+    type: "State Govt",
+    description:
+      "MP Police Constable GD & Radio recruitment. Admit card available for download.",
+    applyLink: "https://peb.mp.gov.in",
+  },
+  {
+    id: "j12",
+    title: "SSC MTS 2025",
+    org: "Staff Selection Commission",
+    category: "SSC",
+    posts: "Open",
+    lastDate: "12 Aug 2025",
+    status: "Active",
+    type: "Central Govt",
+    description:
+      "Multi-Tasking (Non-Technical) Staff & Havaldar (CBIC & CBN) Exam 2025.",
+    applyLink: "https://ssc.gov.in",
+  },
+];
+
+export const SEED_ADMIT_CARDS: AdmitCard[] = [
+  {
+    id: "ac1",
+    title: "SSC CPO SI 2024 Admit Card",
+    date: "Out Now",
+    link: "#",
+  },
+  { id: "ac2", title: "RRB ALP 2024 Admit Card", date: "Out Now", link: "#" },
+  {
+    id: "ac3",
+    title: "IBPS Clerk 2024 Admit Card",
+    date: "Out Now",
+    link: "#",
+  },
+  {
+    id: "ac4",
+    title: "UP Police 2024 Admit Card",
+    date: "Expected Soon",
+    link: "#",
+  },
+];
+
+export const SEED_RESULTS: JobResult[] = [
+  { id: "r1", title: "SSC CHSL 2024 Result", date: "Declared", link: "#" },
+  { id: "r2", title: "UPSC NDA I 2025 Result", date: "Declared", link: "#" },
+  { id: "r3", title: "SBI PO 2024 Final Result", date: "Declared", link: "#" },
+  { id: "r4", title: "RRB NTPC 2024 Result", date: "Expected June", link: "#" },
+];
+
+export function getJobs(): Job[] {
+  try {
+    const stored = localStorage.getItem("jobs");
+    if (stored) return JSON.parse(stored);
+  } catch {}
+  localStorage.setItem("jobs", JSON.stringify(SEED_JOBS));
+  return SEED_JOBS;
+}
+
+export function saveJobs(jobs: Job[]) {
+  localStorage.setItem("jobs", JSON.stringify(jobs));
+}
+
+export function getAdmitCards(): AdmitCard[] {
+  try {
+    const stored = localStorage.getItem("admitCards");
+    if (stored) return JSON.parse(stored);
+  } catch {}
+  localStorage.setItem("admitCards", JSON.stringify(SEED_ADMIT_CARDS));
+  return SEED_ADMIT_CARDS;
+}
+
+export function saveAdmitCards(cards: AdmitCard[]) {
+  localStorage.setItem("admitCards", JSON.stringify(cards));
+}
+
+export function getResults(): JobResult[] {
+  try {
+    const stored = localStorage.getItem("jobResults");
+    if (stored) return JSON.parse(stored);
+  } catch {}
+  localStorage.setItem("jobResults", JSON.stringify(SEED_RESULTS));
+  return SEED_RESULTS;
+}
+
+export function saveResults(results: JobResult[]) {
+  localStorage.setItem("jobResults", JSON.stringify(results));
+}

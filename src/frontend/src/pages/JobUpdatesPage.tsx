@@ -10,13 +10,19 @@ import {
   GraduationCap,
   Search,
 } from "lucide-react";
-import { useRef } from "react";
 import { useState } from "react";
 import AdBanner from "../components/AdBanner";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { useInView } from "../hooks/useInView";
+import {
+  type AdmitCard,
+  type Job,
+  type JobResult,
+  getAdmitCards,
+  getJobs,
+  getResults,
+} from "../types";
 
 const JOB_CATEGORIES = [
   "All",
@@ -30,179 +36,6 @@ const JOB_CATEGORIES = [
   "State PSC",
 ];
 
-const JOBS = [
-  {
-    id: 1,
-    title: "SSC CGL 2024 Recruitment",
-    org: "Staff Selection Commission",
-    category: "SSC",
-    posts: "17727 Posts",
-    lastDate: "31 Jul 2025",
-    status: "Active",
-    type: "Central Govt",
-    description:
-      "Combined Graduate Level Examination 2024. Graduate pass candidates can apply online.",
-    applyLink: "https://ssc.gov.in",
-  },
-  {
-    id: 2,
-    title: "RRB NTPC 2025 Recruitment",
-    org: "Railway Recruitment Board",
-    category: "Railway",
-    posts: "11558 Posts",
-    lastDate: "15 Aug 2025",
-    status: "Active",
-    type: "Central Govt",
-    description:
-      "Non-Technical Popular Categories recruitment for various railway zones across India.",
-    applyLink: "https://indianrailways.gov.in",
-  },
-  {
-    id: 3,
-    title: "IBPS PO 2025",
-    org: "IBPS – Institute of Banking Personnel Selection",
-    category: "Banking",
-    posts: "4455 Posts",
-    lastDate: "10 Aug 2025",
-    status: "Active",
-    type: "Banking Sector",
-    description:
-      "Probationary Officer recruitment for participating public sector banks.",
-    applyLink: "https://ibps.in",
-  },
-  {
-    id: 4,
-    title: "UP Police Constable 2025",
-    org: "Uttar Pradesh Police Recruitment Board",
-    category: "Police",
-    posts: "60244 Posts",
-    lastDate: "20 Jul 2025",
-    status: "Active",
-    type: "State Govt",
-    description:
-      "Constable Civil Police and PAC recruitment for Uttar Pradesh Police Department.",
-    applyLink: "https://uppbpb.gov.in",
-  },
-  {
-    id: 5,
-    title: "CTET July 2025",
-    org: "Central Board of Secondary Education",
-    category: "Teaching",
-    posts: "Open",
-    lastDate: "25 Jul 2025",
-    status: "Active",
-    type: "Central Govt",
-    description:
-      "Central Teacher Eligibility Test for Paper I (Class I-V) and Paper II (Class VI-VIII).",
-    applyLink: "https://ctet.nic.in",
-  },
-  {
-    id: 6,
-    title: "NDA & NA Exam II 2025",
-    org: "Union Public Service Commission",
-    category: "Defence",
-    posts: "404 Posts",
-    lastDate: "22 Jul 2025",
-    status: "Active",
-    type: "Central Govt",
-    description:
-      "National Defence Academy and Naval Academy Examination for Army, Navy and Air Force.",
-    applyLink: "https://upsc.gov.in",
-  },
-  {
-    id: 7,
-    title: "BPSC 70th CCE 2025",
-    org: "Bihar Public Service Commission",
-    category: "State PSC",
-    posts: "1929 Posts",
-    lastDate: "05 Aug 2025",
-    status: "Active",
-    type: "State Govt",
-    description:
-      "Bihar 70th Combined Competitive Examination for various Group A & B posts.",
-    applyLink: "https://bpsc.bih.nic.in",
-  },
-  {
-    id: 8,
-    title: "RRB Group D 2025",
-    org: "Railway Recruitment Board",
-    category: "Railway",
-    posts: "32438 Posts",
-    lastDate: "28 Jul 2025",
-    status: "Active",
-    type: "Central Govt",
-    description:
-      "Level-1 posts recruitment in various departments of Indian Railways.",
-    applyLink: "https://indianrailways.gov.in",
-  },
-  {
-    id: 9,
-    title: "SBI Clerk 2025 Junior Associate",
-    org: "State Bank of India",
-    category: "Banking",
-    posts: "13735 Posts",
-    lastDate: "18 Aug 2025",
-    status: "Active",
-    type: "Banking Sector",
-    description:
-      "Junior Associates (Customer Support & Sales) recruitment for SBI branches across India.",
-    applyLink: "https://sbi.co.in",
-  },
-  {
-    id: 10,
-    title: "UPSC Civil Services 2025",
-    org: "Union Public Service Commission",
-    category: "Govt Jobs",
-    posts: "979 Posts",
-    lastDate: "Closed – Result Awaited",
-    status: "Result",
-    type: "Central Govt",
-    description:
-      "IAS, IPS, IFS and allied services. Prelims held, Mains result awaited.",
-    applyLink: "https://upsc.gov.in",
-  },
-  {
-    id: 11,
-    title: "MP Police Constable 2025",
-    org: "Madhya Pradesh Police Recruitment Board",
-    category: "Police",
-    posts: "7090 Posts",
-    lastDate: "Closed – Exam Soon",
-    status: "Exam",
-    type: "State Govt",
-    description:
-      "MP Police Constable GD & Radio recruitment. Admit card available for download.",
-    applyLink: "https://peb.mp.gov.in",
-  },
-  {
-    id: 12,
-    title: "SSC MTS 2025",
-    org: "Staff Selection Commission",
-    category: "SSC",
-    posts: "Open",
-    lastDate: "12 Aug 2025",
-    status: "Active",
-    type: "Central Govt",
-    description:
-      "Multi-Tasking (Non-Technical) Staff & Havaldar (CBIC & CBN) Exam 2025.",
-    applyLink: "https://ssc.gov.in",
-  },
-];
-
-const ADMIT_CARDS = [
-  { title: "SSC CPO SI 2024 Admit Card", date: "Out Now", link: "#" },
-  { title: "RRB ALP 2024 Admit Card", date: "Out Now", link: "#" },
-  { title: "IBPS Clerk 2024 Admit Card", date: "Out Now", link: "#" },
-  { title: "UP Police 2024 Admit Card", date: "Expected Soon", link: "#" },
-];
-
-const RESULTS = [
-  { title: "SSC CHSL 2024 Result", date: "Declared", link: "#" },
-  { title: "UPSC NDA I 2025 Result", date: "Declared", link: "#" },
-  { title: "SBI PO 2024 Final Result", date: "Declared", link: "#" },
-  { title: "RRB NTPC 2024 Result", date: "Expected June", link: "#" },
-];
-
 const statusColor = (s: string) => {
   if (s === "Active") return "bg-green-100 text-green-700 border-green-200";
   if (s === "Result") return "bg-blue-100 text-blue-700 border-blue-200";
@@ -211,10 +44,13 @@ const statusColor = (s: string) => {
 };
 
 export function JobUpdatesPage() {
+  const [jobs] = useState<Job[]>(() => getJobs());
+  const [admitCards] = useState<AdmitCard[]>(() => getAdmitCards());
+  const [results] = useState<JobResult[]>(() => getResults());
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
 
-  const filtered = JOBS.filter((j) => {
+  const filtered = jobs.filter((j) => {
     const matchCat = activeCategory === "All" || j.category === activeCategory;
     const matchSearch =
       !search ||
@@ -362,8 +198,8 @@ export function JobUpdatesPage() {
               <span className="font-semibold text-sm">Admit Cards</span>
             </div>
             <ul className="divide-y divide-gray-100">
-              {ADMIT_CARDS.map((item) => (
-                <li key={item.title}>
+              {admitCards.map((item) => (
+                <li key={item.id}>
                   <a
                     href={item.link}
                     className="flex items-center justify-between px-4 py-3 hover:bg-blue-50 transition-colors group"
@@ -393,8 +229,8 @@ export function JobUpdatesPage() {
               <span className="font-semibold text-sm">Results</span>
             </div>
             <ul className="divide-y divide-gray-100">
-              {RESULTS.map((item) => (
-                <li key={item.title}>
+              {results.map((item) => (
+                <li key={item.id}>
                   <a
                     href={item.link}
                     className="flex items-center justify-between px-4 py-3 hover:bg-blue-50 transition-colors group"

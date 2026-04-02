@@ -1,4 +1,4 @@
-import { Edit, Plus, Save, Trash2 } from "lucide-react";
+import { Briefcase, Edit, Plus, Save, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { Page } from "../App";
@@ -11,25 +11,46 @@ import {
 } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
 import {
   type AdminConfig,
+  type AdmitCard,
+  type Job,
+  type JobResult,
   type Order,
   type Product,
   getAdminConfig,
+  getAdmitCards,
+  getJobs,
   getOrders,
   getProducts,
+  getResults,
+  saveAdmitCards,
+  saveJobs,
   saveOrders,
   saveProducts,
+  saveResults,
 } from "../types";
 
 interface Props {
   navigate: (p: Page) => void;
 }
 
-type Tab = "dashboard" | "products" | "orders" | "settings";
+type Tab = "dashboard" | "products" | "orders" | "settings" | "job-updates";
 
 const ADMIN_EMAIL = "admin@nextgenit.com";
 const ADMIN_PASSWORD = "Admin@123";
+
+const JOB_CATEGORIES_LIST = [
+  "Govt Jobs",
+  "Railway",
+  "Banking",
+  "SSC",
+  "Police",
+  "Teaching",
+  "Defence",
+  "State PSC",
+];
 
 export function AdminPage({ navigate }: Props) {
   const [authed, setAuthed] = useState(() => {
@@ -49,10 +70,26 @@ export function AdminPage({ navigate }: Props) {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [config, setConfig] = useState<AdminConfig>(() => getAdminConfig());
 
+  // Job Updates state
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [admitCards, setAdmitCards] = useState<AdmitCard[]>([]);
+  const [jobResults, setJobResults] = useState<JobResult[]>([]);
+  const [jobDialogOpen, setJobDialogOpen] = useState(false);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [admitCardDialogOpen, setAdmitCardDialogOpen] = useState(false);
+  const [editingAdmitCard, setEditingAdmitCard] = useState<AdmitCard | null>(
+    null,
+  );
+  const [resultDialogOpen, setResultDialogOpen] = useState(false);
+  const [editingResult, setEditingResult] = useState<JobResult | null>(null);
+
   useEffect(() => {
     if (authed) {
       setProducts(getProducts());
       setOrders(getOrders());
+      setJobs(getJobs());
+      setAdmitCards(getAdmitCards());
+      setJobResults(getResults());
     }
   }, [authed]);
 
@@ -96,6 +133,33 @@ export function AdminPage({ navigate }: Props) {
     toast.success("Settings saved!");
   };
 
+  // Job CRUD
+  const deleteJob = (id: string) => {
+    if (!confirm("Delete this job listing?")) return;
+    const updated = jobs.filter((j) => j.id !== id);
+    setJobs(updated);
+    saveJobs(updated);
+    toast.success("Job deleted");
+  };
+
+  // Admit Card CRUD
+  const deleteAdmitCard = (id: string) => {
+    if (!confirm("Delete this admit card?")) return;
+    const updated = admitCards.filter((c) => c.id !== id);
+    setAdmitCards(updated);
+    saveAdmitCards(updated);
+    toast.success("Admit card deleted");
+  };
+
+  // Result CRUD
+  const deleteResult = (id: string) => {
+    if (!confirm("Delete this result?")) return;
+    const updated = jobResults.filter((r) => r.id !== id);
+    setJobResults(updated);
+    saveResults(updated);
+    toast.success("Result deleted");
+  };
+
   if (!authed) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center bg-[#F3F5F8] px-4">
@@ -118,6 +182,7 @@ export function AdminPage({ navigate }: Props) {
                 onChange={(e) => setLoginEmail(e.target.value)}
                 className="mt-1"
                 onKeyDown={(e) => e.key === "Enter" && login()}
+                data-ocid="admin.input"
               />
             </div>
             <div>
@@ -129,11 +194,13 @@ export function AdminPage({ navigate }: Props) {
                 onChange={(e) => setLoginPass(e.target.value)}
                 className="mt-1"
                 onKeyDown={(e) => e.key === "Enter" && login()}
+                data-ocid="admin.input"
               />
             </div>
             <Button
               onClick={login}
               className="w-full bg-[#0B2A4A] hover:bg-[#1E88FF] text-white py-3 rounded-lg font-semibold"
+              data-ocid="admin.submit_button"
             >
               Login to Admin Panel
             </Button>
@@ -169,6 +236,7 @@ export function AdminPage({ navigate }: Props) {
               onClick={logout}
               variant="ghost"
               className="text-red-300 hover:text-red-100 text-sm"
+              data-ocid="admin.secondary_button"
             >
               Logout
             </Button>
@@ -177,24 +245,32 @@ export function AdminPage({ navigate }: Props) {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-gray-200 px-6">
-        <div className="max-w-7xl mx-auto flex gap-1">
-          {(["dashboard", "products", "orders", "settings"] as Tab[]).map(
-            (t) => (
-              <button
-                type="button"
-                key={t}
-                onClick={() => setTab(t)}
-                className={`px-5 py-4 text-sm font-semibold capitalize border-b-2 transition-colors ${
-                  tab === t
-                    ? "border-[#1E88FF] text-[#0B2A4A]"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                {t}
-              </button>
-            ),
-          )}
+      <div className="bg-white border-b border-gray-200 px-6 overflow-x-auto">
+        <div className="max-w-7xl mx-auto flex gap-1 min-w-max">
+          {(
+            [
+              "dashboard",
+              "products",
+              "orders",
+              "settings",
+              "job-updates",
+            ] as Tab[]
+          ).map((t) => (
+            <button
+              type="button"
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-4 py-4 text-sm font-semibold capitalize border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap ${
+                tab === t
+                  ? "border-[#1E88FF] text-[#0B2A4A]"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+              data-ocid={`admin.${t}.tab`}
+            >
+              {t === "job-updates" && <Briefcase size={14} />}
+              {t === "job-updates" ? "Job Updates" : t}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -253,6 +329,7 @@ export function AdminPage({ navigate }: Props) {
                   setProductDialogOpen(true);
                 }}
                 className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+                data-ocid="products.open_modal_button"
               >
                 <Plus size={16} className="mr-2" /> Add Product
               </Button>
@@ -464,10 +541,289 @@ export function AdminPage({ navigate }: Props) {
               <Button
                 onClick={saveConfig}
                 className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white w-full rounded-lg py-3"
+                data-ocid="settings.save_button"
               >
                 <Save size={16} className="mr-2" /> Save Settings
               </Button>
             </div>
+          </div>
+        )}
+
+        {/* Job Updates */}
+        {tab === "job-updates" && (
+          <div className="space-y-8">
+            <h2 className="text-xl font-bold text-[#0B2A4A]">
+              Job Updates Management
+            </h2>
+
+            {/* ── Job Listings ── */}
+            <section>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-base font-bold text-[#0B2A4A] flex items-center gap-2">
+                  <Briefcase size={16} className="text-[#1E88FF]" />
+                  Job Listings ({jobs.length})
+                </h3>
+                <Button
+                  onClick={() => {
+                    setEditingJob(null);
+                    setJobDialogOpen(true);
+                  }}
+                  className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white text-xs px-3 py-1.5 h-auto"
+                  data-ocid="jobs.open_modal_button"
+                >
+                  <Plus size={14} className="mr-1" /> Add Job
+                </Button>
+              </div>
+              <div className="bg-white rounded-xl shadow overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm min-w-[640px]">
+                    <thead className="bg-gray-50 border-b">
+                      <tr>
+                        <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                          Title
+                        </th>
+                        <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                          Category
+                        </th>
+                        <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                          Posts
+                        </th>
+                        <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                          Last Date
+                        </th>
+                        <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                          Status
+                        </th>
+                        <th className="px-4 py-3" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {jobs.map((job, idx) => (
+                        <tr
+                          key={job.id}
+                          className="border-b hover:bg-gray-50"
+                          data-ocid={`jobs.row.item.${idx + 1}`}
+                        >
+                          <td className="px-4 py-3">
+                            <div className="font-medium text-[#0B2A4A] text-xs leading-tight">
+                              {job.title}
+                            </div>
+                            <div className="text-gray-400 text-[10px]">
+                              {job.org}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-gray-500 text-xs">
+                            {job.category}
+                          </td>
+                          <td className="px-4 py-3 text-gray-500 text-xs">
+                            {job.posts}
+                          </td>
+                          <td className="px-4 py-3 text-gray-500 text-xs">
+                            {job.lastDate}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${
+                                job.status === "Active"
+                                  ? "bg-green-100 text-green-700 border-green-200"
+                                  : job.status === "Result"
+                                    ? "bg-blue-100 text-blue-700 border-blue-200"
+                                    : job.status === "Exam"
+                                      ? "bg-orange-100 text-orange-700 border-orange-200"
+                                      : "bg-gray-100 text-gray-600 border-gray-200"
+                              }`}
+                            >
+                              {job.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex gap-1 justify-end">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingJob(job);
+                                  setJobDialogOpen(true);
+                                }}
+                                className="text-blue-500 hover:text-blue-700 p-1"
+                                data-ocid={`jobs.edit_button.${idx + 1}`}
+                              >
+                                <Edit size={14} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => deleteJob(job.id)}
+                                className="text-red-400 hover:text-red-600 p-1"
+                                data-ocid={`jobs.delete_button.${idx + 1}`}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+
+            {/* ── Admit Cards ── */}
+            <section>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-base font-bold text-[#0B2A4A]">
+                  Admit Cards ({admitCards.length})
+                </h3>
+                <Button
+                  onClick={() => {
+                    setEditingAdmitCard(null);
+                    setAdmitCardDialogOpen(true);
+                  }}
+                  className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white text-xs px-3 py-1.5 h-auto"
+                  data-ocid="admitcards.open_modal_button"
+                >
+                  <Plus size={14} className="mr-1" /> Add Admit Card
+                </Button>
+              </div>
+              <div className="bg-white rounded-xl shadow overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b">
+                    <tr>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                        Title
+                      </th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                        Date/Status
+                      </th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                        Link
+                      </th>
+                      <th className="px-4 py-3" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {admitCards.map((card, idx) => (
+                      <tr
+                        key={card.id}
+                        className="border-b hover:bg-gray-50"
+                        data-ocid={`admitcards.row.item.${idx + 1}`}
+                      >
+                        <td className="px-4 py-3 font-medium text-[#0B2A4A] text-sm">
+                          {card.title}
+                        </td>
+                        <td className="px-4 py-3 text-green-600 text-sm font-semibold">
+                          {card.date}
+                        </td>
+                        <td className="px-4 py-3 text-blue-500 text-xs truncate max-w-[120px]">
+                          {card.link}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-1 justify-end">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingAdmitCard(card);
+                                setAdmitCardDialogOpen(true);
+                              }}
+                              className="text-blue-500 hover:text-blue-700 p-1"
+                              data-ocid={`admitcards.edit_button.${idx + 1}`}
+                            >
+                              <Edit size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteAdmitCard(card.id)}
+                              className="text-red-400 hover:text-red-600 p-1"
+                              data-ocid={`admitcards.delete_button.${idx + 1}`}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* ── Results ── */}
+            <section>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-base font-bold text-[#0B2A4A]">
+                  Results ({jobResults.length})
+                </h3>
+                <Button
+                  onClick={() => {
+                    setEditingResult(null);
+                    setResultDialogOpen(true);
+                  }}
+                  className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white text-xs px-3 py-1.5 h-auto"
+                  data-ocid="results.open_modal_button"
+                >
+                  <Plus size={14} className="mr-1" /> Add Result
+                </Button>
+              </div>
+              <div className="bg-white rounded-xl shadow overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b">
+                    <tr>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                        Title
+                      </th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                        Date/Status
+                      </th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                        Link
+                      </th>
+                      <th className="px-4 py-3" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {jobResults.map((result, idx) => (
+                      <tr
+                        key={result.id}
+                        className="border-b hover:bg-gray-50"
+                        data-ocid={`results.row.item.${idx + 1}`}
+                      >
+                        <td className="px-4 py-3 font-medium text-[#0B2A4A] text-sm">
+                          {result.title}
+                        </td>
+                        <td className="px-4 py-3 text-blue-600 text-sm font-semibold">
+                          {result.date}
+                        </td>
+                        <td className="px-4 py-3 text-blue-500 text-xs truncate max-w-[120px]">
+                          {result.link}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-1 justify-end">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingResult(result);
+                                setResultDialogOpen(true);
+                              }}
+                              className="text-blue-500 hover:text-blue-700 p-1"
+                              data-ocid={`results.edit_button.${idx + 1}`}
+                            >
+                              <Edit size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteResult(result.id)}
+                              className="text-red-400 hover:text-red-600 p-1"
+                              data-ocid={`results.delete_button.${idx + 1}`}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </div>
         )}
       </div>
@@ -490,9 +846,76 @@ export function AdminPage({ navigate }: Props) {
           toast.success(editingProduct ? "Product updated" : "Product added");
         }}
       />
+
+      {/* Job dialog */}
+      <JobDialog
+        open={jobDialogOpen}
+        onClose={() => setJobDialogOpen(false)}
+        job={editingJob}
+        onSave={(j) => {
+          let updated: Job[];
+          if (editingJob) {
+            updated = jobs.map((x) => (x.id === j.id ? j : x));
+          } else {
+            updated = [...jobs, j];
+          }
+          setJobs(updated);
+          saveJobs(updated);
+          setJobDialogOpen(false);
+          toast.success(editingJob ? "Job updated" : "Job added");
+        }}
+      />
+
+      {/* Admit Card dialog */}
+      <SimpleItemDialog
+        open={admitCardDialogOpen}
+        onClose={() => setAdmitCardDialogOpen(false)}
+        title={editingAdmitCard ? "Edit Admit Card" : "Add Admit Card"}
+        item={editingAdmitCard}
+        dateLabel="Date / Status"
+        datePlaceholder="e.g. Out Now, Expected Soon"
+        onSave={(item) => {
+          let updated: AdmitCard[];
+          if (editingAdmitCard) {
+            updated = admitCards.map((x) => (x.id === item.id ? item : x));
+          } else {
+            updated = [...admitCards, item];
+          }
+          setAdmitCards(updated);
+          saveAdmitCards(updated);
+          setAdmitCardDialogOpen(false);
+          toast.success(
+            editingAdmitCard ? "Admit card updated" : "Admit card added",
+          );
+        }}
+      />
+
+      {/* Result dialog */}
+      <SimpleItemDialog
+        open={resultDialogOpen}
+        onClose={() => setResultDialogOpen(false)}
+        title={editingResult ? "Edit Result" : "Add Result"}
+        item={editingResult}
+        dateLabel="Date / Status"
+        datePlaceholder="e.g. Declared, Expected June"
+        onSave={(item) => {
+          let updated: JobResult[];
+          if (editingResult) {
+            updated = jobResults.map((x) => (x.id === item.id ? item : x));
+          } else {
+            updated = [...jobResults, item];
+          }
+          setJobResults(updated);
+          saveResults(updated);
+          setResultDialogOpen(false);
+          toast.success(editingResult ? "Result updated" : "Result added");
+        }}
+      />
     </div>
   );
 }
+
+// ─── Product Dialog ───────────────────────────────────────────────────────────
 
 interface ProductDialogProps {
   open: boolean;
@@ -551,6 +974,7 @@ function ProductDialog({ open, onClose, product, onSave }: ProductDialogProps) {
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Product name"
               className="mt-1"
+              data-ocid="products.input"
             />
           </div>
           <div>
@@ -616,8 +1040,279 @@ function ProductDialog({ open, onClose, product, onSave }: ProductDialogProps) {
           <Button
             onClick={handleSave}
             className="w-full bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+            data-ocid="products.submit_button"
           >
             {product ? "Update Product" : "Add Product"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Job Dialog ───────────────────────────────────────────────────────────────
+
+interface JobDialogProps {
+  open: boolean;
+  onClose: () => void;
+  job: Job | null;
+  onSave: (j: Job) => void;
+}
+
+const BLANK_JOB: Job = {
+  id: "",
+  title: "",
+  org: "",
+  category: "Govt Jobs",
+  posts: "",
+  lastDate: "",
+  status: "Active",
+  type: "",
+  description: "",
+  applyLink: "",
+};
+
+function JobDialog({ open, onClose, job, onSave }: JobDialogProps) {
+  const [form, setForm] = useState<Job>(BLANK_JOB);
+
+  useEffect(() => {
+    setForm(job ? { ...job } : { ...BLANK_JOB });
+  }, [job]);
+
+  const handleSave = () => {
+    if (!form.title || !form.org) {
+      toast.error("Title and organisation are required");
+      return;
+    }
+    const finalId = form.id || `j_${Date.now()}`;
+    onSave({ ...form, id: finalId });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent
+        className="max-w-lg max-h-[90vh] overflow-y-auto"
+        data-ocid="jobs.dialog"
+      >
+        <DialogHeader>
+          <DialogTitle className="flex items-center justify-between">
+            {job ? "Edit Job" : "Add Job Listing"}
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <X size={18} />
+            </button>
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3 pt-2">
+          <div>
+            <Label>Job Title *</Label>
+            <Input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              placeholder="e.g. SSC CGL 2025 Recruitment"
+              className="mt-1"
+              data-ocid="jobs.input"
+            />
+          </div>
+          <div>
+            <Label>Organisation *</Label>
+            <Input
+              value={form.org}
+              onChange={(e) => setForm({ ...form, org: e.target.value })}
+              placeholder="e.g. Staff Selection Commission"
+              className="mt-1"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Category</Label>
+              <select
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                className="mt-1 w-full border border-input rounded-md px-3 py-2 text-sm bg-white"
+                data-ocid="jobs.select"
+              >
+                {JOB_CATEGORIES_LIST.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label>Status</Label>
+              <select
+                value={form.status}
+                onChange={(e) =>
+                  setForm({ ...form, status: e.target.value as Job["status"] })
+                }
+                className="mt-1 w-full border border-input rounded-md px-3 py-2 text-sm bg-white"
+              >
+                {(
+                  ["Active", "Result", "Exam", "Closed"] as Job["status"][]
+                ).map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>No. of Posts</Label>
+              <Input
+                value={form.posts}
+                onChange={(e) => setForm({ ...form, posts: e.target.value })}
+                placeholder="e.g. 1234 Posts"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label>Last Date</Label>
+              <Input
+                value={form.lastDate}
+                onChange={(e) => setForm({ ...form, lastDate: e.target.value })}
+                placeholder="e.g. 31 Jul 2025"
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <div>
+            <Label>Job Type</Label>
+            <Input
+              value={form.type}
+              onChange={(e) => setForm({ ...form, type: e.target.value })}
+              placeholder="e.g. Central Govt, State Govt, Banking Sector"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label>Description</Label>
+            <Textarea
+              value={form.description}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
+              placeholder="Brief description of the recruitment..."
+              className="mt-1 resize-none"
+              rows={3}
+            />
+          </div>
+          <div>
+            <Label>Apply Link</Label>
+            <Input
+              value={form.applyLink}
+              onChange={(e) => setForm({ ...form, applyLink: e.target.value })}
+              placeholder="https://ssc.gov.in"
+              className="mt-1"
+            />
+          </div>
+          <Button
+            onClick={handleSave}
+            className="w-full bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+            data-ocid="jobs.submit_button"
+          >
+            {job ? "Update Job" : "Add Job"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Simple Item Dialog (Admit Card / Result) ─────────────────────────────────
+
+interface SimpleItem {
+  id: string;
+  title: string;
+  date: string;
+  link: string;
+}
+
+interface SimpleItemDialogProps {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  item: SimpleItem | null;
+  dateLabel: string;
+  datePlaceholder: string;
+  onSave: (item: SimpleItem) => void;
+}
+
+function SimpleItemDialog({
+  open,
+  onClose,
+  title,
+  item,
+  dateLabel,
+  datePlaceholder,
+  onSave,
+}: SimpleItemDialogProps) {
+  const [form, setForm] = useState<SimpleItem>({
+    id: "",
+    title: "",
+    date: "",
+    link: "",
+  });
+
+  useEffect(() => {
+    setForm(item ? { ...item } : { id: "", title: "", date: "", link: "" });
+  }, [item]);
+
+  const handleSave = () => {
+    if (!form.title) {
+      toast.error("Title is required");
+      return;
+    }
+    const finalId = form.id || `item_${Date.now()}`;
+    onSave({ ...form, id: finalId });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md" data-ocid="admin.dialog">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3 pt-2">
+          <div>
+            <Label>Title *</Label>
+            <Input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              placeholder="e.g. SSC CHSL 2024 Result"
+              className="mt-1"
+              data-ocid="admin.input"
+            />
+          </div>
+          <div>
+            <Label>{dateLabel}</Label>
+            <Input
+              value={form.date}
+              onChange={(e) => setForm({ ...form, date: e.target.value })}
+              placeholder={datePlaceholder}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label>Link / URL</Label>
+            <Input
+              value={form.link}
+              onChange={(e) => setForm({ ...form, link: e.target.value })}
+              placeholder="https://... or #"
+              className="mt-1"
+            />
+          </div>
+          <Button
+            onClick={handleSave}
+            className="w-full bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+            data-ocid="admin.submit_button"
+          >
+            {item ? "Update" : "Add"}
           </Button>
         </div>
       </DialogContent>

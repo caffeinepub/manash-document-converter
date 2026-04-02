@@ -1,30 +1,26 @@
-# DocConvert
+# Manash PC World 2.0
 
 ## Current State
-New project, no existing application files.
+Job Updates page (`/job-updates`) has hardcoded 12 job listings (JOBS array), 4 admit cards, and 4 results in the component file. Admin panel (`/admin`) manages only products, orders, and settings — no job management.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Document format converter web app
-- Support conversions: JPG→PDF, PDF→JPG, JPG→PNG, PNG→JPG, PNG→PDF, PDF→PNG
-- Drag-and-drop file upload area
-- Format selection (input and output format auto-detected or user-selectable)
-- Client-side conversion using browser APIs + libraries (pdf-lib, pdfjs-dist)
-- Download converted file button
-- Conversion history/progress indicator
+- "Job Updates" tab in AdminPage with full CRUD for job listings
+- Ability to Add / Edit / Delete jobs (title, org, category, posts, lastDate, status, type, description, applyLink)
+- Ability to Add / Edit / Delete Admit Cards entries
+- Ability to Add / Edit / Delete Results entries
+- Jobs/Admit Cards/Results stored in localStorage so changes persist
+- Helper functions in types.ts: `getJobs`, `saveJobs`, `getAdmitCards`, `saveAdmitCards`, `getResults`, `saveResults` — with default data seeded if empty
 
 ### Modify
-- N/A (new project)
+- JobUpdatesPage: read jobs, admit cards, results from localStorage instead of hardcoded constants
+- AdminPage: add `job-updates` as a new Tab type and render Job Updates management UI
 
 ### Remove
-- N/A (new project)
+- Hardcoded JOBS, ADMIT_CARDS, RESULTS arrays from JobUpdatesPage (replaced by localStorage data)
 
 ## Implementation Plan
-1. Frontend-only app (no backend needed for conversions)
-2. Use pdf-lib for image→PDF conversion
-3. Use pdfjs-dist for PDF→image conversion
-4. Use Canvas API for JPG↔PNG conversions
-5. Drag-and-drop upload zone with file type detection
-6. Conversion panel showing supported output formats based on input
-7. Download button after conversion completes
+1. Add Job/AdmitCard/Result types and CRUD helpers to `types.ts`
+2. Update `JobUpdatesPage.tsx` to read from localStorage
+3. Add "Job Updates" tab to `AdminPage.tsx` with Add/Edit/Delete dialogs
