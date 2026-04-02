@@ -25,6 +25,7 @@ import {
   Wheat,
 } from "lucide-react";
 import { useState } from "react";
+import { getGovDocs } from "../types";
 
 type Category =
   | "All"
@@ -1077,11 +1078,27 @@ export function GovDocumentsPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [activeGuideId, setActiveGuideId] = useState<string | null>(null);
 
+  // Merge managed docs (from admin panel) with the static icon/color data
+  const managedDocs = getGovDocs();
+  const mergedDocs = govDocs.map((doc) => {
+    const managed = managedDocs.find((m) => m.id === doc.id);
+    if (!managed) return doc;
+    return {
+      ...doc,
+      title: managed.title,
+      subtitle: managed.subtitle,
+      description: managed.description,
+      category: managed.category as typeof doc.category,
+      hasGuide: managed.hasGuide,
+      actions: managed.actions,
+    };
+  });
+
   const activeGuide = activeGuideId
     ? (applicationGuides.find((g) => g.id === activeGuideId) ?? null)
     : null;
 
-  const filtered = govDocs.filter((doc) => {
+  const filtered = mergedDocs.filter((doc) => {
     const matchesSearch =
       search === "" ||
       doc.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -1093,13 +1110,23 @@ export function GovDocumentsPage() {
   });
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main
+      className="min-h-screen"
+      style={{ background: "oklch(0.12 0.03 250)" }}
+    >
       {/* Hero Section */}
-      <section className="bg-[#0B2A4A] text-white py-12 px-4">
+      <section
+        className="py-12 px-4 animate-fade-in-up"
+        style={{
+          background:
+            "linear-gradient(135deg, oklch(0.14 0.04 250) 0%, oklch(0.18 0.06 260) 100%)",
+          borderBottom: "1px solid oklch(0.25 0.06 250)",
+        }}
+      >
         <div className="max-w-5xl mx-auto text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
             <span className="text-4xl">🏛️</span>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight font-display gradient-text-gold">
               Government Documents Portal
             </h1>
           </div>

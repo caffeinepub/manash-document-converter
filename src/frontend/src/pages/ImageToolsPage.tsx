@@ -1228,11 +1228,23 @@ export function ImageToolsPage({
   const [activeTool, setActiveTool] = useState<Tool | null>(null);
 
   return (
-    <main className="min-h-screen bg-[#F3F5F8] pb-16">
+    <main
+      className="min-h-screen pb-16"
+      style={{ background: "oklch(0.12 0.03 250)" }}
+    >
       {/* Hero */}
-      <div className="bg-[#0B2A4A] text-white py-10 px-4">
+      <div
+        className="py-10 px-4 animate-fade-in-up"
+        style={{
+          background:
+            "linear-gradient(135deg, oklch(0.14 0.04 250) 0%, oklch(0.18 0.06 260) 100%)",
+          borderBottom: "1px solid oklch(0.25 0.06 250)",
+        }}
+      >
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Image Tools</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2 font-display gradient-text-gold">
+            Image Tools
+          </h1>
           <p className="text-blue-200 text-sm md:text-base">
             All tools work 100% in your browser — your images never leave your
             device
@@ -1255,8 +1267,8 @@ export function ImageToolsPage({
               data-ocid={`imagetool.${t.id}.button`}
               className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all text-center ${
                 activeTool === t.id
-                  ? "bg-[#0B2A4A] text-white border-[#0B2A4A] shadow-lg"
-                  : "bg-white text-[#0B2A4A] border-gray-100 shadow-sm hover:border-[#1E88FF] hover:shadow-md"
+                  ? "text-white border-transparent shadow-lg"
+                  : "border-transparent hover-lift"
               }`}
             >
               <span

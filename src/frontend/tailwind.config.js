@@ -17,6 +17,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
+        display: ["Playfair Display", "serif"],
       },
       colors: {
         border: "oklch(var(--border))",
@@ -83,8 +84,10 @@ export default {
       },
       boxShadow: {
         xs: "0 1px 2px 0 rgba(0,0,0,0.05)",
-        card: "0 4px 24px -2px rgba(15,26,32,0.12), 0 1px 4px rgba(15,26,32,0.06)",
-        "card-lg": "0 12px 48px -4px rgba(15,26,32,0.18), 0 2px 8px rgba(15,26,32,0.08)",
+        card: "0 4px 24px -2px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.2)",
+        "card-lg": "0 12px 48px -4px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3)",
+        gold: "0 0 20px oklch(0.78 0.18 65 / 0.3)",
+        "gold-lg": "0 0 40px oklch(0.78 0.18 65 / 0.5)",
       },
       keyframes: {
         "accordion-down": {
@@ -95,10 +98,40 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        fadeInUp: {
+          from: { opacity: "0", transform: "translateY(24px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        fadeInLeft: {
+          from: { opacity: "0", transform: "translateX(-24px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        fadeInRight: {
+          from: { opacity: "0", transform: "translateX(24px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        scaleIn: {
+          from: { opacity: "0", transform: "scale(0.95)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
+        glowPulse: {
+          "0%, 100%": { boxShadow: "0 0 20px oklch(0.78 0.18 65 / 0.3)" },
+          "50%": { boxShadow: "0 0 40px oklch(0.78 0.18 65 / 0.6), 0 0 80px oklch(0.78 0.18 65 / 0.2)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "fade-in-up": "fadeInUp 0.6s ease both",
+        "fade-in-left": "fadeInLeft 0.6s ease both",
+        "fade-in-right": "fadeInRight 0.6s ease both",
+        "scale-in": "scaleIn 0.5s ease both",
+        "float": "float 3s ease-in-out infinite",
+        "glow-pulse": "glowPulse 2s ease-in-out infinite",
       },
     },
   },

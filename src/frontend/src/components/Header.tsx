@@ -38,14 +38,31 @@ export function Header({ page, navigate, cartCount }: Props) {
   ];
 
   return (
-    <header className="sticky top-0 z-50 shadow-md">
+    <header
+      className="sticky top-0 z-50"
+      style={{ boxShadow: "0 4px 24px oklch(0 0 0 / 0.4)" }}
+    >
       {/* Top utility bar */}
-      <div className="bg-gray-100 text-xs py-1 px-4 text-right text-gray-600 animate-slide-in-top">
+      <div
+        className="text-xs py-1.5 px-4 text-right animate-slide-in-top"
+        style={{
+          background: "oklch(0.10 0.03 250)",
+          color: "oklch(0.6 0.04 240)",
+          borderBottom: "1px solid oklch(0.22 0.05 250)",
+        }}
+      >
         Formerly Manash PC World &nbsp;|&nbsp; NextGen IT Hub
       </div>
 
       {/* Main header */}
-      <div className="bg-[#0B2A4A] text-white px-4 py-3">
+      <div
+        className="px-4 py-3"
+        style={{
+          background: "oklch(0.13 0.04 250 / 0.95)",
+          backdropFilter: "blur(16px)",
+          borderBottom: "1px solid oklch(0.25 0.06 250 / 0.6)",
+        }}
+      >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           {/* Logo */}
           <button
@@ -63,10 +80,13 @@ export function Header({ page, navigate, cartCount }: Props) {
               }}
             />
             <div className="text-left">
-              <div className="font-bold text-lg leading-tight tracking-wide">
+              <div
+                className="font-bold text-lg leading-tight tracking-wide font-display"
+                style={{ color: "oklch(0.95 0.02 240)" }}
+              >
                 NextGen IT Hub
               </div>
-              <div className="text-xs text-blue-300">
+              <div className="text-xs" style={{ color: "oklch(0.78 0.18 65)" }}>
                 Formerly Manash PC World
               </div>
             </div>
@@ -80,11 +100,15 @@ export function Header({ page, navigate, cartCount }: Props) {
                 key={l.page}
                 onClick={() => navigate(l.page)}
                 data-ocid={`nav.${l.page}.link`}
-                className={`nav-underline hover:text-blue-300 transition-all duration-200 flex items-center gap-1 ${
-                  page === l.page
-                    ? "text-blue-300 font-semibold active-link"
-                    : ""
+                className={`nav-underline transition-all duration-200 flex items-center gap-1 ${
+                  page === l.page ? "active-link font-semibold" : ""
                 }`}
+                style={{
+                  color:
+                    page === l.page
+                      ? "oklch(0.78 0.18 65)"
+                      : "oklch(0.75 0.04 240)",
+                }}
               >
                 {l.page === "converter" && <FileText size={14} />}
                 {l.page === "image-tools" && <FileImage size={14} />}
@@ -103,7 +127,8 @@ export function Header({ page, navigate, cartCount }: Props) {
             <button
               type="button"
               onClick={() => navigate(customer ? "account" : "auth")}
-              className="flex items-center gap-1 hover:text-blue-300 transition-colors text-sm"
+              className="flex items-center gap-1 transition-colors text-sm duration-200"
+              style={{ color: "oklch(0.75 0.04 240)" }}
               data-ocid="nav.auth.link"
             >
               <User size={20} />
@@ -115,12 +140,19 @@ export function Header({ page, navigate, cartCount }: Props) {
             <button
               type="button"
               onClick={() => navigate("cart")}
-              className="relative flex items-center hover:text-blue-300 transition-colors"
+              className="relative flex items-center transition-colors"
+              style={{ color: "oklch(0.75 0.04 240)" }}
               data-ocid="nav.cart.link"
             >
               <ShoppingCart size={22} />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#1E88FF] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-bounce">
+                <span
+                  className="absolute -top-2 -right-2 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-bounce"
+                  style={{
+                    background: "oklch(0.78 0.18 65)",
+                    color: "oklch(0.12 0.03 250)",
+                  }}
+                >
                   {cartCount}
                 </span>
               )}
@@ -129,6 +161,7 @@ export function Header({ page, navigate, cartCount }: Props) {
             <button
               type="button"
               className="md:hidden transition-transform duration-200 hover:scale-110"
+              style={{ color: "oklch(0.75 0.04 240)" }}
               onClick={() => setMenuOpen(!menuOpen)}
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -139,7 +172,14 @@ export function Header({ page, navigate, cartCount }: Props) {
 
       {/* Mobile menu — slide down animation */}
       {menuOpen && (
-        <div className="md:hidden bg-[#0B2A4A] border-t border-blue-900 px-4 pb-4 animate-slide-down">
+        <div
+          className="md:hidden px-4 pb-4 animate-slide-down"
+          style={{
+            background: "oklch(0.13 0.04 250 / 0.98)",
+            borderBottom: "1px solid oklch(0.25 0.06 250)",
+            backdropFilter: "blur(16px)",
+          }}
+        >
           {navLinks.map((l, i) => (
             <button
               type="button"
@@ -148,8 +188,12 @@ export function Header({ page, navigate, cartCount }: Props) {
                 navigate(l.page);
                 setMenuOpen(false);
               }}
-              className="block w-full text-left py-2 text-white hover:text-blue-300 text-sm transition-colors"
-              style={{ animationDelay: `${i * 40}ms` }}
+              className="block w-full text-left py-2.5 text-sm transition-colors"
+              style={{
+                color: "oklch(0.75 0.04 240)",
+                animationDelay: `${i * 40}ms`,
+                borderBottom: "1px solid oklch(0.20 0.04 250)",
+              }}
             >
               {l.label}
             </button>
@@ -160,7 +204,8 @@ export function Header({ page, navigate, cartCount }: Props) {
               navigate(customer ? "account" : "auth");
               setMenuOpen(false);
             }}
-            className="block w-full text-left py-2 text-white hover:text-blue-300 text-sm"
+            className="block w-full text-left py-2.5 text-sm transition-colors"
+            style={{ color: "oklch(0.75 0.04 240)" }}
           >
             {customer ? `My Account (${customer.name})` : "Login / Register"}
           </button>
@@ -170,7 +215,8 @@ export function Header({ page, navigate, cartCount }: Props) {
               navigate("admin");
               setMenuOpen(false);
             }}
-            className="block w-full text-left py-2 text-gray-400 hover:text-gray-200 text-xs"
+            className="block w-full text-left py-2 text-xs transition-colors"
+            style={{ color: "oklch(0.5 0.03 240)" }}
           >
             Admin Panel
           </button>

@@ -1,4 +1,4 @@
-import { Briefcase, Edit, Plus, Save, Trash2, X } from "lucide-react";
+import { Briefcase, Edit, FileText, Plus, Save, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { Page } from "../App";
@@ -15,17 +15,20 @@ import { Textarea } from "../components/ui/textarea";
 import {
   type AdminConfig,
   type AdmitCard,
+  type GovDocAdmin,
   type Job,
   type JobResult,
   type Order,
   type Product,
   getAdminConfig,
   getAdmitCards,
+  getGovDocs,
   getJobs,
   getOrders,
   getProducts,
   getResults,
   saveAdmitCards,
+  saveGovDocs,
   saveJobs,
   saveOrders,
   saveProducts,
@@ -36,7 +39,13 @@ interface Props {
   navigate: (p: Page) => void;
 }
 
-type Tab = "dashboard" | "products" | "orders" | "settings" | "job-updates";
+type Tab =
+  | "dashboard"
+  | "products"
+  | "orders"
+  | "settings"
+  | "job-updates"
+  | "gov-documents";
 
 const ADMIN_EMAIL = "admin@nextgenit.com";
 const ADMIN_PASSWORD = "Admin@123";
@@ -83,6 +92,11 @@ export function AdminPage({ navigate }: Props) {
   const [resultDialogOpen, setResultDialogOpen] = useState(false);
   const [editingResult, setEditingResult] = useState<JobResult | null>(null);
 
+  // Gov Docs state
+  const [govDocs, setGovDocs] = useState<GovDocAdmin[]>([]);
+  const [govDocDialogOpen, setGovDocDialogOpen] = useState(false);
+  const [editingGovDoc, setEditingGovDoc] = useState<GovDocAdmin | null>(null);
+
   useEffect(() => {
     if (authed) {
       setProducts(getProducts());
@@ -90,6 +104,7 @@ export function AdminPage({ navigate }: Props) {
       setJobs(getJobs());
       setAdmitCards(getAdmitCards());
       setJobResults(getResults());
+      setGovDocs(getGovDocs());
     }
   }, [authed]);
 
@@ -254,6 +269,7 @@ export function AdminPage({ navigate }: Props) {
               "orders",
               "settings",
               "job-updates",
+              "gov-documents",
             ] as Tab[]
           ).map((t) => (
             <button
@@ -268,7 +284,12 @@ export function AdminPage({ navigate }: Props) {
               data-ocid={`admin.${t}.tab`}
             >
               {t === "job-updates" && <Briefcase size={14} />}
-              {t === "job-updates" ? "Job Updates" : t}
+              {t === "gov-documents" && <FileText size={14} />}
+              {t === "job-updates"
+                ? "Job Updates"
+                : t === "gov-documents"
+                  ? "Govt Documents"
+                  : t}
             </button>
           ))}
         </div>
@@ -826,7 +847,146 @@ export function AdminPage({ navigate }: Props) {
             </section>
           </div>
         )}
+        {tab === "gov-documents" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-[#0B2A4A]">
+                Govt Documents Management
+              </h2>
+              <Button
+                onClick={() => {
+                  setEditingGovDoc(null);
+                  setGovDocDialogOpen(true);
+                }}
+                className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white text-xs px-3 py-1.5 h-auto"
+                data-ocid="gov_docs.open_modal_button"
+              >
+                <Plus size={14} className="mr-1" /> Add Document
+              </Button>
+            </div>
+            <div className="bg-white rounded-xl shadow overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm min-w-[640px]">
+                  <thead className="bg-gray-50 border-b">
+                    <tr>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                        Title
+                      </th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                        Subtitle
+                      </th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                        Category
+                      </th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                        Has Guide
+                      </th>
+                      <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                        Actions
+                      </th>
+                      <th className="px-4 py-3" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {govDocs.map((doc, idx) => (
+                      <tr
+                        key={doc.id}
+                        className="border-b last:border-0 hover:bg-gray-50"
+                        data-ocid={`gov_docs.item.${idx + 1}`}
+                      >
+                        <td className="px-4 py-3 font-medium text-[#0B2A4A]">
+                          {doc.title}
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {doc.subtitle}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                            {doc.category}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-xs font-medium ${doc.hasGuide ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
+                          >
+                            {doc.hasGuide ? "Yes" : "No"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-gray-500">
+                          {doc.actions.length} link
+                          {doc.actions.length !== 1 ? "s" : ""}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingGovDoc(doc);
+                                setGovDocDialogOpen(true);
+                              }}
+                              className="text-blue-600 hover:text-blue-800 transition-colors"
+                              data-ocid={`gov_docs.edit_button.${idx + 1}`}
+                            >
+                              <Edit size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (window.confirm(`Delete "${doc.title}"?`)) {
+                                  const updated = govDocs.filter(
+                                    (d) => d.id !== doc.id,
+                                  );
+                                  setGovDocs(updated);
+                                  saveGovDocs(updated);
+                                  toast.success("Document deleted");
+                                }
+                              }}
+                              className="text-red-500 hover:text-red-700 transition-colors"
+                              data-ocid={`gov_docs.delete_button.${idx + 1}`}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {govDocs.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={6}
+                          className="px-4 py-8 text-center text-gray-400"
+                          data-ocid="gov_docs.empty_state"
+                        >
+                          No documents yet. Click "Add Document" to add one.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Gov Doc dialog */}
+      <GovDocDialog
+        open={govDocDialogOpen}
+        onClose={() => setGovDocDialogOpen(false)}
+        doc={editingGovDoc}
+        onSave={(d) => {
+          let updated: GovDocAdmin[];
+          if (editingGovDoc) {
+            updated = govDocs.map((x) => (x.id === d.id ? d : x));
+          } else {
+            updated = [...govDocs, d];
+          }
+          setGovDocs(updated);
+          saveGovDocs(updated);
+          setGovDocDialogOpen(false);
+          toast.success(editingGovDoc ? "Document updated" : "Document added");
+        }}
+      />
 
       {/* Product dialog */}
       <ProductDialog
@@ -1313,6 +1473,186 @@ function SimpleItemDialog({
             data-ocid="admin.submit_button"
           >
             {item ? "Update" : "Add"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Gov Doc Dialog ───────────────────────────────────────────────────────────
+
+interface GovDocDialogProps {
+  open: boolean;
+  onClose: () => void;
+  doc: GovDocAdmin | null;
+  onSave: (d: GovDocAdmin) => void;
+}
+
+const BLANK_GOV_DOC: GovDocAdmin = {
+  id: "",
+  title: "",
+  subtitle: "",
+  description: "",
+  category: "",
+  hasGuide: false,
+  actions: [{ label: "", url: "" }],
+};
+
+function GovDocDialog({ open, onClose, doc, onSave }: GovDocDialogProps) {
+  const [form, setForm] = useState<GovDocAdmin>(BLANK_GOV_DOC);
+  const [actionKeys, setActionKeys] = useState<string[]>(["k0"]);
+
+  useEffect(() => {
+    const actions = doc
+      ? doc.actions.length > 0
+        ? [...doc.actions]
+        : [{ label: "", url: "" }]
+      : [{ label: "", url: "" }];
+    setForm(
+      doc ? { ...doc, actions } : { ...BLANK_GOV_DOC, id: `doc-${Date.now()}` },
+    );
+    setActionKeys(actions.map((_, i) => `k${i}-${Date.now()}`));
+  }, [doc]);
+
+  const setAction = (idx: number, field: "label" | "url", value: string) => {
+    const updated = form.actions.map((a, i) =>
+      i === idx ? { ...a, [field]: value } : a,
+    );
+    setForm({ ...form, actions: updated });
+  };
+
+  const addAction = () => {
+    if (form.actions.length < 4) {
+      setForm({ ...form, actions: [...form.actions, { label: "", url: "" }] });
+      setActionKeys((prev) => [...prev, `k${prev.length}-${Date.now()}`]);
+    }
+  };
+
+  const removeAction = (idx: number) => {
+    setForm({ ...form, actions: form.actions.filter((_, i) => i !== idx) });
+    setActionKeys((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleSave = () => {
+    if (!form.title.trim()) {
+      toast.error("Title is required");
+      return;
+    }
+    const cleanActions = form.actions.filter(
+      (a) => a.label.trim() && a.url.trim(),
+    );
+    onSave({ ...form, actions: cleanActions });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent
+        className="max-w-lg max-h-[90vh] overflow-y-auto"
+        data-ocid="gov_docs.dialog"
+      >
+        <DialogHeader>
+          <DialogTitle>{doc ? "Edit Document" : "Add Document"}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3 pt-2">
+          <div>
+            <Label>Title *</Label>
+            <Input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              placeholder="e.g. Aadhaar Card"
+              className="mt-1"
+              data-ocid="gov_docs.input"
+            />
+          </div>
+          <div>
+            <Label>Subtitle / Authority</Label>
+            <Input
+              value={form.subtitle}
+              onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
+              placeholder="e.g. UIDAI"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label>Description</Label>
+            <Textarea
+              value={form.description}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
+              placeholder="Short description of this document"
+              className="mt-1"
+              rows={2}
+            />
+          </div>
+          <div>
+            <Label>Category</Label>
+            <Input
+              value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              placeholder="e.g. Identity, Transport, Business"
+              className="mt-1"
+            />
+          </div>
+          <div className="flex items-center gap-2 pt-1">
+            <input
+              type="checkbox"
+              id="hasGuide"
+              checked={form.hasGuide}
+              onChange={(e) => setForm({ ...form, hasGuide: e.target.checked })}
+              className="w-4 h-4 accent-[#0B2A4A]"
+              data-ocid="gov_docs.checkbox"
+            />
+            <Label htmlFor="hasGuide" className="cursor-pointer">
+              Has Application Guide
+            </Label>
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label>Action Links (max 4)</Label>
+              {form.actions.length < 4 && (
+                <button
+                  type="button"
+                  onClick={addAction}
+                  className="text-xs text-[#1E88FF] hover:underline"
+                >
+                  + Add Link
+                </button>
+              )}
+            </div>
+            {form.actions.map((action, idx) => (
+              <div key={actionKeys[idx] ?? idx} className="flex gap-2 mb-2">
+                <Input
+                  value={action.label}
+                  onChange={(e) => setAction(idx, "label", e.target.value)}
+                  placeholder="Label"
+                  className="flex-1"
+                />
+                <Input
+                  value={action.url}
+                  onChange={(e) => setAction(idx, "url", e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                {form.actions.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeAction(idx)}
+                    className="text-red-400 hover:text-red-600 flex-shrink-0"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          <Button
+            onClick={handleSave}
+            className="w-full bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+            data-ocid="gov_docs.submit_button"
+          >
+            {doc ? "Update Document" : "Add Document"}
           </Button>
         </div>
       </DialogContent>

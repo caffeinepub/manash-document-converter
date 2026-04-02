@@ -689,14 +689,24 @@ export function ConverterPage() {
   const selectedConv = CONVERSIONS.find((c) => c.value === convType)!;
 
   return (
-    <div className="min-h-screen bg-[#F3F5F8] px-4 py-10">
+    <div
+      className="min-h-screen px-4 py-10"
+      style={{ background: "oklch(0.12 0.03 250)" }}
+    >
       <div className="max-w-3xl mx-auto">
         {/* Page Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-1 text-blue-700 text-xs font-semibold mb-4">
+        <div className="text-center mb-8 animate-fade-in-up">
+          <div
+            className="inline-flex items-center gap-2 rounded-full px-4 py-1 text-xs font-semibold mb-4"
+            style={{
+              background: "oklch(0.78 0.18 65 / 0.15)",
+              border: "1px solid oklch(0.78 0.18 65 / 0.4)",
+              color: "oklch(0.78 0.18 65)",
+            }}
+          >
             <span>&#x1F512;</span> Manash Document Converter
           </div>
-          <h1 className="text-3xl font-extrabold text-[#0B2A4A] mb-3">
+          <h1 className="text-3xl font-extrabold mb-3 font-display gradient-text-gold">
             Document Converter
           </h1>
           <p className="text-gray-500 text-sm max-w-md mx-auto">

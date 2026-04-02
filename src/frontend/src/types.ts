@@ -463,3 +463,177 @@ export function getResults(): JobResult[] {
 export function saveResults(results: JobResult[]) {
   localStorage.setItem("jobResults", JSON.stringify(results));
 }
+
+// ─── Government Documents Admin Types ────────────────────────────────────────
+
+export interface GovDocAdmin {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  category: string;
+  hasGuide: boolean;
+  actions: { label: string; url: string }[];
+}
+
+export const SEED_GOV_DOCS: GovDocAdmin[] = [
+  {
+    id: "aadhaar",
+    title: "Aadhaar Card",
+    subtitle: "UIDAI",
+    description:
+      "12-digit unique identity number issued by UIDAI for every Indian resident.",
+    category: "Identity",
+    hasGuide: true,
+    actions: [
+      { label: "Enroll / Update", url: "https://uidai.gov.in" },
+      { label: "Download e-Aadhaar", url: "https://myaadhaar.uidai.gov.in" },
+      {
+        label: "Check Status",
+        url: "https://resident.uidai.gov.in/check-aadhaar",
+      },
+    ],
+  },
+  {
+    id: "pan",
+    title: "PAN Card",
+    subtitle: "Income Tax Dept",
+    description:
+      "Permanent Account Number — required for financial transactions and tax filing.",
+    category: "Identity",
+    hasGuide: true,
+    actions: [
+      {
+        label: "Apply New PAN",
+        url: "https://www.incometax.gov.in/iec/foportal/",
+      },
+      { label: "PAN Correction", url: "https://www.protean-tinpan.com" },
+      { label: "Reprint PAN", url: "https://www.protean-tinpan.com" },
+    ],
+  },
+  {
+    id: "passport",
+    title: "Passport",
+    subtitle: "Ministry of External Affairs",
+    description:
+      "Official travel document for international travel issued by Government of India.",
+    category: "Identity",
+    hasGuide: false,
+    actions: [
+      { label: "Apply / Renew", url: "https://passportindia.gov.in" },
+      {
+        label: "Track Application",
+        url: "https://passportindia.gov.in/AppOnlineProject/trackApplication/trackStatus",
+      },
+      { label: "Book Appointment", url: "https://passportindia.gov.in" },
+    ],
+  },
+  {
+    id: "voter-id",
+    title: "Voter ID (EPIC)",
+    subtitle: "Election Commission of India",
+    description:
+      "Electoral Photo Identity Card — required for voting in elections across India.",
+    category: "Identity",
+    hasGuide: false,
+    actions: [
+      { label: "Register as Voter", url: "https://voters.eci.gov.in" },
+      { label: "Correction / Update", url: "https://voters.eci.gov.in" },
+      { label: "Download e-EPIC", url: "https://voters.eci.gov.in" },
+    ],
+  },
+  {
+    id: "driving-licence",
+    title: "Driving Licence",
+    subtitle: "Parivahan Sewa",
+    description:
+      "Licence to operate motor vehicles on Indian roads. Also includes vehicle registration.",
+    category: "Transport",
+    hasGuide: true,
+    actions: [
+      { label: "Apply for DL", url: "https://parivahan.gov.in" },
+      { label: "Renew Licence", url: "https://parivahan.gov.in" },
+      { label: "Vehicle Registration (RC)", url: "https://parivahan.gov.in" },
+    ],
+  },
+  {
+    id: "birth-certificate",
+    title: "Birth Certificate",
+    subtitle: "Civil Registration System",
+    description:
+      "Official record of birth registered under the Registration of Births and Deaths Act.",
+    category: "State Services",
+    hasGuide: true,
+    actions: [
+      { label: "Apply Online", url: "https://crsorgi.gov.in" },
+      { label: "Search Records", url: "https://crsorgi.gov.in" },
+    ],
+  },
+  {
+    id: "caste-certificate",
+    title: "Caste / Income / Domicile",
+    subtitle: "State Portals",
+    description:
+      "Certificates issued by state governments for caste, income, and domicile proof.",
+    category: "State Services",
+    hasGuide: false,
+    actions: [
+      { label: "Apply via UMANG", url: "https://web.umang.gov.in" },
+      { label: "e-District Portal", url: "https://india.gov.in" },
+    ],
+  },
+  {
+    id: "ration-card",
+    title: "Ration Card",
+    subtitle: "National Food Security",
+    description:
+      "Document to avail subsidised food grains under the Public Distribution System.",
+    category: "State Services",
+    hasGuide: false,
+    actions: [
+      { label: "Apply / Update", url: "https://nfsa.gov.in" },
+      { label: "e-KYC for Ration Card", url: "https://nfsa.gov.in" },
+      { label: "Check Beneficiary List", url: "https://nfsa.gov.in" },
+    ],
+  },
+  {
+    id: "land-records",
+    title: "Land Records (Bhulekh)",
+    subtitle: "Revenue Dept",
+    description:
+      "Digital records of land ownership, mutation entries, and property details.",
+    category: "Property",
+    hasGuide: false,
+    actions: [
+      { label: "View Land Records", url: "https://bhulekh.mahabhumi.gov.in" },
+      { label: "Apply for Mutation", url: "https://india.gov.in" },
+    ],
+  },
+  {
+    id: "gst",
+    title: "GST Registration",
+    subtitle: "GSTN Portal",
+    description:
+      "Goods and Services Tax registration for businesses above the turnover threshold.",
+    category: "Business",
+    hasGuide: false,
+    actions: [
+      { label: "New GST Registration", url: "https://www.gst.gov.in" },
+      { label: "File Returns", url: "https://www.gst.gov.in" },
+      { label: "Track Application", url: "https://www.gst.gov.in" },
+    ],
+  },
+];
+
+export function getGovDocs(): GovDocAdmin[] {
+  try {
+    const stored = localStorage.getItem("govDocs");
+    if (stored) return JSON.parse(stored);
+  } catch {}
+  localStorage.setItem("govDocs", JSON.stringify(SEED_GOV_DOCS));
+  return SEED_GOV_DOCS;
+}
+
+export function saveGovDocs(docs: GovDocAdmin[]): void {
+  localStorage.setItem("govDocs", JSON.stringify(docs));
+}

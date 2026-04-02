@@ -102,7 +102,7 @@ export function HomePage({ navigate }: Props) {
     text: string;
     imageUrl?: string;
   }
-  const GEMINI_KEY = "AIzaSyCLjvyMd0-jeQBGRjkD9c1JgAv77niQXC8";
+  const OPENAI_KEY = "28f42369-c34a-4804-8657-f36363c9b67f";
   const [chatMode, setChatMode] = useState<ChatMode>("chat");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
@@ -123,23 +123,66 @@ export function HomePage({ navigate }: Props) {
 
     try {
       if (chatMode === "chat") {
-        const contents = history.map((m) => ({
-          role: m.role === "user" ? "user" : "model",
-          parts: [{ text: m.text }],
-        }));
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+        const GEMINI_KEY = "AIzaSyCLjvyMd0-jeQBGRjkD9c1JgAv77niQXC8";
+        const oaMessages = [
           {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents }),
+            role: "system",
+            content:
+              "You are Manash 2.0, a helpful AI assistant for NextGen IT Hub. Be concise, friendly, and helpful.",
           },
-        );
-        const data = await res.json();
-        const text =
-          data?.candidates?.[0]?.content?.parts?.[0]?.text ??
-          "Sorry, I could not get a response.";
-        setChatMessages([...history, { role: "assistant", text }]);
+          ...history.map((m) => ({
+            role: m.role === "user" ? "user" : "assistant",
+            content: m.text,
+          })),
+        ];
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${OPENAI_KEY}`,
+          },
+          body: JSON.stringify({ model: "gpt-4o-mini", messages: oaMessages }),
+        });
+        let text = "";
+        if (res.ok) {
+          const data = await res.json();
+          text = data?.choices?.[0]?.message?.content ?? "";
+        }
+        // Fallback to Gemini if OpenAI fails or returns empty
+        if (!text) {
+          console.warn("OpenAI fallback: using Gemini");
+          const geminiRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: history.map((m) => ({
+                  role: m.role === "user" ? "user" : "model",
+                  parts: [{ text: m.text }],
+                })),
+                systemInstruction: {
+                  parts: [
+                    {
+                      text: "You are Manash 2.0, a helpful AI assistant for NextGen IT Hub. Be concise, friendly, and helpful.",
+                    },
+                  ],
+                },
+              }),
+            },
+          );
+          if (geminiRes.ok) {
+            const gData = await geminiRes.json();
+            text = gData?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+          }
+        }
+        setChatMessages([
+          ...history,
+          {
+            role: "assistant",
+            text: text || "Sorry, I could not get a response.",
+          },
+        ]);
       } else {
         const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(userMsg.text)}?width=512&height=512&nologo=true`;
         setChatMessages([
@@ -187,7 +230,7 @@ export function HomePage({ navigate }: Props) {
   ];
 
   return (
-    <div className="bg-white">
+    <div style={{ background: "oklch(0.12 0.03 250)" }}>
       {/* ===================== TRIBUTE POPUP ===================== */}
       {showTribute && (
         <div

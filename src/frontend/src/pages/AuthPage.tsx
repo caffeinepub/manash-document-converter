@@ -4,6 +4,7 @@ import type { Page } from "../App";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { useInView } from "../hooks/useInView";
 import type { CustomerSession } from "../types";
 
 interface Props {
@@ -21,6 +22,8 @@ export function AuthPage({ navigate }: Props) {
   const [otp, setOtp] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const { ref: cardRef, inView: cardInView } = useInView();
 
   const contact = tab === "phone" ? phone : email;
 
@@ -46,7 +49,6 @@ export function AuthPage({ navigate }: Props) {
       toast.error("Incorrect OTP. Use demo OTP: 123456");
       return;
     }
-    // Check if existing customer
     const existing = (() => {
       try {
         return JSON.parse(localStorage.getItem("customers") || "[]");
@@ -96,20 +98,37 @@ export function AuthPage({ navigate }: Props) {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-[#F3F5F8] px-4 py-12">
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">
+    <div
+      className="min-h-[80vh] flex items-center justify-center px-4 py-12"
+      style={{ background: "oklch(0.12 0.03 250)" }}
+    >
+      <div
+        ref={cardRef as React.RefObject<HTMLDivElement>}
+        className={`rounded-2xl w-full max-w-md p-8 transition-all duration-700 ${
+          cardInView ? "opacity-100 scale-100" : "opacity-0 scale-95"
+        }`}
+        style={{
+          background: "oklch(0.16 0.04 250)",
+          border: "1px solid oklch(0.25 0.06 250)",
+          boxShadow: "0 24px 64px oklch(0 0 0 / 0.5)",
+        }}
+        data-ocid="auth.dialog"
+      >
         {/* Logo */}
         <div className="text-center mb-6">
-          <div className="text-2xl font-extrabold text-[#0B2A4A]">
+          <div className="text-2xl font-extrabold font-display gradient-text-gold">
             NextGen IT Hub
           </div>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-sm mt-1" style={{ color: "oklch(0.6 0.04 240)" }}>
             Login or create your account
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex rounded-lg overflow-hidden border border-gray-200 mb-6">
+        <div
+          className="flex rounded-lg overflow-hidden mb-6"
+          style={{ border: "1px solid oklch(0.25 0.06 250)" }}
+        >
           {(["phone", "email"] as Tab[]).map((t) => (
             <button
               type="button"
@@ -119,11 +138,12 @@ export function AuthPage({ navigate }: Props) {
                 setStep("input");
                 setOtp("");
               }}
-              className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
-                tab === t
-                  ? "bg-[#0B2A4A] text-white"
-                  : "bg-white text-gray-500 hover:bg-gray-50"
-              }`}
+              className="flex-1 py-2.5 text-sm font-semibold transition-all"
+              style={{
+                background: tab === t ? "oklch(0.78 0.18 65)" : "transparent",
+                color:
+                  tab === t ? "oklch(0.12 0.03 250)" : "oklch(0.6 0.04 240)",
+              }}
             >
               {t === "phone" ? "📱 Phone OTP" : "✉️ Email OTP"}
             </button>
@@ -135,11 +155,22 @@ export function AuthPage({ navigate }: Props) {
           <div className="space-y-4">
             {tab === "phone" ? (
               <div>
-                <Label className="text-sm font-medium text-gray-700">
+                <Label
+                  className="text-sm font-medium"
+                  style={{ color: "oklch(0.8 0.03 240)" }}
+                >
                   Mobile Number
                 </Label>
                 <div className="flex mt-1">
-                  <span className="inline-flex items-center px-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg text-gray-600 text-sm">
+                  <span
+                    className="inline-flex items-center px-3 text-sm rounded-l-lg"
+                    style={{
+                      background: "oklch(0.20 0.05 250)",
+                      border: "1px solid oklch(0.25 0.06 250)",
+                      borderRight: "none",
+                      color: "oklch(0.7 0.04 240)",
+                    }}
+                  >
                     +91
                   </span>
                   <Input
@@ -151,12 +182,16 @@ export function AuthPage({ navigate }: Props) {
                     }
                     className="rounded-l-none"
                     maxLength={10}
+                    data-ocid="auth.input"
                   />
                 </div>
               </div>
             ) : (
               <div>
-                <Label className="text-sm font-medium text-gray-700">
+                <Label
+                  className="text-sm font-medium"
+                  style={{ color: "oklch(0.8 0.03 240)" }}
+                >
                   Email Address
                 </Label>
                 <Input
@@ -165,17 +200,26 @@ export function AuthPage({ navigate }: Props) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="mt-1"
+                  data-ocid="auth.input"
                 />
               </div>
             )}
             <Button
               onClick={sendOtp}
               disabled={loading}
-              className="w-full bg-[#0B2A4A] hover:bg-[#1E88FF] text-white py-3 rounded-lg font-semibold"
+              className="w-full py-3 rounded-lg font-semibold"
+              style={{
+                background: "oklch(0.78 0.18 65)",
+                color: "oklch(0.12 0.03 250)",
+              }}
+              data-ocid="auth.submit_button"
             >
               {loading ? "Sending OTP..." : "Send OTP"}
             </Button>
-            <p className="text-center text-xs text-gray-400">
+            <p
+              className="text-center text-xs"
+              style={{ color: "oklch(0.5 0.03 240)" }}
+            >
               No spam. No robot verification required.
             </p>
           </div>
@@ -184,12 +228,23 @@ export function AuthPage({ navigate }: Props) {
         {/* Step: OTP */}
         {step === "otp" && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-600 text-center">
+            <p
+              className="text-sm text-center"
+              style={{ color: "oklch(0.7 0.04 240)" }}
+            >
               OTP sent to{" "}
-              <span className="font-semibold text-[#0B2A4A]">{contact}</span>
+              <span
+                className="font-semibold"
+                style={{ color: "oklch(0.95 0.02 240)" }}
+              >
+                {contact}
+              </span>
             </p>
             <div>
-              <Label className="text-sm font-medium text-gray-700">
+              <Label
+                className="text-sm font-medium"
+                style={{ color: "oklch(0.8 0.03 240)" }}
+              >
                 Enter 6-digit OTP
               </Label>
               <Input
@@ -201,25 +256,41 @@ export function AuthPage({ navigate }: Props) {
                 }
                 className="mt-1 text-center text-lg tracking-widest font-bold"
                 maxLength={6}
+                data-ocid="auth.input"
               />
             </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-              <p className="text-xs text-blue-700 font-medium">
+            <div
+              className="rounded-lg p-3 text-center"
+              style={{
+                background: "oklch(0.20 0.05 250)",
+                border: "1px solid oklch(0.78 0.18 65 / 0.3)",
+              }}
+            >
+              <p
+                className="text-xs font-medium"
+                style={{ color: "oklch(0.78 0.18 65)" }}
+              >
                 Demo OTP: <span className="text-lg font-bold">123456</span>
               </p>
             </div>
             <Button
               onClick={verifyOtp}
-              className="w-full bg-[#1E88FF] hover:bg-blue-600 text-white py-3 rounded-lg font-semibold"
+              className="w-full py-3 rounded-lg font-semibold"
+              style={{
+                background: "oklch(0.78 0.18 65)",
+                color: "oklch(0.12 0.03 250)",
+              }}
+              data-ocid="auth.submit_button"
             >
               Verify OTP
             </Button>
             <button
               type="button"
               onClick={() => setStep("input")}
-              className="w-full text-sm text-gray-500 hover:text-gray-700"
+              className="w-full text-xs transition-colors"
+              style={{ color: "oklch(0.6 0.04 240)" }}
             >
-              ← Change {tab === "phone" ? "number" : "email"}
+              ← Go back
             </button>
           </div>
         )}
@@ -227,24 +298,36 @@ export function AuthPage({ navigate }: Props) {
         {/* Step: Name */}
         {step === "name" && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-600 text-center">
-              One last step — what's your name?
+            <p
+              className="text-sm text-center"
+              style={{ color: "oklch(0.7 0.04 240)" }}
+            >
+              New account. Please tell us your name.
             </p>
             <div>
-              <Label className="text-sm font-medium text-gray-700">
+              <Label
+                className="text-sm font-medium"
+                style={{ color: "oklch(0.8 0.03 240)" }}
+              >
                 Full Name
               </Label>
               <Input
                 type="text"
-                placeholder="Enter your full name"
+                placeholder="Your full name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="mt-1"
+                data-ocid="auth.input"
               />
             </div>
             <Button
               onClick={completeRegistration}
-              className="w-full bg-[#0B2A4A] hover:bg-[#1E88FF] text-white py-3 rounded-lg font-semibold"
+              className="w-full py-3 rounded-lg font-semibold"
+              style={{
+                background: "oklch(0.78 0.18 65)",
+                color: "oklch(0.12 0.03 250)",
+              }}
+              data-ocid="auth.submit_button"
             >
               Create Account
             </Button>

@@ -9,6 +9,7 @@ import {
   Youtube,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useInView } from "../hooks/useInView";
 
 const AUTHORISED_LOGOS = [
   {
@@ -37,14 +38,13 @@ const AUTHORISED_LOGOS = [
 
 function AuthorisedCarousel() {
   const trackRef = useRef<HTMLDivElement>(null);
-  // Duplicate logos for seamless infinite loop
   const logos = [...AUTHORISED_LOGOS, ...AUTHORISED_LOGOS, ...AUTHORISED_LOGOS];
 
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
     let pos = 0;
-    const cardWidth = 200 + 24; // card width + gap
+    const cardWidth = 200 + 24;
     const totalOriginal = AUTHORISED_LOGOS.length * cardWidth;
     let raf: number;
     const step = () => {
@@ -66,8 +66,12 @@ function AuthorisedCarousel() {
         {logos.map((logo, i) => (
           <div
             key={`${logo.alt}-${i}`}
-            className="flex-shrink-0 w-[160px] md:w-[200px] bg-white rounded-xl shadow-md border border-gray-100 flex items-center justify-center p-4"
-            style={{ height: "90px" }}
+            className="flex-shrink-0 w-[160px] md:w-[200px] rounded-xl shadow-md flex items-center justify-center p-4"
+            style={{
+              height: "90px",
+              background: "oklch(0.16 0.04 250)",
+              border: "1px solid oklch(0.25 0.06 250)",
+            }}
           >
             <img
               src={logo.src}
@@ -86,6 +90,12 @@ export function ContactUsPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
 
+  const { ref: heroRef, inView: heroInView } = useInView();
+  const { ref: infoRef, inView: infoInView } = useInView();
+  const { ref: formRef, inView: formInView } = useInView();
+  const { ref: authorisedRef, inView: authorisedInView } = useInView();
+  const { ref: mapRef, inView: mapInView } = useInView();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSent(true);
@@ -94,17 +104,26 @@ export function ContactUsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div
+      className="min-h-screen"
+      style={{ background: "oklch(0.12 0.03 250)" }}
+    >
       {/* Hero Banner */}
       <div
-        className="relative w-full h-48 md:h-64 bg-cover bg-center flex items-center justify-center"
+        ref={heroRef as React.RefObject<HTMLDivElement>}
+        className={`relative w-full h-48 md:h-64 bg-cover bg-center flex items-center justify-center transition-all duration-700 ${
+          heroInView ? "opacity-100 scale-100" : "opacity-0 scale-95"
+        }`}
         style={{
           backgroundImage:
             "url('/assets/uploads/1774353229398-019d3a15-c257-750f-9a66-8798cd7598e4-1.png')",
         }}
       >
-        <div className="absolute inset-0 bg-black/50" />
-        <h1 className="relative text-3xl md:text-4xl font-bold text-white tracking-wide animate-fade-up">
+        <div
+          className="absolute inset-0"
+          style={{ background: "oklch(0 0 0 / 0.6)" }}
+        />
+        <h1 className="relative text-3xl md:text-4xl font-bold text-white tracking-wide font-display">
           Contact Us
         </h1>
       </div>
@@ -112,21 +131,46 @@ export function ContactUsPage() {
       <div className="max-w-5xl mx-auto px-4 py-12">
         <div className="grid md:grid-cols-2 gap-10">
           {/* Left — Info */}
-          <div className="space-y-8 animate-fade-left">
-            <div className="bg-white rounded-xl shadow p-6 flex gap-6">
+          <div
+            ref={infoRef as React.RefObject<HTMLDivElement>}
+            className={`space-y-8 transition-all duration-700 ${
+              infoInView
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 -translate-x-8"
+            }`}
+          >
+            <div
+              className="rounded-xl p-6 flex gap-6"
+              style={{
+                background: "oklch(0.16 0.04 250)",
+                border: "1px solid oklch(0.25 0.06 250)",
+              }}
+            >
               <div className="flex-1 space-y-4">
                 <div>
-                  <h2 className="text-xl font-bold text-[#008080] mb-2">
+                  <h2
+                    className="text-xl font-bold mb-2"
+                    style={{ color: "oklch(0.72 0.18 200)" }}
+                  >
                     Address
                   </h2>
-                  <p className="text-sm text-gray-700">
+                  <p
+                    className="text-sm"
+                    style={{ color: "oklch(0.8 0.03 240)" }}
+                  >
                     <span className="font-medium">Name : </span>
                     <strong>Mr. Manashjoyti Barman</strong>
                   </p>
-                  <p className="text-xs text-gray-500 italic ml-12">
+                  <p
+                    className="text-xs italic ml-12"
+                    style={{ color: "oklch(0.6 0.04 240)" }}
+                  >
                     ( Founder Manash PC World )
                   </p>
-                  <p className="text-sm text-gray-700 mt-1">
+                  <p
+                    className="text-sm mt-1"
+                    style={{ color: "oklch(0.8 0.03 240)" }}
+                  >
                     <span className="font-medium">Address : </span>
                     <strong>
                       Chamata, Nalbari, Assam, India Pin code - 781306
@@ -135,35 +179,54 @@ export function ContactUsPage() {
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-bold text-[#008080] mb-2">
+                  <h2
+                    className="text-xl font-bold mb-2"
+                    style={{ color: "oklch(0.72 0.18 200)" }}
+                  >
                     Information
                   </h2>
-                  <div className="flex items-center gap-2 text-sm text-gray-700">
-                    <Phone size={14} className="text-[#0B2A4A]" />
+                  <div
+                    className="flex items-center gap-2 text-sm"
+                    style={{ color: "oklch(0.8 0.03 240)" }}
+                  >
+                    <Phone size={14} style={{ color: "oklch(0.78 0.18 65)" }} />
                     <span>
                       Phone Number: <strong>9678311414</strong>
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-700 mt-1">
-                    <Mail size={14} className="text-[#0B2A4A]" />
+                  <div
+                    className="flex items-center gap-2 text-sm mt-1"
+                    style={{ color: "oklch(0.8 0.03 240)" }}
+                  >
+                    <Mail size={14} style={{ color: "oklch(0.78 0.18 65)" }} />
                     <span>
                       Email us :{" "}
                       <a
                         href="mailto:manashpcworld@zohomail.in"
-                        className="text-blue-600 hover:underline"
+                        className="hover:underline"
+                        style={{ color: "oklch(0.72 0.18 200)" }}
                       >
                         manashpcworld@zohomail.in
                       </a>
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-700 mt-1">
-                    <MapPin size={14} className="text-[#0B2A4A]" />
+                  <div
+                    className="flex items-center gap-2 text-sm mt-1"
+                    style={{ color: "oklch(0.8 0.03 240)" }}
+                  >
+                    <MapPin
+                      size={14}
+                      style={{ color: "oklch(0.78 0.18 65)" }}
+                    />
                     <span>Chamata, Nalbari, Assam - 781306</span>
                   </div>
                 </div>
               </div>
 
-              <div className="w-28 h-36 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0">
+              <div
+                className="w-28 h-36 rounded-lg overflow-hidden flex-shrink-0"
+                style={{ border: "1px solid oklch(0.25 0.06 250)" }}
+              >
                 <img
                   src="/assets/uploads/picsart_26-03-20_17-21-03-596-019d37d3-67cb-70ae-b887-e779e514ed62-1.png"
                   alt="Mr. Manashjoyti Barman"
@@ -175,14 +238,26 @@ export function ContactUsPage() {
               </div>
             </div>
 
-            <div className="bg-[#0B2A4A] rounded-xl shadow p-6">
-              <h2 className="text-lg font-bold text-white mb-4">Follow Us</h2>
+            <div
+              className="rounded-xl p-6"
+              style={{
+                background: "oklch(0.14 0.04 250)",
+                border: "1px solid oklch(0.25 0.06 250)",
+              }}
+            >
+              <h2
+                className="text-lg font-bold mb-4"
+                style={{ color: "oklch(0.95 0.02 240)" }}
+              >
+                Follow Us
+              </h2>
               <div className="grid grid-cols-2 gap-3">
                 <a
                   href="https://youtube.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-medium"
+                  className="flex items-center gap-2 text-white px-4 py-2 rounded-lg hover:opacity-80 transition text-sm font-medium"
+                  style={{ background: "#c4302b" }}
                 >
                   <Youtube size={18} /> YouTube
                 </a>
@@ -190,7 +265,8 @@ export function ContactUsPage() {
                   href="https://wa.me/919678311414"
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition text-sm font-medium"
+                  className="flex items-center gap-2 text-white px-4 py-2 rounded-lg hover:opacity-80 transition text-sm font-medium"
+                  style={{ background: "#25d366" }}
                 >
                   <MessageCircle size={18} /> WhatsApp
                 </a>
@@ -198,7 +274,11 @@ export function ContactUsPage() {
                   href="https://instagram.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg hover:opacity-90 transition text-sm font-medium"
+                  className="flex items-center gap-2 text-white px-4 py-2 rounded-lg hover:opacity-90 transition text-sm font-medium"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)",
+                  }}
                 >
                   <Instagram size={18} /> Instagram
                 </a>
@@ -206,7 +286,8 @@ export function ContactUsPage() {
                   href="https://facebook.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                  className="flex items-center gap-2 text-white px-4 py-2 rounded-lg hover:opacity-80 transition text-sm font-medium"
+                  style={{ background: "#1877f2" }}
                 >
                   <Facebook size={18} /> Facebook
                 </a>
@@ -215,17 +296,41 @@ export function ContactUsPage() {
           </div>
 
           {/* Right — Contact Form */}
-          <div className="bg-white rounded-xl shadow p-6 animate-fade-right">
-            <h2 className="text-xl font-bold text-[#0B2A4A] mb-1">
+          <div
+            ref={formRef as React.RefObject<HTMLDivElement>}
+            className={`rounded-xl p-6 transition-all duration-700 ${
+              formInView
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 translate-x-8"
+            }`}
+            style={{
+              background: "oklch(0.16 0.04 250)",
+              border: "1px solid oklch(0.25 0.06 250)",
+            }}
+          >
+            <h2
+              className="text-xl font-bold mb-1 font-display"
+              style={{ color: "oklch(0.95 0.02 240)" }}
+            >
               Send a Message
             </h2>
-            <p className="text-xs text-gray-500 mb-5">
+            <p
+              className="text-xs mb-5"
+              style={{ color: "oklch(0.55 0.04 240)" }}
+            >
               Note: Please fill out the fields marked with an asterisk.
             </p>
 
             {sent && (
-              <div className="mb-4 bg-green-50 border border-green-300 text-green-700 text-sm rounded-lg px-4 py-3">
-                Message sent successfully! We'll get back to you soon.
+              <div
+                className="mb-4 text-sm rounded-lg px-4 py-3"
+                style={{
+                  background: "oklch(0.20 0.08 145 / 0.3)",
+                  border: "1px solid oklch(0.55 0.15 145 / 0.5)",
+                  color: "oklch(0.75 0.15 145)",
+                }}
+              >
+                Message sent successfully! We’ll get back to you soon.
               </div>
             )}
 
@@ -233,9 +338,10 @@ export function ContactUsPage() {
               <div>
                 <label
                   htmlFor="cf-name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: "oklch(0.8 0.03 240)" }}
                 >
-                  Name <span className="text-red-500">*</span>
+                  Name <span style={{ color: "oklch(0.65 0.2 25)" }}>*</span>
                 </label>
                 <input
                   id="cf-name"
@@ -243,17 +349,24 @@ export function ContactUsPage() {
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2A4A]"
+                  className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+                  style={{
+                    background: "oklch(0.20 0.05 250)",
+                    border: "1px solid oklch(0.25 0.06 250)",
+                    color: "oklch(0.95 0.02 240)",
+                  }}
                   placeholder="Your full name"
+                  data-ocid="contact.input"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="cf-email"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: "oklch(0.8 0.03 240)" }}
                 >
-                  Email <span className="text-red-500">*</span>
+                  Email <span style={{ color: "oklch(0.65 0.2 25)" }}>*</span>
                 </label>
                 <input
                   id="cf-email"
@@ -261,17 +374,24 @@ export function ContactUsPage() {
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2A4A]"
+                  className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+                  style={{
+                    background: "oklch(0.20 0.05 250)",
+                    border: "1px solid oklch(0.25 0.06 250)",
+                    color: "oklch(0.95 0.02 240)",
+                  }}
                   placeholder="your@email.com"
+                  data-ocid="contact.input"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="cf-message"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: "oklch(0.8 0.03 240)" }}
                 >
-                  Message <span className="text-red-500">*</span>
+                  Message <span style={{ color: "oklch(0.65 0.2 25)" }}>*</span>
                 </label>
                 <textarea
                   id="cf-message"
@@ -281,56 +401,84 @@ export function ContactUsPage() {
                   onChange={(e) =>
                     setForm({ ...form, message: e.target.value })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2A4A] resize-none"
+                  className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none resize-none"
+                  style={{
+                    background: "oklch(0.20 0.05 250)",
+                    border: "1px solid oklch(0.25 0.06 250)",
+                    color: "oklch(0.95 0.02 240)",
+                  }}
                   placeholder="Write your message here..."
+                  data-ocid="contact.textarea"
                 />
               </div>
 
-              <p className="text-xs text-gray-500">
-                Our{" "}
-                <span className="text-blue-600 cursor-pointer hover:underline">
-                  Privacy Policy
-                </span>{" "}
-                applies.
-              </p>
-
               <button
                 type="submit"
-                className="flex items-center gap-2 bg-[#0B2A4A] hover:bg-[#1E4A7A] text-white px-6 py-2 rounded-lg text-sm font-semibold transition"
+                className="flex items-center gap-2 text-white px-6 py-2 rounded-lg text-sm font-semibold transition-all hover-lift"
+                style={{
+                  background: "oklch(0.78 0.18 65)",
+                  color: "oklch(0.12 0.03 250)",
+                }}
+                data-ocid="contact.submit_button"
               >
-                <Send size={16} /> send
+                <Send size={16} /> Send Message
               </button>
             </form>
           </div>
         </div>
       </div>
 
-      {/* ✅ We Are Authorised Section */}
-      <div className="bg-gradient-to-b from-white to-gray-50 py-12 px-4">
+      {/* We Are Authorised Section */}
+      <div
+        ref={authorisedRef as React.RefObject<HTMLDivElement>}
+        className={`py-12 px-4 transition-all duration-700 ${
+          authorisedInView
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-8"
+        }`}
+        style={{
+          background:
+            "linear-gradient(180deg, oklch(0.12 0.03 250) 0%, oklch(0.15 0.05 260) 100%)",
+          borderTop: "1px solid oklch(0.25 0.06 250)",
+        }}
+      >
         <div className="max-w-5xl mx-auto">
           {/* Headline */}
-          <div className="text-center mb-10 animate-fade-up">
-            <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4 uppercase tracking-wider border border-amber-300">
-              ✅ Officially Recognised
-            </div>
-            <h2
-              className="text-3xl md:text-4xl font-extrabold mb-3"
+          <div className="text-center mb-10">
+            <div
+              className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-4 uppercase tracking-wider"
               style={{
-                background:
-                  "linear-gradient(135deg, #0B2A4A 0%, #008080 50%, #1E88FF 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
+                background: "oklch(0.78 0.18 65 / 0.15)",
+                border: "1px solid oklch(0.78 0.18 65 / 0.4)",
+                color: "oklch(0.78 0.18 65)",
               }}
             >
+              ✅ Officially Recognised
+            </div>
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-3 font-display gradient-text-gold">
               We Are Authorised
             </h2>
             <div className="flex items-center justify-center gap-3">
-              <div className="h-px w-16 bg-gradient-to-r from-transparent to-amber-400" />
+              <div
+                className="h-px w-16"
+                style={{
+                  background:
+                    "linear-gradient(to right, transparent, oklch(0.78 0.18 65))",
+                }}
+              />
               <span className="text-2xl">🏅</span>
-              <div className="h-px w-16 bg-gradient-to-l from-transparent to-amber-400" />
+              <div
+                className="h-px w-16"
+                style={{
+                  background:
+                    "linear-gradient(to left, transparent, oklch(0.78 0.18 65))",
+                }}
+              />
             </div>
-            <p className="text-gray-500 text-sm mt-3 max-w-lg mx-auto">
+            <p
+              className="text-sm mt-3 max-w-lg mx-auto"
+              style={{ color: "oklch(0.6 0.04 240)" }}
+            >
               NextGen IT Hub is an authorised service provider for these
               government and banking institutions
             </p>
@@ -342,11 +490,30 @@ export function ContactUsPage() {
       </div>
 
       {/* Google Maps Embed */}
-      <div className="max-w-5xl mx-auto px-4 pb-12">
-        <div className="bg-white rounded-xl shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-            <MapPin size={20} className="text-[#0B2A4A]" />
-            <h2 className="text-lg font-bold text-[#0B2A4A]">Our Location</h2>
+      <div
+        ref={mapRef as React.RefObject<HTMLDivElement>}
+        className={`max-w-5xl mx-auto px-4 pb-12 transition-all duration-700 ${
+          mapInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        }`}
+      >
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ border: "1px solid oklch(0.25 0.06 250)" }}
+        >
+          <div
+            className="px-6 py-4 flex items-center gap-2"
+            style={{
+              borderBottom: "1px solid oklch(0.25 0.06 250)",
+              background: "oklch(0.16 0.04 250)",
+            }}
+          >
+            <MapPin size={20} style={{ color: "oklch(0.78 0.18 65)" }} />
+            <h2
+              className="text-lg font-bold"
+              style={{ color: "oklch(0.95 0.02 240)" }}
+            >
+              Our Location
+            </h2>
           </div>
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3580.7!2d91.4398!3d26.4456!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x375a67c9b0b0b0b0%3A0x0!2sChamata%2C+Nalbari%2C+Assam+781306!5e0!3m2!1sen!2sin!4v1"
