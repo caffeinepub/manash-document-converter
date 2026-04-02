@@ -637,3 +637,43 @@ export function getGovDocs(): GovDocAdmin[] {
 export function saveGovDocs(docs: GovDocAdmin[]): void {
   localStorage.setItem("govDocs", JSON.stringify(docs));
 }
+
+// ─── Contact Us Types ─────────────────────────────────────────────────────────
+
+export interface ContactInfo {
+  ownerName: string;
+  ownerTitle: string;
+  address: string;
+  pincode: string;
+  phone: string;
+  email: string;
+  youtubeUrl: string;
+  whatsappNumber: string;
+  instagramUrl: string;
+  facebookUrl: string;
+}
+
+const DEFAULT_CONTACT_INFO: ContactInfo = {
+  ownerName: "Mr. Manashjoyti Barman",
+  ownerTitle: "Founder Manash PC World",
+  address: "Chamata, Nalbari, Assam, India",
+  pincode: "781306",
+  phone: "9678311414",
+  email: "manashpcworld@zohomail.in",
+  youtubeUrl: "https://youtube.com",
+  whatsappNumber: "919678311414",
+  instagramUrl: "https://instagram.com",
+  facebookUrl: "https://facebook.com",
+};
+
+export function getContactInfo(): ContactInfo {
+  try {
+    const stored = localStorage.getItem("contactInfo");
+    if (stored) return { ...DEFAULT_CONTACT_INFO, ...JSON.parse(stored) };
+  } catch {}
+  return DEFAULT_CONTACT_INFO;
+}
+
+export function saveContactInfo(info: ContactInfo): void {
+  localStorage.setItem("contactInfo", JSON.stringify(info));
+}

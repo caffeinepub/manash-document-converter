@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useInView } from "../hooks/useInView";
+import { getContactInfo } from "../types";
 
 const AUTHORISED_LOGOS = [
   {
@@ -89,6 +90,7 @@ function AuthorisedCarousel() {
 export function ContactUsPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
+  const contactInfo = getContactInfo();
 
   const { ref: heroRef, inView: heroInView } = useInView();
   const { ref: infoRef, inView: infoInView } = useInView();
@@ -159,13 +161,13 @@ export function ContactUsPage() {
                     style={{ color: "oklch(0.8 0.03 240)" }}
                   >
                     <span className="font-medium">Name : </span>
-                    <strong>Mr. Manashjoyti Barman</strong>
+                    <strong>{contactInfo.ownerName}</strong>
                   </p>
                   <p
                     className="text-xs italic ml-12"
                     style={{ color: "oklch(0.6 0.04 240)" }}
                   >
-                    ( Founder Manash PC World )
+                    ( {contactInfo.ownerTitle} )
                   </p>
                   <p
                     className="text-sm mt-1"
@@ -173,7 +175,7 @@ export function ContactUsPage() {
                   >
                     <span className="font-medium">Address : </span>
                     <strong>
-                      Chamata, Nalbari, Assam, India Pin code - 781306
+                      {contactInfo.address} Pin code - {contactInfo.pincode}
                     </strong>
                   </p>
                 </div>
@@ -191,7 +193,7 @@ export function ContactUsPage() {
                   >
                     <Phone size={14} style={{ color: "oklch(0.78 0.18 65)" }} />
                     <span>
-                      Phone Number: <strong>9678311414</strong>
+                      Phone Number: <strong>{contactInfo.phone}</strong>
                     </span>
                   </div>
                   <div
@@ -202,7 +204,7 @@ export function ContactUsPage() {
                     <span>
                       Email us :{" "}
                       <a
-                        href="mailto:manashpcworld@zohomail.in"
+                        href={`mailto:${contactInfo.email}`}
                         className="hover:underline"
                         style={{ color: "oklch(0.72 0.18 200)" }}
                       >
@@ -218,7 +220,9 @@ export function ContactUsPage() {
                       size={14}
                       style={{ color: "oklch(0.78 0.18 65)" }}
                     />
-                    <span>Chamata, Nalbari, Assam - 781306</span>
+                    <span>
+                      {contactInfo.address} - {contactInfo.pincode}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -253,7 +257,7 @@ export function ContactUsPage() {
               </h2>
               <div className="grid grid-cols-2 gap-3">
                 <a
-                  href="https://youtube.com"
+                  href={contactInfo.youtubeUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-2 text-white px-4 py-2 rounded-lg hover:opacity-80 transition text-sm font-medium"
@@ -262,7 +266,7 @@ export function ContactUsPage() {
                   <Youtube size={18} /> YouTube
                 </a>
                 <a
-                  href="https://wa.me/919678311414"
+                  href={`https://wa.me/${contactInfo.whatsappNumber}`}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-2 text-white px-4 py-2 rounded-lg hover:opacity-80 transition text-sm font-medium"
@@ -271,7 +275,7 @@ export function ContactUsPage() {
                   <MessageCircle size={18} /> WhatsApp
                 </a>
                 <a
-                  href="https://instagram.com"
+                  href={contactInfo.instagramUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-2 text-white px-4 py-2 rounded-lg hover:opacity-90 transition text-sm font-medium"
@@ -283,7 +287,7 @@ export function ContactUsPage() {
                   <Instagram size={18} /> Instagram
                 </a>
                 <a
-                  href="https://facebook.com"
+                  href={contactInfo.facebookUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-2 text-white px-4 py-2 rounded-lg hover:opacity-80 transition text-sm font-medium"

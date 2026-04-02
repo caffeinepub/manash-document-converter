@@ -1,4 +1,15 @@
-import { Briefcase, Edit, FileText, Plus, Save, Trash2, X } from "lucide-react";
+import {
+  Briefcase,
+  Edit,
+  FileText,
+  Mail,
+  MapPin,
+  Phone,
+  Plus,
+  Save,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { Page } from "../App";
@@ -15,6 +26,7 @@ import { Textarea } from "../components/ui/textarea";
 import {
   type AdminConfig,
   type AdmitCard,
+  type ContactInfo,
   type GovDocAdmin,
   type Job,
   type JobResult,
@@ -22,12 +34,14 @@ import {
   type Product,
   getAdminConfig,
   getAdmitCards,
+  getContactInfo,
   getGovDocs,
   getJobs,
   getOrders,
   getProducts,
   getResults,
   saveAdmitCards,
+  saveContactInfo,
   saveGovDocs,
   saveJobs,
   saveOrders,
@@ -45,7 +59,8 @@ type Tab =
   | "orders"
   | "settings"
   | "job-updates"
-  | "gov-documents";
+  | "gov-documents"
+  | "contact";
 
 const ADMIN_EMAIL = "admin@nextgenit.com";
 const ADMIN_PASSWORD = "Admin@123";
@@ -78,6 +93,9 @@ export function AdminPage({ navigate }: Props) {
   const [productDialogOpen, setProductDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [config, setConfig] = useState<AdminConfig>(() => getAdminConfig());
+  const [contactInfo, setContactInfo] = useState<ContactInfo>(() =>
+    getContactInfo(),
+  );
 
   // Job Updates state
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -270,6 +288,7 @@ export function AdminPage({ navigate }: Props) {
               "settings",
               "job-updates",
               "gov-documents",
+              "contact",
             ] as Tab[]
           ).map((t) => (
             <button
@@ -285,11 +304,14 @@ export function AdminPage({ navigate }: Props) {
             >
               {t === "job-updates" && <Briefcase size={14} />}
               {t === "gov-documents" && <FileText size={14} />}
+              {t === "contact" && <MapPin size={14} />}
               {t === "job-updates"
                 ? "Job Updates"
                 : t === "gov-documents"
                   ? "Govt Documents"
-                  : t}
+                  : t === "contact"
+                    ? "Contact Us"
+                    : t}
             </button>
           ))}
         </div>
@@ -967,9 +989,210 @@ export function AdminPage({ navigate }: Props) {
             </div>
           </div>
         )}
-      </div>
 
-      {/* Gov Doc dialog */}
+        {tab === "contact" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-[#0B2A4A]">
+                  Contact Us Settings
+                </h2>
+                <p className="text-sm text-gray-500 mt-0.5">
+                  Update the contact information shown on the Contact Us page
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  saveContactInfo(contactInfo);
+                  toast.success("Contact information saved!");
+                }}
+                className="flex items-center gap-2"
+              >
+                <Save size={15} /> Save Changes
+              </Button>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Owner Info */}
+              <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+                <h3 className="font-semibold text-[#0B2A4A] flex items-center gap-2">
+                  <FileText size={16} className="text-[#1E88FF]" /> Owner
+                  Information
+                </h3>
+                <div>
+                  <Label htmlFor="ci-owner-name">Owner Name</Label>
+                  <Input
+                    id="ci-owner-name"
+                    value={contactInfo.ownerName}
+                    onChange={(e) =>
+                      setContactInfo({
+                        ...contactInfo,
+                        ownerName: e.target.value,
+                      })
+                    }
+                    placeholder="Mr. Manashjoyti Barman"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="ci-owner-title">Owner Title / Role</Label>
+                  <Input
+                    id="ci-owner-title"
+                    value={contactInfo.ownerTitle}
+                    onChange={(e) =>
+                      setContactInfo({
+                        ...contactInfo,
+                        ownerTitle: e.target.value,
+                      })
+                    }
+                    placeholder="Founder Manash PC World"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              {/* Address */}
+              <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+                <h3 className="font-semibold text-[#0B2A4A] flex items-center gap-2">
+                  <MapPin size={16} className="text-[#1E88FF]" /> Address
+                </h3>
+                <div>
+                  <Label htmlFor="ci-address">Address</Label>
+                  <Input
+                    id="ci-address"
+                    value={contactInfo.address}
+                    onChange={(e) =>
+                      setContactInfo({
+                        ...contactInfo,
+                        address: e.target.value,
+                      })
+                    }
+                    placeholder="Chamata, Nalbari, Assam, India"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="ci-pincode">Pincode</Label>
+                  <Input
+                    id="ci-pincode"
+                    value={contactInfo.pincode}
+                    onChange={(e) =>
+                      setContactInfo({
+                        ...contactInfo,
+                        pincode: e.target.value,
+                      })
+                    }
+                    placeholder="781306"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              {/* Contact Details */}
+              <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+                <h3 className="font-semibold text-[#0B2A4A] flex items-center gap-2">
+                  <Phone size={16} className="text-[#1E88FF]" /> Contact Details
+                </h3>
+                <div>
+                  <Label htmlFor="ci-phone">Phone Number</Label>
+                  <Input
+                    id="ci-phone"
+                    value={contactInfo.phone}
+                    onChange={(e) =>
+                      setContactInfo({ ...contactInfo, phone: e.target.value })
+                    }
+                    placeholder="9678311414"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="ci-email">Email Address</Label>
+                  <Input
+                    id="ci-email"
+                    type="email"
+                    value={contactInfo.email}
+                    onChange={(e) =>
+                      setContactInfo({ ...contactInfo, email: e.target.value })
+                    }
+                    placeholder="manashpcworld@zohomail.in"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="ci-whatsapp">
+                    WhatsApp Number (with country code)
+                  </Label>
+                  <Input
+                    id="ci-whatsapp"
+                    value={contactInfo.whatsappNumber}
+                    onChange={(e) =>
+                      setContactInfo({
+                        ...contactInfo,
+                        whatsappNumber: e.target.value,
+                      })
+                    }
+                    placeholder="919678311414"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              {/* Social Links */}
+              <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+                <h3 className="font-semibold text-[#0B2A4A] flex items-center gap-2">
+                  <Mail size={16} className="text-[#1E88FF]" /> Social Media
+                  Links
+                </h3>
+                <div>
+                  <Label htmlFor="ci-youtube">YouTube URL</Label>
+                  <Input
+                    id="ci-youtube"
+                    value={contactInfo.youtubeUrl}
+                    onChange={(e) =>
+                      setContactInfo({
+                        ...contactInfo,
+                        youtubeUrl: e.target.value,
+                      })
+                    }
+                    placeholder="https://youtube.com/@yourchannel"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="ci-instagram">Instagram URL</Label>
+                  <Input
+                    id="ci-instagram"
+                    value={contactInfo.instagramUrl}
+                    onChange={(e) =>
+                      setContactInfo({
+                        ...contactInfo,
+                        instagramUrl: e.target.value,
+                      })
+                    }
+                    placeholder="https://instagram.com/yourprofile"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="ci-facebook">Facebook URL</Label>
+                  <Input
+                    id="ci-facebook"
+                    value={contactInfo.facebookUrl}
+                    onChange={(e) =>
+                      setContactInfo({
+                        ...contactInfo,
+                        facebookUrl: e.target.value,
+                      })
+                    }
+                    placeholder="https://facebook.com/yourpage"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
       <GovDocDialog
         open={govDocDialogOpen}
         onClose={() => setGovDocDialogOpen(false)}
@@ -987,8 +1210,6 @@ export function AdminPage({ navigate }: Props) {
           toast.success(editingGovDoc ? "Document updated" : "Document added");
         }}
       />
-
-      {/* Product dialog */}
       <ProductDialog
         open={productDialogOpen}
         onClose={() => setProductDialogOpen(false)}
@@ -1006,8 +1227,6 @@ export function AdminPage({ navigate }: Props) {
           toast.success(editingProduct ? "Product updated" : "Product added");
         }}
       />
-
-      {/* Job dialog */}
       <JobDialog
         open={jobDialogOpen}
         onClose={() => setJobDialogOpen(false)}
@@ -1025,8 +1244,6 @@ export function AdminPage({ navigate }: Props) {
           toast.success(editingJob ? "Job updated" : "Job added");
         }}
       />
-
-      {/* Admit Card dialog */}
       <SimpleItemDialog
         open={admitCardDialogOpen}
         onClose={() => setAdmitCardDialogOpen(false)}
@@ -1049,8 +1266,6 @@ export function AdminPage({ navigate }: Props) {
           );
         }}
       />
-
-      {/* Result dialog */}
       <SimpleItemDialog
         open={resultDialogOpen}
         onClose={() => setResultDialogOpen(false)}
