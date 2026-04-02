@@ -6,6 +6,7 @@ import {
   MessageCircle,
   Phone,
   Send,
+  User,
   Youtube,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -91,6 +92,7 @@ export function ContactUsPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
   const contactInfo = getContactInfo();
+  const ownerPhoto = localStorage.getItem("contactOwnerPhoto");
 
   const { ref: heroRef, inView: heroInView } = useInView();
   const { ref: infoRef, inView: infoInView } = useInView();
@@ -227,18 +229,31 @@ export function ContactUsPage() {
                 </div>
               </div>
 
-              <div
-                className="w-28 h-36 rounded-lg overflow-hidden flex-shrink-0"
-                style={{ border: "1px solid oklch(0.25 0.06 250)" }}
-              >
-                <img
-                  src="/assets/uploads/picsart_26-03-20_17-21-03-596-019d37d3-67cb-70ae-b887-e779e514ed62-1.png"
-                  alt="Mr. Manashjoyti Barman"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
+              <div className="flex-shrink-0 flex flex-col items-center gap-2">
+                <div
+                  className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center"
+                  style={{
+                    border: "3px solid oklch(0.78 0.18 65)",
+                    background: "oklch(0.12 0.03 250)",
+                    boxShadow: "0 0 16px oklch(0.78 0.18 65 / 0.3)",
                   }}
-                />
+                >
+                  {ownerPhoto ? (
+                    <img
+                      src={ownerPhoto}
+                      alt="Owner Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User size={40} style={{ color: "oklch(0.78 0.18 65)" }} />
+                  )}
+                </div>
+                <span
+                  className="text-xs font-medium text-center"
+                  style={{ color: "oklch(0.78 0.18 65)" }}
+                >
+                  Owner
+                </span>
               </div>
             </div>
 

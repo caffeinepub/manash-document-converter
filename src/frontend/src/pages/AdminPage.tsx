@@ -8,6 +8,8 @@ import {
   Plus,
   Save,
   Trash2,
+  Upload,
+  User,
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -95,6 +97,9 @@ export function AdminPage({ navigate }: Props) {
   const [config, setConfig] = useState<AdminConfig>(() => getAdminConfig());
   const [contactInfo, setContactInfo] = useState<ContactInfo>(() =>
     getContactInfo(),
+  );
+  const [ownerPhotoPreview, setOwnerPhotoPreview] = useState<string | null>(
+    () => localStorage.getItem("contactOwnerPhoto"),
   );
 
   // Job Updates state
@@ -1048,6 +1053,77 @@ export function AdminPage({ navigate }: Props) {
                     placeholder="Founder Manash PC World"
                     className="mt-1"
                   />
+                </div>
+              </div>
+
+              {/* Profile Photo Upload */}
+              <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+                <h3 className="font-semibold text-[#0B2A4A] flex items-center gap-2">
+                  <User size={16} className="text-[#1E88FF]" /> Owner Profile
+                  Photo
+                </h3>
+                <div className="flex items-center gap-4">
+                  <div
+                    className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0"
+                    style={{
+                      border: "2px solid oklch(0.78 0.18 65)",
+                      background: "#f0f4fa",
+                    }}
+                  >
+                    {ownerPhotoPreview ? (
+                      <img
+                        src={ownerPhotoPreview}
+                        alt="Owner Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User size={30} className="text-gray-400" />
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label
+                      htmlFor="owner-photo-upload"
+                      className="cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition text-sm font-medium text-[#0B2A4A]">
+                        <Upload size={14} /> Upload Photo
+                      </div>
+                      <input
+                        id="owner-photo-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (ev) => {
+                            const base64 = ev.target?.result as string;
+                            localStorage.setItem("contactOwnerPhoto", base64);
+                            setOwnerPhotoPreview(base64);
+                            toast.success("Photo uploaded!");
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                      />
+                    </Label>
+                    {ownerPhotoPreview && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          localStorage.removeItem("contactOwnerPhoto");
+                          setOwnerPhotoPreview(null);
+                          toast.success("Photo removed");
+                        }}
+                        className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 transition"
+                      >
+                        <X size={12} /> Remove Photo
+                      </button>
+                    )}
+                    <p className="text-xs text-gray-400">
+                      Circular avatar shown on Contact Us page
+                    </p>
+                  </div>
                 </div>
               </div>
 

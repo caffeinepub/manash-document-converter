@@ -1,4 +1,24 @@
-import emailjs from "@emailjs/browser";
+// EmailJS via REST API (no package needed)
+async function sendEmailJSOtp(params: {
+  serviceId: string;
+  templateId: string;
+  publicKey: string;
+  templateParams: Record<string, string>;
+}): Promise<void> {
+  const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      service_id: params.serviceId,
+      template_id: params.templateId,
+      user_id: params.publicKey,
+      template_params: params.templateParams,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(`EmailJS error: ${res.status}`);
+  }
+}
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { Page } from "../App";
@@ -99,18 +119,18 @@ export function AuthPage({ navigate }: Props) {
 
     try {
       if (tab === "email") {
-        // Send real email OTP via EmailJS
-        await emailjs.send(
-          EMAILJS_SERVICE_ID,
-          EMAILJS_OTP_TEMPLATE_ID,
-          {
+        // Send real email OTP via EmailJS REST API
+        await sendEmailJSOtp({
+          serviceId: EMAILJS_SERVICE_ID,
+          templateId: EMAILJS_OTP_TEMPLATE_ID,
+          publicKey: EMAILJS_PUBLIC_KEY,
+          templateParams: {
             to_email: email,
             otp_code: newOtp,
             to_name: "Customer",
             from_name: "Manash PC World 2.0",
           },
-          EMAILJS_PUBLIC_KEY,
-        );
+        });
         setLoading(false);
         setStep("otp");
         setOtp("");
