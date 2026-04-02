@@ -690,26 +690,37 @@ function FormCard({ form }: { form: GovForm }) {
               <span className="text-xs text-gray-400">{form.fileSize}</span>
             )}
           </div>
-          <a
-            href={form.pdfUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-ocid="forms.download_button"
-          >
+          <div className="flex gap-1.5 items-center flex-wrap">
             <Button
               size="sm"
-              className="text-xs font-semibold gap-1.5 shrink-0"
-              style={{
-                background:
-                  "linear-gradient(135deg, oklch(0.72 0.15 65), oklch(0.62 0.18 55))",
-                color: "oklch(0.12 0.03 250)",
-                border: "none",
-              }}
+              className="text-xs font-semibold gap-1 shrink-0 bg-blue-600 hover:bg-blue-700 text-white border-0"
+              onClick={() => window.open(`/form-guide?id=${form.id}`, "_blank")}
+              data-ocid="forms.more_info_button"
             >
-              <Download size={13} />
-              Download PDF
+              <Info size={13} />
+              More Info
             </Button>
-          </a>
+            <a
+              href={form.pdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-ocid="forms.download_button"
+            >
+              <Button
+                size="sm"
+                className="text-xs font-semibold gap-1.5 shrink-0"
+                style={{
+                  background:
+                    "linear-gradient(135deg, oklch(0.72 0.15 65), oklch(0.62 0.18 55))",
+                  color: "oklch(0.12 0.03 250)",
+                  border: "none",
+                }}
+              >
+                <Download size={13} />
+                Download PDF
+              </Button>
+            </a>
+          </div>
         </div>
       </div>
     </div>

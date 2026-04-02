@@ -1,28 +1,35 @@
 # Manash PC World 2.0
 
 ## Current State
-App has a `/gov-documents` page with document guides. No standalone forms library exists. Admin panel has tabs for dashboard, products, orders, settings, job-updates, gov-documents, contact, certificate, homepage, pan-card.
+- `/assam-forms` page (`AssamFormsPage.tsx`) displays ~50+ government PDF forms in a card grid
+- Each `FormCard` has: category badge, title, description, language tag, file size, and a gold **Download PDF** button
+- No "More Info" button exists currently
+- No form-specific guidelines pages exist
 
 ## Requested Changes (Diff)
 
 ### Add
-- New `/assam-forms` page: Government Forms Library with all Assam edistrict forms + PAN, Aadhaar, and other central government forms. Each form has: title, category, description, download URL (official PDF link). Features: search, category filter, download button.
-- "Government Documents" button at the top of GovDocumentsPage that navigates to `/assam-forms`
-- New "Govt Forms" tab in AdminPage for full CRUD of forms library (add/edit/delete, set category, PDF URL)
-- `assam-forms` added to Page type and App.tsx routing
-- localStorage key `govFormsLibrary` for storing admin-managed forms
+- **"More Info" button** on every form card — blue background (`bg-blue-600`), white font, placed next to the Download PDF button
+- **`FormGuidelinesPage` component** — a new page/route that opens in a **new browser tab** (`window.open`) showing detailed English guidelines for a specific form
+- **Guidelines data map** — a data object keyed by form `id`, containing for each form:
+  - What is this form?
+  - Who can apply?
+  - Documents required
+  - Step-by-step how to fill
+  - Where to submit
+  - Fee details
+- All 50+ default forms must have their own dedicated guidelines content
 
 ### Modify
-- GovDocumentsPage: add a prominent button at the top hero section linking to `/assam-forms`
-- AdminPage: add `govt-forms` to Tab type, add tab button, add tab content section with GovFormsAdminTab component
-- App.tsx: add `assam-forms` to Page type, import AssamFormsPage, add render condition
+- `FormCard` component — add the blue "More Info" button that calls `window.open('/form-guide?id=<formId>', '_blank')`
+- `App.tsx` or router — add route for `/form-guide` page
 
 ### Remove
 - Nothing removed
 
 ## Implementation Plan
-1. Create `src/frontend/src/pages/AssamFormsPage.tsx` with full forms library (50+ pre-loaded forms across categories: PAN Card, Aadhaar, Assam edistrict, Passport, Voter ID, Driving Licence, Income Tax, Birth/Death Certificate, Land Records)
-2. Add `navigate` prop support or use window-based navigation via a shared navigate pattern
-3. Modify `GovDocumentsPage.tsx` to add a "Government Document Forms" button in the hero/top section
-4. Modify `AdminPage.tsx` to add `govt-forms` Tab, tab button, and GovFormsAdminTab component with CRUD
-5. Modify `App.tsx` to add `assam-forms` to Page type, import new page, render it
+1. Create a `formGuidelines` data map in a new file `src/frontend/src/data/formGuidelines.ts` with detailed English guidelines for all 50+ forms
+2. Create `FormGuidePage.tsx` — reads `?id=` query param, looks up the guidelines, renders a clean well-structured page with sections: What is this form, Who can apply, Documents required, Step-by-step guide, Where to submit, Fee
+3. Update `AssamFormsPage.tsx` `FormCard` component — add blue "More Info" button next to Download PDF, clicking it calls `window.open('/form-guide?id=' + form.id, '_blank')`
+4. Register `/form-guide` route in App.tsx
+5. Validate and deploy
