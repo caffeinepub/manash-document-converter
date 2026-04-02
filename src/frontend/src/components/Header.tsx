@@ -1,5 +1,4 @@
 import {
-  Award,
   Bot,
   Briefcase,
   FileImage,
@@ -34,7 +33,6 @@ export function Header({ page, navigate, cartCount }: Props) {
     { label: "Gov Documents", page: "gov-documents" },
     { label: "Contact Us", page: "contact-us" },
     { label: "Manash 2.0", page: "ai-chat" },
-    { label: "Cert & Album", page: "certificate-album" },
   ];
 
   return (
@@ -116,7 +114,6 @@ export function Header({ page, navigate, cartCount }: Props) {
                 {l.page === "gov-documents" && <ScrollText size={14} />}
                 {l.page === "contact-us" && <Mail size={14} />}
                 {l.page === "ai-chat" && <Bot size={14} />}
-                {l.page === "certificate-album" && <Award size={14} />}
                 {l.label}
               </button>
             ))}

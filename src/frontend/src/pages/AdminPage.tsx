@@ -1,4 +1,5 @@
 import {
+  Award,
   Briefcase,
   Edit,
   FileText,
@@ -50,6 +51,7 @@ import {
   saveProducts,
   saveResults,
 } from "../types";
+import { CertificateAlbumPage } from "./CertificateAlbumPage";
 
 interface Props {
   navigate: (p: Page) => void;
@@ -62,7 +64,8 @@ type Tab =
   | "settings"
   | "job-updates"
   | "gov-documents"
-  | "contact";
+  | "contact"
+  | "certificate";
 
 const ADMIN_EMAIL = "admin@nextgenit.com";
 const ADMIN_PASSWORD = "Admin@123";
@@ -294,6 +297,7 @@ export function AdminPage({ navigate }: Props) {
               "job-updates",
               "gov-documents",
               "contact",
+              "certificate",
             ] as Tab[]
           ).map((t) => (
             <button
@@ -310,6 +314,7 @@ export function AdminPage({ navigate }: Props) {
               {t === "job-updates" && <Briefcase size={14} />}
               {t === "gov-documents" && <FileText size={14} />}
               {t === "contact" && <MapPin size={14} />}
+              {t === "certificate" && <Award size={14} />}
               {t === "job-updates"
                 ? "Job Updates"
                 : t === "gov-documents"
@@ -1266,6 +1271,20 @@ export function AdminPage({ navigate }: Props) {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {tab === "certificate" && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-[#0B2A4A]">
+                Certificate & Album Sheet
+              </h2>
+              <p className="text-sm text-gray-500 mt-0.5">
+                Manage certificate and album sheet content
+              </p>
+            </div>
+            <CertificateAlbumPage />
           </div>
         )}
       </div>
