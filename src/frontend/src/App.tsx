@@ -14,6 +14,7 @@ import { GovDocumentsPage } from "./pages/GovDocumentsPage";
 import { HomePage } from "./pages/HomePage";
 import { ImageToolsPage } from "./pages/ImageToolsPage";
 import { JobUpdatesPage } from "./pages/JobUpdatesPage";
+import { PanCardPortalPage } from "./pages/PanCardPortalPage";
 import { ProductDetailPage } from "./pages/ProductDetailPage";
 import { ProductsPage } from "./pages/ProductsPage";
 import type { CartItem } from "./types";
@@ -33,7 +34,8 @@ export type Page =
   | "gov-documents"
   | "contact-us"
   | "ai-chat"
-  | "certificate-album";
+  | "certificate-album"
+  | "pan-card";
 
 export default function App() {
   const [page, setPage] = useState<Page>("home");
@@ -93,6 +95,7 @@ export default function App() {
       {page === "contact-us" && <ContactUsPage />}
       {page === "ai-chat" && <AiChatPage />}
       {page === "certificate-album" && <CertificateAlbumPage />}
+      {page === "pan-card" && <PanCardPortalPage />}
       <Toaster />
     </div>
   );

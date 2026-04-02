@@ -1,17 +1,25 @@
 import {
   Award,
   Briefcase,
+  Camera,
+  CreditCard,
   Edit,
   FileText,
+  Home,
   Mail,
   MapPin,
+  Monitor,
   Phone,
   Plus,
   Save,
+  Settings,
+  Star,
   Trash2,
   Upload,
   User,
+  Wifi,
   X,
+  Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -25,6 +33,7 @@ import {
 } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { Switch } from "../components/ui/switch";
 import { Textarea } from "../components/ui/textarea";
 import {
   type AdminConfig,
@@ -65,7 +74,9 @@ type Tab =
   | "job-updates"
   | "gov-documents"
   | "contact"
-  | "certificate";
+  | "certificate"
+  | "homepage"
+  | "pan-card";
 
 const ADMIN_EMAIL = "admin@nextgenit.com";
 const ADMIN_PASSWORD = "Admin@123";
@@ -298,6 +309,8 @@ export function AdminPage({ navigate }: Props) {
               "gov-documents",
               "contact",
               "certificate",
+              "homepage",
+              "pan-card",
             ] as Tab[]
           ).map((t) => (
             <button
@@ -315,13 +328,19 @@ export function AdminPage({ navigate }: Props) {
               {t === "gov-documents" && <FileText size={14} />}
               {t === "contact" && <MapPin size={14} />}
               {t === "certificate" && <Award size={14} />}
+              {t === "homepage" && <Home size={14} />}
+              {t === "pan-card" && <CreditCard size={14} />}
               {t === "job-updates"
                 ? "Job Updates"
                 : t === "gov-documents"
                   ? "Govt Documents"
                   : t === "contact"
                     ? "Contact Us"
-                    : t}
+                    : t === "homepage"
+                      ? "Homepage"
+                      : t === "pan-card"
+                        ? "PAN Card"
+                        : t}
             </button>
           ))}
         </div>
@@ -1287,6 +1306,11 @@ export function AdminPage({ navigate }: Props) {
             <CertificateAlbumPage />
           </div>
         )}
+        {/* ── HOMEPAGE TAB ── */}
+        {tab === "homepage" && <HomepageAdminTab />}
+
+        {/* ── PAN CARD TAB ── */}
+        {tab === "pan-card" && <PanCardAdminTab />}
       </div>
       <GovDocDialog
         open={govDocDialogOpen}
@@ -1967,5 +1991,1918 @@ function GovDocDialog({ open, onClose, doc, onSave }: GovDocDialogProps) {
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ══════════════════════════════════════════════════════════
+// HOMEPAGE ADMIN TAB
+// ══════════════════════════════════════════════════════════
+
+interface HomeService {
+  id: string;
+  iconKey: string;
+  title: string;
+  desc: string;
+}
+
+interface HomeTestimonial {
+  id: string;
+  name: string;
+  rating: number;
+  review: string;
+}
+
+interface HomepageSettings {
+  heroBannerUrl: string;
+  siteLogo: string;
+  tributeEnabled: boolean;
+  tributePhoto: string;
+  announcementVisible: boolean;
+  announcementText: string;
+  adslotHomepage: string;
+  adslotFluid: string;
+}
+
+const DEFAULT_HOMEPAGE_SETTINGS: HomepageSettings = {
+  heroBannerUrl:
+    "/assets/uploads/1774353229398-019d3a15-c257-750f-9a66-8798cd7598e4-1.png",
+  siteLogo:
+    "/assets/uploads/picsart_26-03-20_17-21-03-596-019d37d3-67cb-70ae-b887-e779e514ed62-1.png",
+  tributeEnabled: true,
+  tributePhoto: "",
+  announcementVisible: false,
+  announcementText: "",
+  adslotHomepage: "2549132160",
+  adslotFluid: "4240548434",
+};
+
+const DEFAULT_HOME_SERVICES: HomeService[] = [
+  {
+    id: "svc-1",
+    iconKey: "zap",
+    title: "Electrical Solutions",
+    desc: "Wide range of quality electrical products and solutions for home and office.",
+  },
+  {
+    id: "svc-2",
+    iconKey: "wifi",
+    title: "Internet Cafe",
+    desc: "High-speed internet, printing, scanning, and computer services.",
+  },
+  {
+    id: "svc-3",
+    iconKey: "camera",
+    title: "Photo & Binding",
+    desc: "Professional photo printing, lamination, and binding services.",
+  },
+];
+
+const DEFAULT_HOME_TESTIMONIALS: HomeTestimonial[] = [
+  {
+    id: "t-1",
+    name: "Rahul Sharma",
+    rating: 5,
+    review:
+      "Excellent service! Got my documents done quickly and professionally.",
+  },
+  {
+    id: "t-2",
+    name: "Priya Singh",
+    rating: 5,
+    review:
+      "Best internet cafe in the area. Fast connection and helpful staff.",
+  },
+  {
+    id: "t-3",
+    name: "Amit Kumar",
+    rating: 4,
+    review:
+      "Great products at reasonable prices. Highly recommend for electrical items.",
+  },
+];
+
+function getIcon(iconKey: string) {
+  if (iconKey === "wifi") return <Wifi size={18} />;
+  if (iconKey === "camera") return <Camera size={18} />;
+  if (iconKey === "monitor") return <Monitor size={18} />;
+  if (iconKey === "settings") return <Settings size={18} />;
+  return <Zap size={18} />;
+}
+
+function HomepageAdminTab() {
+  const [settings, setSettings] = useState<HomepageSettings>(() => {
+    try {
+      return {
+        ...DEFAULT_HOMEPAGE_SETTINGS,
+        ...JSON.parse(localStorage.getItem("homepageSettings") || "{}"),
+      };
+    } catch {
+      return DEFAULT_HOMEPAGE_SETTINGS;
+    }
+  });
+
+  const [services, setServices] = useState<HomeService[]>(() => {
+    try {
+      return (
+        JSON.parse(localStorage.getItem("homepageServices") || "null") ||
+        DEFAULT_HOME_SERVICES
+      );
+    } catch {
+      return DEFAULT_HOME_SERVICES;
+    }
+  });
+
+  const [testimonials, setTestimonials] = useState<HomeTestimonial[]>(() => {
+    try {
+      return (
+        JSON.parse(localStorage.getItem("homepageTestimonials") || "null") ||
+        DEFAULT_HOME_TESTIMONIALS
+      );
+    } catch {
+      return DEFAULT_HOME_TESTIMONIALS;
+    }
+  });
+
+  // Service dialog
+  const [svcDialogOpen, setSvcDialogOpen] = useState(false);
+  const [editingSvc, setEditingSvc] = useState<HomeService | null>(null);
+  const [svcForm, setSvcForm] = useState({
+    iconKey: "zap",
+    title: "",
+    desc: "",
+  });
+
+  // Testimonial dialog
+  const [testimonialDialogOpen, setTestimonialDialogOpen] = useState(false);
+  const [editingTestimonial, setEditingTestimonial] =
+    useState<HomeTestimonial | null>(null);
+  const [testimonialForm, setTestimonialForm] = useState({
+    name: "",
+    rating: 5,
+    review: "",
+  });
+
+  const saveSettings = () => {
+    localStorage.setItem("homepageSettings", JSON.stringify(settings));
+    toast.success("Homepage settings saved!");
+  };
+
+  const saveServices = (updated: HomeService[]) => {
+    setServices(updated);
+    localStorage.setItem("homepageServices", JSON.stringify(updated));
+  };
+
+  const saveTestimonials = (updated: HomeTestimonial[]) => {
+    setTestimonials(updated);
+    localStorage.setItem("homepageTestimonials", JSON.stringify(updated));
+  };
+
+  const openAddSvc = () => {
+    setEditingSvc(null);
+    setSvcForm({ iconKey: "zap", title: "", desc: "" });
+    setSvcDialogOpen(true);
+  };
+
+  const openEditSvc = (svc: HomeService) => {
+    setEditingSvc(svc);
+    setSvcForm({ iconKey: svc.iconKey, title: svc.title, desc: svc.desc });
+    setSvcDialogOpen(true);
+  };
+
+  const saveSvc = () => {
+    if (!svcForm.title.trim()) {
+      toast.error("Title is required");
+      return;
+    }
+    if (editingSvc) {
+      saveServices(
+        services.map((s) =>
+          s.id === editingSvc.id ? { ...editingSvc, ...svcForm } : s,
+        ),
+      );
+      toast.success("Service updated");
+    } else {
+      saveServices([...services, { id: `svc-${Date.now()}`, ...svcForm }]);
+      toast.success("Service added");
+    }
+    setSvcDialogOpen(false);
+  };
+
+  const deleteSvc = (id: string) => {
+    if (!confirm("Delete this service?")) return;
+    saveServices(services.filter((s) => s.id !== id));
+    toast.success("Service deleted");
+  };
+
+  const openAddTestimonial = () => {
+    setEditingTestimonial(null);
+    setTestimonialForm({ name: "", rating: 5, review: "" });
+    setTestimonialDialogOpen(true);
+  };
+
+  const openEditTestimonial = (t: HomeTestimonial) => {
+    setEditingTestimonial(t);
+    setTestimonialForm({ name: t.name, rating: t.rating, review: t.review });
+    setTestimonialDialogOpen(true);
+  };
+
+  const saveTestimonial = () => {
+    if (!testimonialForm.name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+    if (editingTestimonial) {
+      saveTestimonials(
+        testimonials.map((t) =>
+          t.id === editingTestimonial.id
+            ? { ...editingTestimonial, ...testimonialForm }
+            : t,
+        ),
+      );
+      toast.success("Testimonial updated");
+    } else {
+      saveTestimonials([
+        ...testimonials,
+        { id: `t-${Date.now()}`, ...testimonialForm },
+      ]);
+      toast.success("Testimonial added");
+    }
+    setTestimonialDialogOpen(false);
+  };
+
+  const deleteTestimonial = (id: string) => {
+    if (!confirm("Delete this testimonial?")) return;
+    saveTestimonials(testimonials.filter((t) => t.id !== id));
+    toast.success("Testimonial deleted");
+  };
+
+  return (
+    <div>
+      <div className="mb-6 flex items-center gap-3">
+        <Home size={22} className="text-[#1E88FF]" />
+        <div>
+          <h2 className="text-xl font-bold text-[#0B2A4A]">Homepage Editor</h2>
+          <p className="text-sm text-gray-500">
+            Manage all homepage content and settings
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        {/* Section 1: Hero & Banner */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-bold text-[#0B2A4A] mb-4 flex items-center gap-2">
+            <span className="text-lg">🖼️</span> Hero Banner & Logo
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <Label className="text-sm font-medium mb-1 block">
+                Hero Banner Image URL
+              </Label>
+              <Input
+                value={settings.heroBannerUrl}
+                onChange={(e) =>
+                  setSettings({ ...settings, heroBannerUrl: e.target.value })
+                }
+                placeholder="/assets/uploads/banner.png"
+                data-ocid="homepage.banner.input"
+              />
+              {settings.heroBannerUrl && (
+                <img
+                  src={settings.heroBannerUrl}
+                  alt="Banner preview"
+                  className="mt-2 rounded-lg w-full object-cover h-24 border border-gray-200"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              )}
+            </div>
+            <div>
+              <Label className="text-sm font-medium mb-1 block">
+                Site Logo URL
+              </Label>
+              <Input
+                value={settings.siteLogo}
+                onChange={(e) =>
+                  setSettings({ ...settings, siteLogo: e.target.value })
+                }
+                placeholder="/assets/uploads/logo.png"
+                data-ocid="homepage.logo.input"
+              />
+              {settings.siteLogo && (
+                <img
+                  src={settings.siteLogo}
+                  alt="Logo preview"
+                  className="mt-2 h-14 object-contain border border-gray-200 rounded p-1 bg-gray-50"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              )}
+            </div>
+          </div>
+          <Button
+            onClick={saveSettings}
+            className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+            data-ocid="homepage.settings.save_button"
+          >
+            <Save size={14} className="mr-1" /> Save Banner & Logo
+          </Button>
+        </div>
+
+        {/* Section 2: Tribute Popup */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-bold text-[#0B2A4A] mb-4 flex items-center gap-2">
+            <span className="text-lg">🙏</span> Tribute Popup (Zubeen Daa)
+          </h3>
+          <div className="flex items-center gap-3 mb-4">
+            <Switch
+              checked={settings.tributeEnabled}
+              onCheckedChange={(v) =>
+                setSettings({ ...settings, tributeEnabled: v })
+              }
+              data-ocid="homepage.tribute.switch"
+            />
+            <Label className="cursor-pointer">
+              {settings.tributeEnabled ? "Popup Enabled" : "Popup Disabled"}
+            </Label>
+          </div>
+          {settings.tributeEnabled && (
+            <div className="mb-4">
+              <Label className="text-sm font-medium mb-1 block">
+                Tribute Photo URL (optional override)
+              </Label>
+              <Input
+                value={settings.tributePhoto}
+                onChange={(e) =>
+                  setSettings({ ...settings, tributePhoto: e.target.value })
+                }
+                placeholder="Leave blank to use default photo"
+                data-ocid="homepage.tribute.input"
+              />
+            </div>
+          )}
+          <Button
+            onClick={saveSettings}
+            className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+            data-ocid="homepage.tribute.save_button"
+          >
+            <Save size={14} className="mr-1" /> Save Tribute Settings
+          </Button>
+        </div>
+
+        {/* Section 3: Announcement Bar */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-bold text-[#0B2A4A] mb-4 flex items-center gap-2">
+            <span className="text-lg">📢</span> Announcement Bar
+          </h3>
+          <div className="flex items-center gap-3 mb-4">
+            <Switch
+              checked={settings.announcementVisible}
+              onCheckedChange={(v) =>
+                setSettings({ ...settings, announcementVisible: v })
+              }
+              data-ocid="homepage.announcement.switch"
+            />
+            <Label className="cursor-pointer">
+              {settings.announcementVisible
+                ? "Announcement Visible"
+                : "Announcement Hidden"}
+            </Label>
+          </div>
+          {settings.announcementVisible && (
+            <div className="mb-4">
+              <Label className="text-sm font-medium mb-1 block">
+                Announcement Text
+              </Label>
+              <Textarea
+                value={settings.announcementText}
+                onChange={(e) =>
+                  setSettings({ ...settings, announcementText: e.target.value })
+                }
+                placeholder="Enter your announcement here..."
+                rows={2}
+                data-ocid="homepage.announcement.textarea"
+              />
+            </div>
+          )}
+          <Button
+            onClick={saveSettings}
+            className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+            data-ocid="homepage.announcement.save_button"
+          >
+            <Save size={14} className="mr-1" /> Save Announcement
+          </Button>
+        </div>
+
+        {/* Section 4: AdSense Slots */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-bold text-[#0B2A4A] mb-4 flex items-center gap-2">
+            <span className="text-lg">💰</span> AdSense Slot IDs
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <Label className="text-sm font-medium mb-1 block">
+                Homepage Banner Slot ID
+              </Label>
+              <Input
+                value={settings.adslotHomepage}
+                onChange={(e) =>
+                  setSettings({ ...settings, adslotHomepage: e.target.value })
+                }
+                placeholder="e.g. 2549132160"
+                data-ocid="homepage.adsense.banner.input"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium mb-1 block">
+                Homepage Fluid/In-feed Slot ID
+              </Label>
+              <Input
+                value={settings.adslotFluid}
+                onChange={(e) =>
+                  setSettings({ ...settings, adslotFluid: e.target.value })
+                }
+                placeholder="e.g. 4240548434"
+                data-ocid="homepage.adsense.fluid.input"
+              />
+            </div>
+          </div>
+          <Button
+            onClick={saveSettings}
+            className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+            data-ocid="homepage.adsense.save_button"
+          >
+            <Save size={14} className="mr-1" /> Save AdSense Settings
+          </Button>
+        </div>
+
+        {/* Section 5: Services CRUD */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-[#0B2A4A] flex items-center gap-2">
+              <span className="text-lg">⚙️</span> Services
+            </h3>
+            <Button
+              onClick={openAddSvc}
+              size="sm"
+              className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+              data-ocid="homepage.services.open_modal_button"
+            >
+              <Plus size={14} className="mr-1" /> Add Service
+            </Button>
+          </div>
+          <div className="rounded-lg border border-gray-200 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Icon
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Title
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A] hidden md:table-cell">
+                    Description
+                  </th>
+                  <th className="text-right px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {services.map((svc, i) => (
+                  <tr
+                    key={svc.id}
+                    className="border-b border-gray-100 last:border-0"
+                    data-ocid={`homepage.services.item.${i + 1}`}
+                  >
+                    <td className="px-4 py-3 text-[#1E88FF]">
+                      {getIcon(svc.iconKey)}
+                    </td>
+                    <td className="px-4 py-3 font-medium text-[#0B2A4A]">
+                      {svc.title}
+                    </td>
+                    <td className="px-4 py-3 text-gray-500 hidden md:table-cell line-clamp-1">
+                      {svc.desc}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          type="button"
+                          onClick={() => openEditSvc(svc)}
+                          className="text-blue-500 hover:text-blue-700 p-1"
+                          data-ocid={`homepage.services.edit_button.${i + 1}`}
+                        >
+                          <Edit size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteSvc(svc.id)}
+                          className="text-red-400 hover:text-red-600 p-1"
+                          data-ocid={`homepage.services.delete_button.${i + 1}`}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {services.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="text-center text-gray-400 py-6"
+                      data-ocid="homepage.services.empty_state"
+                    >
+                      No services yet
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Section 6: Testimonials CRUD */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-[#0B2A4A] flex items-center gap-2">
+              <span className="text-lg">⭐</span> Customer Testimonials
+            </h3>
+            <Button
+              onClick={openAddTestimonial}
+              size="sm"
+              className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+              data-ocid="homepage.testimonials.open_modal_button"
+            >
+              <Plus size={14} className="mr-1" /> Add Review
+            </Button>
+          </div>
+          <div className="rounded-lg border border-gray-200 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Name
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Rating
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A] hidden md:table-cell">
+                    Review
+                  </th>
+                  <th className="text-right px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {testimonials.map((t, i) => (
+                  <tr
+                    key={t.id}
+                    className="border-b border-gray-100 last:border-0"
+                    data-ocid={`homepage.testimonials.item.${i + 1}`}
+                  >
+                    <td className="px-4 py-3 font-medium text-[#0B2A4A]">
+                      {t.name}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: t.rating }, (_, idx) => (
+                          <Star
+                            key={`star-${t.id}-${idx}`}
+                            size={13}
+                            className="text-yellow-400 fill-yellow-400"
+                          />
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-500 hidden md:table-cell line-clamp-1">
+                      {t.review}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          type="button"
+                          onClick={() => openEditTestimonial(t)}
+                          className="text-blue-500 hover:text-blue-700 p-1"
+                          data-ocid={`homepage.testimonials.edit_button.${i + 1}`}
+                        >
+                          <Edit size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteTestimonial(t.id)}
+                          className="text-red-400 hover:text-red-600 p-1"
+                          data-ocid={`homepage.testimonials.delete_button.${i + 1}`}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {testimonials.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="text-center text-gray-400 py-6"
+                      data-ocid="homepage.testimonials.empty_state"
+                    >
+                      No testimonials yet
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Service Dialog */}
+      <Dialog open={svcDialogOpen} onOpenChange={setSvcDialogOpen}>
+        <DialogContent
+          className="max-w-md"
+          data-ocid="homepage.services.dialog"
+        >
+          <DialogHeader>
+            <DialogTitle>
+              {editingSvc ? "Edit Service" : "Add Service"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="mb-1 block">Icon Key</Label>
+              <select
+                value={svcForm.iconKey}
+                onChange={(e) =>
+                  setSvcForm({ ...svcForm, iconKey: e.target.value })
+                }
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88FF]"
+                data-ocid="homepage.services.select"
+              >
+                <option value="zap">⚡ Zap (Electrical)</option>
+                <option value="wifi">📶 Wifi (Internet)</option>
+                <option value="camera">📷 Camera (Photo)</option>
+                <option value="monitor">🖥️ Monitor (Computer)</option>
+                <option value="settings">⚙️ Settings (General)</option>
+              </select>
+            </div>
+            <div>
+              <Label className="mb-1 block">Title *</Label>
+              <Input
+                value={svcForm.title}
+                onChange={(e) =>
+                  setSvcForm({ ...svcForm, title: e.target.value })
+                }
+                placeholder="Service title"
+                data-ocid="homepage.services.title.input"
+              />
+            </div>
+            <div>
+              <Label className="mb-1 block">Description</Label>
+              <Textarea
+                value={svcForm.desc}
+                onChange={(e) =>
+                  setSvcForm({ ...svcForm, desc: e.target.value })
+                }
+                placeholder="Service description"
+                rows={3}
+                data-ocid="homepage.services.desc.textarea"
+              />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setSvcDialogOpen(false)}
+                data-ocid="homepage.services.cancel_button"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={saveSvc}
+                className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+                data-ocid="homepage.services.submit_button"
+              >
+                {editingSvc ? "Update" : "Add"} Service
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Testimonial Dialog */}
+      <Dialog
+        open={testimonialDialogOpen}
+        onOpenChange={setTestimonialDialogOpen}
+      >
+        <DialogContent
+          className="max-w-md"
+          data-ocid="homepage.testimonials.dialog"
+        >
+          <DialogHeader>
+            <DialogTitle>
+              {editingTestimonial ? "Edit Testimonial" : "Add Testimonial"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="mb-1 block">Customer Name *</Label>
+              <Input
+                value={testimonialForm.name}
+                onChange={(e) =>
+                  setTestimonialForm({
+                    ...testimonialForm,
+                    name: e.target.value,
+                  })
+                }
+                placeholder="e.g. Rahul Sharma"
+                data-ocid="homepage.testimonials.name.input"
+              />
+            </div>
+            <div>
+              <Label className="mb-1 block">Rating (1–5)</Label>
+              <Input
+                type="number"
+                min={1}
+                max={5}
+                value={testimonialForm.rating}
+                onChange={(e) =>
+                  setTestimonialForm({
+                    ...testimonialForm,
+                    rating: Math.min(5, Math.max(1, Number(e.target.value))),
+                  })
+                }
+                data-ocid="homepage.testimonials.rating.input"
+              />
+            </div>
+            <div>
+              <Label className="mb-1 block">Review Text</Label>
+              <Textarea
+                value={testimonialForm.review}
+                onChange={(e) =>
+                  setTestimonialForm({
+                    ...testimonialForm,
+                    review: e.target.value,
+                  })
+                }
+                placeholder="Customer review..."
+                rows={3}
+                data-ocid="homepage.testimonials.review.textarea"
+              />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setTestimonialDialogOpen(false)}
+                data-ocid="homepage.testimonials.cancel_button"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={saveTestimonial}
+                className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+                data-ocid="homepage.testimonials.submit_button"
+              >
+                {editingTestimonial ? "Update" : "Add"} Testimonial
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════
+// PAN CARD ADMIN TAB
+// ══════════════════════════════════════════════════════════
+
+interface PanHeroText {
+  title: string;
+  subtitle: string;
+}
+
+interface PanService {
+  id: string;
+  title: string;
+  desc: string;
+  fee: string;
+  badge: string;
+}
+
+interface PanFaq {
+  id: string;
+  q: string;
+  a: string;
+}
+
+interface PanFeeRow {
+  id: string;
+  service: string;
+  indian: string;
+  foreign: string;
+  notes: string;
+}
+
+interface PanLink {
+  id: string;
+  title: string;
+  sub: string;
+  url: string;
+}
+
+const DEFAULT_PAN_HERO: PanHeroText = {
+  title: "PAN Card Services",
+  subtitle: "Government of India — Income Tax Department",
+};
+
+const DEFAULT_PAN_SERVICES: PanService[] = [
+  {
+    id: "apply-49a",
+    title: "Apply New PAN (Form 49A)",
+    desc: "For Indian citizens...",
+    fee: "₹107",
+    badge: "Indian Citizens",
+  },
+  {
+    id: "apply-49aa",
+    title: "Apply New PAN (Form 49AA)",
+    desc: "For foreign nationals/NRIs...",
+    fee: "₹1,017",
+    badge: "Foreign Nationals",
+  },
+  {
+    id: "correction",
+    title: "PAN Correction / Update",
+    desc: "Update name, DOB...",
+    fee: "₹110",
+    badge: "",
+  },
+  {
+    id: "reprint",
+    title: "Reprint PAN Card",
+    desc: "Lost or damaged card...",
+    fee: "₹50",
+    badge: "",
+  },
+  {
+    id: "know-pan",
+    title: "Know Your PAN",
+    desc: "Find your PAN number...",
+    fee: "Free",
+    badge: "",
+  },
+  {
+    id: "track",
+    title: "Track Application Status",
+    desc: "Check status of your application...",
+    fee: "Free",
+    badge: "",
+  },
+  {
+    id: "link-aadhaar",
+    title: "Link PAN with Aadhaar",
+    desc: "Mandatory linking...",
+    fee: "₹1,000",
+    badge: "Mandatory",
+  },
+  {
+    id: "epan",
+    title: "Download e-PAN",
+    desc: "Download digital PAN...",
+    fee: "Free (30 days)",
+    badge: "",
+  },
+];
+
+const DEFAULT_PAN_FAQS: PanFaq[] = [
+  {
+    id: "faq-1",
+    q: "What is a PAN Card?",
+    a: "PAN (Permanent Account Number) is a 10-digit alphanumeric identifier issued by the Income Tax Department of India.",
+  },
+  {
+    id: "faq-2",
+    q: "Who needs a PAN Card?",
+    a: "Anyone liable to pay income tax, or conducting financial transactions above prescribed limits.",
+  },
+  {
+    id: "faq-3",
+    q: "What is the validity of a PAN Card?",
+    a: "A PAN Card is valid for a lifetime and does not expire.",
+  },
+  {
+    id: "faq-4",
+    q: "How long does it take to get a PAN Card?",
+    a: "Physical PAN card takes 15-20 working days. e-PAN is available within 30 minutes to 2 hours.",
+  },
+  {
+    id: "faq-5",
+    q: "What documents are required for a new PAN Card?",
+    a: "Proof of Identity (Aadhaar, Passport, Voter ID), Proof of Address, Proof of Date of Birth, and 2 passport-size photos.",
+  },
+  {
+    id: "faq-6",
+    q: "Can I have two PAN Cards?",
+    a: "No. Having more than one PAN is illegal and subject to penalty of ₹10,000 under Section 272B.",
+  },
+  {
+    id: "faq-7",
+    q: "Is linking PAN with Aadhaar mandatory?",
+    a: "Yes, linking PAN with Aadhaar is mandatory. PAN becomes inoperative if not linked by the due date.",
+  },
+];
+
+const DEFAULT_PAN_FEE_TABLE: PanFeeRow[] = [
+  {
+    id: "fee-1",
+    service: "New PAN (Form 49A)",
+    indian: "₹107",
+    foreign: "₹1,017",
+    notes: "Includes GST + dispatch charges",
+  },
+  {
+    id: "fee-2",
+    service: "New PAN (Form 49AA)",
+    indian: "₹107",
+    foreign: "₹1,017",
+    notes: "For foreign nationals/NRIs",
+  },
+  {
+    id: "fee-3",
+    service: "PAN Correction/Update",
+    indian: "₹110",
+    foreign: "₹1,020",
+    notes: "Change in name, DOB, address",
+  },
+  {
+    id: "fee-4",
+    service: "Reprint PAN Card",
+    indian: "₹50",
+    foreign: "₹959",
+    notes: "Lost/damaged card replacement",
+  },
+  {
+    id: "fee-5",
+    service: "e-PAN Download",
+    indian: "Free",
+    foreign: "Free",
+    notes: "Within 30 days of allotment",
+  },
+  {
+    id: "fee-6",
+    service: "PAN-Aadhaar Link",
+    indian: "₹1,000",
+    foreign: "₹1,000",
+    notes: "Late fee applicable",
+  },
+];
+
+const DEFAULT_PAN_LINKS: PanLink[] = [
+  {
+    id: "link-1",
+    title: "NSDL PAN Portal",
+    sub: "onlineservices.nsdl.com",
+    url: "https://www.onlineservices.nsdl.com/paam/endUserRegisterContact.html",
+  },
+  {
+    id: "link-2",
+    title: "UTIITSL PAN Portal",
+    sub: "utiitsl.com",
+    url: "https://www.utiitsl.com/UTIITSL_SITE/pan/",
+  },
+  {
+    id: "link-3",
+    title: "Income Tax e-Filing",
+    sub: "incometax.gov.in",
+    url: "https://www.incometax.gov.in/iec/foportal/",
+  },
+  {
+    id: "link-4",
+    title: "PAN-Aadhaar Link Status",
+    sub: "eportal.incometax.gov.in",
+    url: "https://eportal.incometax.gov.in/iec/foservices/#/pre-login/bl-link-aadhaar-with-pan",
+  },
+];
+
+function PanCardAdminTab() {
+  const [heroText, setHeroText] = useState<PanHeroText>(() => {
+    try {
+      return (
+        JSON.parse(localStorage.getItem("panHeroText") || "null") ||
+        DEFAULT_PAN_HERO
+      );
+    } catch {
+      return DEFAULT_PAN_HERO;
+    }
+  });
+
+  const [services, setServices] = useState<PanService[]>(() => {
+    try {
+      return (
+        JSON.parse(localStorage.getItem("panServices") || "null") ||
+        DEFAULT_PAN_SERVICES
+      );
+    } catch {
+      return DEFAULT_PAN_SERVICES;
+    }
+  });
+
+  const [faqs, setFaqs] = useState<PanFaq[]>(() => {
+    try {
+      return (
+        JSON.parse(localStorage.getItem("panFaqs") || "null") ||
+        DEFAULT_PAN_FAQS
+      );
+    } catch {
+      return DEFAULT_PAN_FAQS;
+    }
+  });
+
+  const [feeTable, setFeeTable] = useState<PanFeeRow[]>(() => {
+    try {
+      return (
+        JSON.parse(localStorage.getItem("panFeeTable") || "null") ||
+        DEFAULT_PAN_FEE_TABLE
+      );
+    } catch {
+      return DEFAULT_PAN_FEE_TABLE;
+    }
+  });
+
+  const [links, setLinks] = useState<PanLink[]>(() => {
+    try {
+      return (
+        JSON.parse(localStorage.getItem("panLinks") || "null") ||
+        DEFAULT_PAN_LINKS
+      );
+    } catch {
+      return DEFAULT_PAN_LINKS;
+    }
+  });
+
+  // Dialog states
+  const [svcDialog, setSvcDialog] = useState(false);
+  const [editingSvc, setEditingSvc] = useState<PanService | null>(null);
+  const [svcForm, setSvcForm] = useState<Omit<PanService, "id">>({
+    title: "",
+    desc: "",
+    fee: "",
+    badge: "",
+  });
+
+  const [faqDialog, setFaqDialog] = useState(false);
+  const [editingFaq, setEditingFaq] = useState<PanFaq | null>(null);
+  const [faqForm, setFaqForm] = useState({ q: "", a: "" });
+
+  const [feeDialog, setFeeDialog] = useState(false);
+  const [editingFee, setEditingFee] = useState<PanFeeRow | null>(null);
+  const [feeForm, setFeeForm] = useState({
+    service: "",
+    indian: "",
+    foreign: "",
+    notes: "",
+  });
+
+  const [linkDialog, setLinkDialog] = useState(false);
+  const [editingLink, setEditingLink] = useState<PanLink | null>(null);
+  const [linkForm, setLinkForm] = useState({ title: "", sub: "", url: "" });
+
+  const saveHero = () => {
+    localStorage.setItem("panHeroText", JSON.stringify(heroText));
+    toast.success("PAN portal hero text saved!");
+  };
+
+  // Service CRUD
+  const saveSvc = () => {
+    if (!svcForm.title.trim()) {
+      toast.error("Title required");
+      return;
+    }
+    let updated: PanService[];
+    if (editingSvc) {
+      updated = services.map((s) =>
+        s.id === editingSvc.id ? { ...editingSvc, ...svcForm } : s,
+      );
+      toast.success("Service updated");
+    } else {
+      updated = [...services, { id: `svc-${Date.now()}`, ...svcForm }];
+      toast.success("Service added");
+    }
+    setServices(updated);
+    localStorage.setItem("panServices", JSON.stringify(updated));
+    setSvcDialog(false);
+  };
+
+  const deleteSvc = (id: string) => {
+    if (!confirm("Delete this service?")) return;
+    const updated = services.filter((s) => s.id !== id);
+    setServices(updated);
+    localStorage.setItem("panServices", JSON.stringify(updated));
+    toast.success("Service deleted");
+  };
+
+  // FAQ CRUD
+  const saveFaq = () => {
+    if (!faqForm.q.trim()) {
+      toast.error("Question required");
+      return;
+    }
+    let updated: PanFaq[];
+    if (editingFaq) {
+      updated = faqs.map((f) =>
+        f.id === editingFaq.id ? { ...editingFaq, ...faqForm } : f,
+      );
+      toast.success("FAQ updated");
+    } else {
+      updated = [...faqs, { id: `faq-${Date.now()}`, ...faqForm }];
+      toast.success("FAQ added");
+    }
+    setFaqs(updated);
+    localStorage.setItem("panFaqs", JSON.stringify(updated));
+    setFaqDialog(false);
+  };
+
+  const deleteFaq = (id: string) => {
+    if (!confirm("Delete this FAQ?")) return;
+    const updated = faqs.filter((f) => f.id !== id);
+    setFaqs(updated);
+    localStorage.setItem("panFaqs", JSON.stringify(updated));
+    toast.success("FAQ deleted");
+  };
+
+  // Fee CRUD
+  const saveFee = () => {
+    if (!feeForm.service.trim()) {
+      toast.error("Service name required");
+      return;
+    }
+    let updated: PanFeeRow[];
+    if (editingFee) {
+      updated = feeTable.map((f) =>
+        f.id === editingFee.id ? { ...editingFee, ...feeForm } : f,
+      );
+      toast.success("Fee row updated");
+    } else {
+      updated = [...feeTable, { id: `fee-${Date.now()}`, ...feeForm }];
+      toast.success("Fee row added");
+    }
+    setFeeTable(updated);
+    localStorage.setItem("panFeeTable", JSON.stringify(updated));
+    setFeeDialog(false);
+  };
+
+  const deleteFee = (id: string) => {
+    if (!confirm("Delete this fee row?")) return;
+    const updated = feeTable.filter((f) => f.id !== id);
+    setFeeTable(updated);
+    localStorage.setItem("panFeeTable", JSON.stringify(updated));
+    toast.success("Fee row deleted");
+  };
+
+  // Link CRUD
+  const saveLink = () => {
+    if (!linkForm.title.trim()) {
+      toast.error("Title required");
+      return;
+    }
+    let updated: PanLink[];
+    if (editingLink) {
+      updated = links.map((l) =>
+        l.id === editingLink.id ? { ...editingLink, ...linkForm } : l,
+      );
+      toast.success("Link updated");
+    } else {
+      updated = [...links, { id: `link-${Date.now()}`, ...linkForm }];
+      toast.success("Link added");
+    }
+    setLinks(updated);
+    localStorage.setItem("panLinks", JSON.stringify(updated));
+    setLinkDialog(false);
+  };
+
+  const deleteLink = (id: string) => {
+    if (!confirm("Delete this link?")) return;
+    const updated = links.filter((l) => l.id !== id);
+    setLinks(updated);
+    localStorage.setItem("panLinks", JSON.stringify(updated));
+    toast.success("Link deleted");
+  };
+
+  return (
+    <div>
+      <div className="mb-6 flex items-center gap-3">
+        <CreditCard size={22} className="text-[#1E88FF]" />
+        <div>
+          <h2 className="text-xl font-bold text-[#0B2A4A]">
+            PAN Card Portal Editor
+          </h2>
+          <p className="text-sm text-gray-500">
+            Manage PAN Card portal content, services, fees and FAQs
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        {/* Section 1: Hero Text */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-bold text-[#0B2A4A] mb-4 flex items-center gap-2">
+            <span className="text-lg">🏛️</span> Hero Section Text
+          </h3>
+          <div className="space-y-3 mb-4">
+            <div>
+              <Label className="mb-1 block">Page Title</Label>
+              <Input
+                value={heroText.title}
+                onChange={(e) =>
+                  setHeroText({ ...heroText, title: e.target.value })
+                }
+                placeholder="PAN Card Services"
+                data-ocid="pan.hero.title.input"
+              />
+            </div>
+            <div>
+              <Label className="mb-1 block">Page Subtitle / Description</Label>
+              <Input
+                value={heroText.subtitle}
+                onChange={(e) =>
+                  setHeroText({ ...heroText, subtitle: e.target.value })
+                }
+                placeholder="Government of India — Income Tax Department"
+                data-ocid="pan.hero.subtitle.input"
+              />
+            </div>
+          </div>
+          <Button
+            onClick={saveHero}
+            className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+            data-ocid="pan.hero.save_button"
+          >
+            <Save size={14} className="mr-1" /> Save Hero Text
+          </Button>
+        </div>
+
+        {/* Section 2: Services CRUD */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-[#0B2A4A] flex items-center gap-2">
+              <span className="text-lg">🃏</span> Services
+            </h3>
+            <Button
+              size="sm"
+              className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+              onClick={() => {
+                setEditingSvc(null);
+                setSvcForm({ title: "", desc: "", fee: "", badge: "" });
+                setSvcDialog(true);
+              }}
+              data-ocid="pan.services.open_modal_button"
+            >
+              <Plus size={14} className="mr-1" /> Add Service
+            </Button>
+          </div>
+          <div className="rounded-lg border border-gray-200 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Title
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Fee
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A] hidden md:table-cell">
+                    Badge
+                  </th>
+                  <th className="text-right px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {services.map((svc, i) => (
+                  <tr
+                    key={svc.id}
+                    className="border-b border-gray-100 last:border-0"
+                    data-ocid={`pan.services.item.${i + 1}`}
+                  >
+                    <td className="px-4 py-3 font-medium text-[#0B2A4A]">
+                      {svc.title}
+                    </td>
+                    <td className="px-4 py-3 text-green-700 font-semibold">
+                      {svc.fee}
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell">
+                      {svc.badge && (
+                        <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                          {svc.badge}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingSvc(svc);
+                            setSvcForm({
+                              title: svc.title,
+                              desc: svc.desc,
+                              fee: svc.fee,
+                              badge: svc.badge,
+                            });
+                            setSvcDialog(true);
+                          }}
+                          className="text-blue-500 hover:text-blue-700 p-1"
+                          data-ocid={`pan.services.edit_button.${i + 1}`}
+                        >
+                          <Edit size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteSvc(svc.id)}
+                          className="text-red-400 hover:text-red-600 p-1"
+                          data-ocid={`pan.services.delete_button.${i + 1}`}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {services.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="text-center text-gray-400 py-6"
+                      data-ocid="pan.services.empty_state"
+                    >
+                      No services yet
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Section 3: FAQ CRUD */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-[#0B2A4A] flex items-center gap-2">
+              <span className="text-lg">❓</span> FAQ
+            </h3>
+            <Button
+              size="sm"
+              className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+              onClick={() => {
+                setEditingFaq(null);
+                setFaqForm({ q: "", a: "" });
+                setFaqDialog(true);
+              }}
+              data-ocid="pan.faq.open_modal_button"
+            >
+              <Plus size={14} className="mr-1" /> Add FAQ
+            </Button>
+          </div>
+          <div className="rounded-lg border border-gray-200 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A]">
+                    #
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Question
+                  </th>
+                  <th className="text-right px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {faqs.map((faq, i) => (
+                  <tr
+                    key={faq.id}
+                    className="border-b border-gray-100 last:border-0"
+                    data-ocid={`pan.faq.item.${i + 1}`}
+                  >
+                    <td className="px-4 py-3 text-gray-400">{i + 1}</td>
+                    <td className="px-4 py-3 text-[#0B2A4A]">{faq.q}</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingFaq(faq);
+                            setFaqForm({ q: faq.q, a: faq.a });
+                            setFaqDialog(true);
+                          }}
+                          className="text-blue-500 hover:text-blue-700 p-1"
+                          data-ocid={`pan.faq.edit_button.${i + 1}`}
+                        >
+                          <Edit size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteFaq(faq.id)}
+                          className="text-red-400 hover:text-red-600 p-1"
+                          data-ocid={`pan.faq.delete_button.${i + 1}`}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {faqs.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={3}
+                      className="text-center text-gray-400 py-6"
+                      data-ocid="pan.faq.empty_state"
+                    >
+                      No FAQs yet
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Section 4: Fee Table CRUD */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-[#0B2A4A] flex items-center gap-2">
+              <span className="text-lg">💳</span> Fee Table
+            </h3>
+            <Button
+              size="sm"
+              className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+              onClick={() => {
+                setEditingFee(null);
+                setFeeForm({ service: "", indian: "", foreign: "", notes: "" });
+                setFeeDialog(true);
+              }}
+              data-ocid="pan.fees.open_modal_button"
+            >
+              <Plus size={14} className="mr-1" /> Add Fee Row
+            </Button>
+          </div>
+          <div className="rounded-lg border border-gray-200 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Service
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Indian
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Foreign
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A] hidden md:table-cell">
+                    Notes
+                  </th>
+                  <th className="text-right px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {feeTable.map((fee, i) => (
+                  <tr
+                    key={fee.id}
+                    className="border-b border-gray-100 last:border-0"
+                    data-ocid={`pan.fees.item.${i + 1}`}
+                  >
+                    <td className="px-4 py-3 font-medium text-[#0B2A4A]">
+                      {fee.service}
+                    </td>
+                    <td className="px-4 py-3 text-green-700 font-semibold">
+                      {fee.indian}
+                    </td>
+                    <td className="px-4 py-3 text-blue-700 font-semibold">
+                      {fee.foreign}
+                    </td>
+                    <td className="px-4 py-3 text-gray-500 hidden md:table-cell">
+                      {fee.notes}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingFee(fee);
+                            setFeeForm({
+                              service: fee.service,
+                              indian: fee.indian,
+                              foreign: fee.foreign,
+                              notes: fee.notes,
+                            });
+                            setFeeDialog(true);
+                          }}
+                          className="text-blue-500 hover:text-blue-700 p-1"
+                          data-ocid={`pan.fees.edit_button.${i + 1}`}
+                        >
+                          <Edit size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteFee(fee.id)}
+                          className="text-red-400 hover:text-red-600 p-1"
+                          data-ocid={`pan.fees.delete_button.${i + 1}`}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {feeTable.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="text-center text-gray-400 py-6"
+                      data-ocid="pan.fees.empty_state"
+                    >
+                      No fee rows yet
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Section 5: Official Links CRUD */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-[#0B2A4A] flex items-center gap-2">
+              <span className="text-lg">🔗</span> Official Links
+            </h3>
+            <Button
+              size="sm"
+              className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+              onClick={() => {
+                setEditingLink(null);
+                setLinkForm({ title: "", sub: "", url: "" });
+                setLinkDialog(true);
+              }}
+              data-ocid="pan.links.open_modal_button"
+            >
+              <Plus size={14} className="mr-1" /> Add Link
+            </Button>
+          </div>
+          <div className="rounded-lg border border-gray-200 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Title
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A] hidden md:table-cell">
+                    Subtitle
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#0B2A4A] hidden md:table-cell">
+                    URL
+                  </th>
+                  <th className="text-right px-4 py-3 font-semibold text-[#0B2A4A]">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {links.map((link, i) => (
+                  <tr
+                    key={link.id}
+                    className="border-b border-gray-100 last:border-0"
+                    data-ocid={`pan.links.item.${i + 1}`}
+                  >
+                    <td className="px-4 py-3 font-medium text-[#0B2A4A]">
+                      {link.title}
+                    </td>
+                    <td className="px-4 py-3 text-gray-500 hidden md:table-cell">
+                      {link.sub}
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell">
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline text-xs truncate block max-w-[200px]"
+                      >
+                        {link.url}
+                      </a>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingLink(link);
+                            setLinkForm({
+                              title: link.title,
+                              sub: link.sub,
+                              url: link.url,
+                            });
+                            setLinkDialog(true);
+                          }}
+                          className="text-blue-500 hover:text-blue-700 p-1"
+                          data-ocid={`pan.links.edit_button.${i + 1}`}
+                        >
+                          <Edit size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteLink(link.id)}
+                          className="text-red-400 hover:text-red-600 p-1"
+                          data-ocid={`pan.links.delete_button.${i + 1}`}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {links.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="text-center text-gray-400 py-6"
+                      data-ocid="pan.links.empty_state"
+                    >
+                      No links yet
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Service Dialog */}
+      <Dialog open={svcDialog} onOpenChange={setSvcDialog}>
+        <DialogContent className="max-w-md" data-ocid="pan.services.dialog">
+          <DialogHeader>
+            <DialogTitle>
+              {editingSvc ? "Edit Service" : "Add Service"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="mb-1 block">Title *</Label>
+              <Input
+                value={svcForm.title}
+                onChange={(e) =>
+                  setSvcForm({ ...svcForm, title: e.target.value })
+                }
+                placeholder="Service title"
+                data-ocid="pan.services.title.input"
+              />
+            </div>
+            <div>
+              <Label className="mb-1 block">Description</Label>
+              <Textarea
+                value={svcForm.desc}
+                onChange={(e) =>
+                  setSvcForm({ ...svcForm, desc: e.target.value })
+                }
+                placeholder="Short description"
+                rows={2}
+                data-ocid="pan.services.desc.textarea"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="mb-1 block">Fee</Label>
+                <Input
+                  value={svcForm.fee}
+                  onChange={(e) =>
+                    setSvcForm({ ...svcForm, fee: e.target.value })
+                  }
+                  placeholder="e.g. ₹107 or Free"
+                  data-ocid="pan.services.fee.input"
+                />
+              </div>
+              <div>
+                <Label className="mb-1 block">Badge (optional)</Label>
+                <Input
+                  value={svcForm.badge}
+                  onChange={(e) =>
+                    setSvcForm({ ...svcForm, badge: e.target.value })
+                  }
+                  placeholder="e.g. Mandatory"
+                  data-ocid="pan.services.badge.input"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setSvcDialog(false)}
+                data-ocid="pan.services.cancel_button"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={saveSvc}
+                className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+                data-ocid="pan.services.submit_button"
+              >
+                {editingSvc ? "Update" : "Add"} Service
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* FAQ Dialog */}
+      <Dialog open={faqDialog} onOpenChange={setFaqDialog}>
+        <DialogContent className="max-w-md" data-ocid="pan.faq.dialog">
+          <DialogHeader>
+            <DialogTitle>{editingFaq ? "Edit FAQ" : "Add FAQ"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="mb-1 block">Question *</Label>
+              <Input
+                value={faqForm.q}
+                onChange={(e) => setFaqForm({ ...faqForm, q: e.target.value })}
+                placeholder="FAQ question"
+                data-ocid="pan.faq.question.input"
+              />
+            </div>
+            <div>
+              <Label className="mb-1 block">Answer</Label>
+              <Textarea
+                value={faqForm.a}
+                onChange={(e) => setFaqForm({ ...faqForm, a: e.target.value })}
+                placeholder="Detailed answer..."
+                rows={4}
+                data-ocid="pan.faq.answer.textarea"
+              />
+            </div>
+            <div className="flex gap-2 justify-end pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setFaqDialog(false)}
+                data-ocid="pan.faq.cancel_button"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={saveFaq}
+                className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+                data-ocid="pan.faq.submit_button"
+              >
+                {editingFaq ? "Update" : "Add"} FAQ
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Fee Dialog */}
+      <Dialog open={feeDialog} onOpenChange={setFeeDialog}>
+        <DialogContent className="max-w-md" data-ocid="pan.fees.dialog">
+          <DialogHeader>
+            <DialogTitle>
+              {editingFee ? "Edit Fee Row" : "Add Fee Row"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="mb-1 block">Service Name *</Label>
+              <Input
+                value={feeForm.service}
+                onChange={(e) =>
+                  setFeeForm({ ...feeForm, service: e.target.value })
+                }
+                placeholder="e.g. New PAN (Form 49A)"
+                data-ocid="pan.fees.service.input"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="mb-1 block">Indian Address Fee</Label>
+                <Input
+                  value={feeForm.indian}
+                  onChange={(e) =>
+                    setFeeForm({ ...feeForm, indian: e.target.value })
+                  }
+                  placeholder="e.g. ₹107"
+                  data-ocid="pan.fees.indian.input"
+                />
+              </div>
+              <div>
+                <Label className="mb-1 block">Foreign Address Fee</Label>
+                <Input
+                  value={feeForm.foreign}
+                  onChange={(e) =>
+                    setFeeForm({ ...feeForm, foreign: e.target.value })
+                  }
+                  placeholder="e.g. ₹1,017"
+                  data-ocid="pan.fees.foreign.input"
+                />
+              </div>
+            </div>
+            <div>
+              <Label className="mb-1 block">Notes</Label>
+              <Input
+                value={feeForm.notes}
+                onChange={(e) =>
+                  setFeeForm({ ...feeForm, notes: e.target.value })
+                }
+                placeholder="Additional notes"
+                data-ocid="pan.fees.notes.input"
+              />
+            </div>
+            <div className="flex gap-2 justify-end pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setFeeDialog(false)}
+                data-ocid="pan.fees.cancel_button"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={saveFee}
+                className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+                data-ocid="pan.fees.submit_button"
+              >
+                {editingFee ? "Update" : "Add"} Fee Row
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Link Dialog */}
+      <Dialog open={linkDialog} onOpenChange={setLinkDialog}>
+        <DialogContent className="max-w-md" data-ocid="pan.links.dialog">
+          <DialogHeader>
+            <DialogTitle>{editingLink ? "Edit Link" : "Add Link"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="mb-1 block">Title *</Label>
+              <Input
+                value={linkForm.title}
+                onChange={(e) =>
+                  setLinkForm({ ...linkForm, title: e.target.value })
+                }
+                placeholder="e.g. NSDL PAN Portal"
+                data-ocid="pan.links.title.input"
+              />
+            </div>
+            <div>
+              <Label className="mb-1 block">Subtitle (domain)</Label>
+              <Input
+                value={linkForm.sub}
+                onChange={(e) =>
+                  setLinkForm({ ...linkForm, sub: e.target.value })
+                }
+                placeholder="e.g. onlineservices.nsdl.com"
+                data-ocid="pan.links.subtitle.input"
+              />
+            </div>
+            <div>
+              <Label className="mb-1 block">URL</Label>
+              <Input
+                value={linkForm.url}
+                onChange={(e) =>
+                  setLinkForm({ ...linkForm, url: e.target.value })
+                }
+                placeholder="https://..."
+                data-ocid="pan.links.url.input"
+              />
+            </div>
+            <div className="flex gap-2 justify-end pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setLinkDialog(false)}
+                data-ocid="pan.links.cancel_button"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={saveLink}
+                className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+                data-ocid="pan.links.submit_button"
+              >
+                {editingLink ? "Update" : "Add"} Link
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

@@ -1,6 +1,7 @@
 import {
   Bot,
   Briefcase,
+  CreditCard,
   FileImage,
   FileText,
   Mail,
@@ -31,6 +32,7 @@ export function Header({ page, navigate, cartCount }: Props) {
     { label: "Image Tools", page: "image-tools" },
     { label: "Job Updates", page: "job-updates" },
     { label: "Gov Documents", page: "gov-documents" },
+    { label: "PAN Portal", page: "pan-card" },
     { label: "Contact Us", page: "contact-us" },
     { label: "Manash 2.0", page: "ai-chat" },
   ];
@@ -112,6 +114,7 @@ export function Header({ page, navigate, cartCount }: Props) {
                 {l.page === "image-tools" && <FileImage size={14} />}
                 {l.page === "job-updates" && <Briefcase size={14} />}
                 {l.page === "gov-documents" && <ScrollText size={14} />}
+                {l.page === "pan-card" && <CreditCard size={14} />}
                 {l.page === "contact-us" && <Mail size={14} />}
                 {l.page === "ai-chat" && <Bot size={14} />}
                 {l.label}
