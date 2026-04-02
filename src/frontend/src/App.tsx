@@ -4,6 +4,7 @@ import { Toaster } from "./components/ui/sonner";
 import { AccountPage } from "./pages/AccountPage";
 import { AdminPage } from "./pages/AdminPage";
 import { AiChatPage } from "./pages/AiChatPage";
+import { AssamFormsPage } from "./pages/AssamFormsPage";
 import { AuthPage } from "./pages/AuthPage";
 import { CartPage } from "./pages/CartPage";
 import { CertificateAlbumPage } from "./pages/CertificateAlbumPage";
@@ -32,6 +33,7 @@ export type Page =
   | "image-tools"
   | "job-updates"
   | "gov-documents"
+  | "assam-forms"
   | "contact-us"
   | "ai-chat"
   | "certificate-album"
@@ -91,7 +93,8 @@ export default function App() {
       {page === "converter" && <ConverterPage />}
       {page === "image-tools" && <ImageToolsPage navigate={navigate} />}
       {page === "job-updates" && <JobUpdatesPage />}
-      {page === "gov-documents" && <GovDocumentsPage />}
+      {page === "gov-documents" && <GovDocumentsPage navigate={navigate} />}
+      {page === "assam-forms" && <AssamFormsPage navigate={navigate} />}
       {page === "contact-us" && <ContactUsPage />}
       {page === "ai-chat" && <AiChatPage />}
       {page === "certificate-album" && <CertificateAlbumPage />}

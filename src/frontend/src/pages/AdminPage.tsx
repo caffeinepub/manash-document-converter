@@ -6,6 +6,7 @@ import {
   Edit,
   FileText,
   Home,
+  Library,
   Mail,
   MapPin,
   Monitor,
@@ -76,7 +77,8 @@ type Tab =
   | "contact"
   | "certificate"
   | "homepage"
-  | "pan-card";
+  | "pan-card"
+  | "govt-forms";
 
 const ADMIN_EMAIL = "admin@nextgenit.com";
 const ADMIN_PASSWORD = "Admin@123";
@@ -311,6 +313,7 @@ export function AdminPage({ navigate }: Props) {
               "certificate",
               "homepage",
               "pan-card",
+              "govt-forms",
             ] as Tab[]
           ).map((t) => (
             <button
@@ -330,6 +333,7 @@ export function AdminPage({ navigate }: Props) {
               {t === "certificate" && <Award size={14} />}
               {t === "homepage" && <Home size={14} />}
               {t === "pan-card" && <CreditCard size={14} />}
+              {t === "govt-forms" && <Library size={14} />}
               {t === "job-updates"
                 ? "Job Updates"
                 : t === "gov-documents"
@@ -340,7 +344,9 @@ export function AdminPage({ navigate }: Props) {
                       ? "Homepage"
                       : t === "pan-card"
                         ? "PAN Card"
-                        : t}
+                        : t === "govt-forms"
+                          ? "Govt Forms"
+                          : t}
             </button>
           ))}
         </div>
@@ -1311,6 +1317,9 @@ export function AdminPage({ navigate }: Props) {
 
         {/* ── PAN CARD TAB ── */}
         {tab === "pan-card" && <PanCardAdminTab />}
+
+        {/* ── GOVT FORMS TAB ── */}
+        {tab === "govt-forms" && <GovFormsAdminTab />}
       </div>
       <GovDocDialog
         open={govDocDialogOpen}
@@ -3900,6 +3909,323 @@ function PanCardAdminTab() {
                 {editingLink ? "Update" : "Add"} Link
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// ─── GOVT FORMS ADMIN TAB ────────────────────────────────────────────────────
+
+interface GovFormAdmin {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  language: string;
+  pdfUrl: string;
+  fileSize?: string;
+}
+
+const GOV_FORM_CATEGORIES = [
+  "PAN Card",
+  "Aadhaar",
+  "Assam edistrict",
+  "Passport",
+  "Voter ID",
+  "Driving Licence",
+  "Income Tax",
+  "Ration Card",
+  "RTI",
+];
+
+const LANG_OPTIONS = ["English", "Assamese", "Hindi", "Bilingual"];
+
+const LS_KEY = "govFormsLibrary";
+
+function loadForms(): GovFormAdmin[] {
+  try {
+    return JSON.parse(localStorage.getItem(LS_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveForms(forms: GovFormAdmin[]) {
+  localStorage.setItem(LS_KEY, JSON.stringify(forms));
+}
+
+function GovFormsAdminTab() {
+  const [forms, setForms] = useState<GovFormAdmin[]>(loadForms);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<GovFormAdmin | null>(null);
+  const emptyForm: GovFormAdmin = {
+    id: "",
+    title: "",
+    category: "PAN Card",
+    description: "",
+    language: "English",
+    pdfUrl: "",
+    fileSize: "",
+  };
+  const [form, setForm] = useState<GovFormAdmin>(emptyForm);
+
+  const openAdd = () => {
+    setEditing(null);
+    setForm({ ...emptyForm, id: `custom-${Date.now()}` });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (f: GovFormAdmin) => {
+    setEditing(f);
+    setForm({ ...f });
+    setDialogOpen(true);
+  };
+
+  const deleteForm = (id: string) => {
+    const updated = forms.filter((f) => f.id !== id);
+    setForms(updated);
+    saveForms(updated);
+    toast.success("Form deleted");
+  };
+
+  const saveForm = () => {
+    if (!form.title.trim() || !form.pdfUrl.trim()) {
+      toast.error("Title and PDF URL are required");
+      return;
+    }
+    let updated: GovFormAdmin[];
+    if (editing) {
+      updated = forms.map((f) => (f.id === editing.id ? { ...form } : f));
+      toast.success("Form updated");
+    } else {
+      updated = [{ ...form }, ...forms];
+      toast.success("Form added");
+    }
+    setForms(updated);
+    saveForms(updated);
+    setDialogOpen(false);
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-xl font-bold text-[#0B2A4A]">
+            Government Forms Library
+          </h2>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Add custom forms to the library. Default forms are pre-loaded on the
+            public page.
+          </p>
+        </div>
+        <Button
+          onClick={openAdd}
+          className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white gap-2"
+          data-ocid="govforms.add_button"
+        >
+          <Plus size={15} />
+          Add Form
+        </Button>
+      </div>
+
+      {/* Info notice */}
+      <div className="mb-5 p-3 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-800">
+        <strong>Note:</strong> Default forms (PAN 49A, Aadhaar, Passport, etc.)
+        are already pre-loaded on the public forms library page. Use this panel
+        to add <strong>custom or additional forms</strong> that will appear at
+        the top of the list.
+      </div>
+
+      {forms.length === 0 ? (
+        <div
+          className="text-center py-16 text-gray-400"
+          data-ocid="govforms.empty_state"
+        >
+          <span className="text-5xl block mb-3">📂</span>
+          <p className="text-lg font-medium">No custom forms added yet</p>
+          <p className="text-sm mt-1">
+            Click "Add Form" to add a new government form PDF link to the
+            library
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-gray-200">
+          <table className="w-full text-sm" data-ocid="govforms.table">
+            <thead className="bg-gray-50 text-gray-600 border-b border-gray-200">
+              <tr>
+                <th className="text-left px-4 py-3 font-semibold">Title</th>
+                <th className="text-left px-4 py-3 font-semibold">Category</th>
+                <th className="text-left px-4 py-3 font-semibold">Language</th>
+                <th className="text-left px-4 py-3 font-semibold">PDF URL</th>
+                <th className="text-left px-4 py-3 font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {forms.map((f, idx) => (
+                <tr
+                  key={f.id}
+                  className="hover:bg-gray-50"
+                  data-ocid={`govforms.item.${idx + 1}`}
+                >
+                  <td className="px-4 py-3 font-medium text-[#0B2A4A] max-w-xs truncate">
+                    {f.title}
+                  </td>
+                  <td className="px-4 py-3 text-gray-600">{f.category}</td>
+                  <td className="px-4 py-3 text-gray-500">{f.language}</td>
+                  <td className="px-4 py-3 max-w-[200px] truncate">
+                    <a
+                      href={f.pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline text-xs"
+                    >
+                      {f.pdfUrl}
+                    </a>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openEdit(f)}
+                        className="h-7 px-2 text-xs"
+                        data-ocid={`govforms.edit_button.${idx + 1}`}
+                      >
+                        <Edit size={12} />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => deleteForm(f.id)}
+                        className="h-7 px-2 text-xs text-red-600 hover:bg-red-50 border-red-200"
+                        data-ocid={`govforms.delete_button.${idx + 1}`}
+                      >
+                        <Trash2 size={12} />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Add / Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-lg" data-ocid="govforms.dialog">
+          <DialogHeader>
+            <DialogTitle>{editing ? "Edit Form" : "Add New Form"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label className="mb-1.5 block text-sm font-medium">
+                Form Title *
+              </Label>
+              <Input
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                placeholder="e.g. Form 49A – Application for PAN"
+                data-ocid="govforms.title.input"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="mb-1.5 block text-sm font-medium">
+                  Category *
+                </Label>
+                <select
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={form.category}
+                  onChange={(e) =>
+                    setForm({ ...form, category: e.target.value })
+                  }
+                  data-ocid="govforms.category.select"
+                >
+                  {GOV_FORM_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label className="mb-1.5 block text-sm font-medium">
+                  Language *
+                </Label>
+                <select
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={form.language}
+                  onChange={(e) =>
+                    setForm({ ...form, language: e.target.value })
+                  }
+                  data-ocid="govforms.language.select"
+                >
+                  {LANG_OPTIONS.map((l) => (
+                    <option key={l} value={l}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div>
+              <Label className="mb-1.5 block text-sm font-medium">
+                Description
+              </Label>
+              <Textarea
+                value={form.description}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+                placeholder="Brief description of the form and when it is used..."
+                rows={3}
+                data-ocid="govforms.description.textarea"
+              />
+            </div>
+            <div>
+              <Label className="mb-1.5 block text-sm font-medium">
+                PDF URL *
+              </Label>
+              <Input
+                value={form.pdfUrl}
+                onChange={(e) => setForm({ ...form, pdfUrl: e.target.value })}
+                placeholder="https://..."
+                data-ocid="govforms.pdfurl.input"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Direct link to the official government PDF file
+              </p>
+            </div>
+            <div>
+              <Label className="mb-1.5 block text-sm font-medium">
+                File Size (optional)
+              </Label>
+              <Input
+                value={form.fileSize ?? ""}
+                onChange={(e) => setForm({ ...form, fileSize: e.target.value })}
+                placeholder="e.g. ~200 KB"
+                data-ocid="govforms.filesize.input"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 justify-end pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+              data-ocid="govforms.cancel_button"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={saveForm}
+              className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white"
+              data-ocid="govforms.submit_button"
+            >
+              {editing ? "Update" : "Add"} Form
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

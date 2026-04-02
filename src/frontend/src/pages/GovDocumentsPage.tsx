@@ -1073,7 +1073,7 @@ function GuideDetailView({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export function GovDocumentsPage() {
+export function GovDocumentsPage({ navigate }: { navigate: (p: any) => void }) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [activeGuideId, setActiveGuideId] = useState<string | null>(null);
@@ -1137,7 +1137,7 @@ export function GovDocumentsPage() {
           </p>
 
           {/* Search */}
-          <div className="relative max-w-xl mx-auto">
+          <div className="relative max-w-xl mx-auto mb-6">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               size={18}
@@ -1151,6 +1151,60 @@ export function GovDocumentsPage() {
               data-ocid="gov.search_input"
             />
           </div>
+
+          {/* Download Forms Button */}
+          <button
+            type="button"
+            onClick={() => navigate("assam-forms")}
+            data-ocid="gov.forms_library.button"
+            className="group inline-flex items-center gap-4 px-6 py-4 rounded-2xl border transition-all duration-300 hover:scale-105 hover:shadow-2xl max-w-xl w-full"
+            style={{
+              background:
+                "linear-gradient(135deg, oklch(0.22 0.08 75 / 0.8), oklch(0.18 0.06 70 / 0.9))",
+              borderColor: "oklch(0.62 0.15 70 / 0.6)",
+              boxShadow: "0 0 24px oklch(0.62 0.18 70 / 0.25)",
+            }}
+          >
+            <div
+              className="p-3 rounded-xl shrink-0"
+              style={{ background: "oklch(0.62 0.18 70 / 0.3)" }}
+            >
+              <span className="text-2xl">📄</span>
+            </div>
+            <div className="text-left flex-1">
+              <div
+                className="font-bold text-base"
+                style={{ color: "oklch(0.88 0.15 75)" }}
+              >
+                Download Government Forms
+              </div>
+              <div
+                className="text-xs mt-0.5"
+                style={{ color: "oklch(0.72 0.10 75)" }}
+              >
+                Get official PDF forms for PAN, Aadhaar, Assam edistrict & more
+              </div>
+            </div>
+            <svg
+              className="shrink-0 transition-transform group-hover:translate-x-1"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-label="Go to forms library"
+              role="img"
+              style={{ color: "oklch(0.78 0.14 75)" }}
+            >
+              <title>Go to forms library</title>
+              <path
+                d="M7 10h6M10 7l3 3-3 3"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
         </div>
       </section>
 
