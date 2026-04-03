@@ -1626,6 +1626,13 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
   );
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
+  const [refreshTick, setRefreshTick] = useState(0);
+  useEffect(() => {
+    const onFocus = () => setRefreshTick((t) => t + 1);
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, []);
+
   const catColor =
     filterMode === "category"
       ? (CATEGORY_COLORS[category] ?? "oklch(0.78 0.18 65)")
@@ -1633,6 +1640,8 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
 
   // Build all songs from defaults + admin-added songs, then filter by mode
   const categorySongs = useMemo(() => {
+    // refreshTick forces re-read from localStorage when window regains focus
+    void refreshTick;
     // Get all admin songs (all categories) then filter per mode
     let allAdminSongs: ExtendedSong[] = [];
     try {
@@ -1696,7 +1705,7 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
     }
     // mode === "category"
     return allSongs.filter((s) => s.category === category);
-  }, [filterMode, filterValue, category]);
+  }, [filterMode, filterValue, category, refreshTick]);
 
   // Filter by search
   const filteredSongs = useMemo(() => {
@@ -2222,10 +2231,15 @@ function SongCard({
     (effectiveYoutubeId
       ? `https://www.youtube.com/watch?v=${effectiveYoutubeId}`
       : "#");
-  const thumbnailUrl = effectiveYoutubeId
-    ? `https://img.youtube.com/vi/${effectiveYoutubeId}/mqdefault.jpg`
-    : null;
+  // thumbnailUrl removed - using displayThumbnail below
   const [imgError, setImgError] = useState(false);
+  const [coverImgError, setCoverImgError] = useState(false);
+  const displayThumbnail =
+    song.coverImage && !coverImgError
+      ? song.coverImage
+      : effectiveYoutubeId
+        ? `https://img.youtube.com/vi/${effectiveYoutubeId}/mqdefault.jpg`
+        : null;
   const [isOpen, setIsOpen] = useState(false);
 
   const hasAudio = !!song.audioFileUrl;
@@ -2245,7 +2259,7 @@ function SongCard({
       data-ocid={`music_category.item.${index}`}
     >
       {/* Thumbnail — hidden when open to show player instead */}
-      {!isOpen && !imgError && thumbnailUrl ? (
+      {!isOpen && !imgError && displayThumbnail ? (
         <div
           style={{
             position: "relative",
@@ -2254,9 +2268,15 @@ function SongCard({
           }}
         >
           <img
-            src={thumbnailUrl}
+            src={displayThumbnail}
             alt={song.title}
-            onError={() => setImgError(true)}
+            onError={(_e) => {
+              if (song.coverImage && !coverImgError) {
+                setCoverImgError(true);
+              } else {
+                setImgError(true);
+              }
+            }}
             style={{
               width: "100%",
               height: "100%",

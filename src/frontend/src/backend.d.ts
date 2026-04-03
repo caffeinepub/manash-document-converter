@@ -7,6 +7,11 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export interface UserProfile {
+    name: string;
+    email: string;
+    phone: string;
+}
 export interface TransformationOutput {
     status: bigint;
     body: Uint8Array;
@@ -76,11 +81,6 @@ export interface Product {
     category: Category;
     price: bigint;
 }
-export interface UserProfile {
-    name: string;
-    email: string;
-    phone: string;
-}
 export enum Category {
     InternetCafe = "InternetCafe",
     Electrical = "Electrical",
@@ -118,6 +118,7 @@ export interface backendInterface {
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getCart(): Promise<Array<CartItem>>;
+    getFounderPhotoHash(): Promise<Uint8Array | null>;
     getOrder(orderId: bigint): Promise<Order | null>;
     getOrdersByCustomer(customerEmail: string): Promise<Array<Order>>;
     getProductById(productId: string): Promise<Product | null>;
@@ -126,9 +127,11 @@ export interface backendInterface {
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     isStripeConfigured(): Promise<boolean>;
+    removeFounderPhoto(): Promise<void>;
     removeFromCart(productId: string): Promise<void>;
     removeProduct(productId: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    setFounderPhoto(hash: Uint8Array): Promise<void>;
     setStripeConfiguration(config: StripeConfiguration): Promise<void>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
     updateOrderStatus(orderId: bigint, status: OrderStatus): Promise<void>;

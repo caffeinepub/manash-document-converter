@@ -2,19 +2,22 @@ import Stripe "stripe/stripe";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 import OutCall "http-outcalls/outcall";
-import Text "mo:core/Text";
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
 import Iter "mo:core/Iter";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Array "mo:core/Array";
+
+import MixinStorage "blob-storage/Mixin";
 import Time "mo:core/Time";
 
+
 actor {
-  // Authorization
+  // Mixins
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
+  include MixinStorage();
 
   // Types
   public type UserProfile = {
@@ -77,6 +80,9 @@ actor {
     #Pickup;
     #Delivery;
   };
+
+  // Founder photo
+  var founderPhotoHash : ?Blob = null;
 
   // State
   var nextOrderId = 1;
@@ -374,5 +380,24 @@ actor {
 
   public query func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {
     OutCall.transform(input);
+  };
+
+  // Founder Photo Management
+  public shared ({ caller }) func setFounderPhoto(hash : Blob) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can set founder photo");
+    };
+    founderPhotoHash := ?hash;
+  };
+
+  public shared ({ caller }) func removeFounderPhoto() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can remove founder photo");
+    };
+    founderPhotoHash := null;
+  };
+
+  public query ({ caller }) func getFounderPhotoHash() : async ?Blob {
+    founderPhotoHash;
   };
 };

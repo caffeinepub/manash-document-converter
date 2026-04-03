@@ -11,6 +11,8 @@ import {
   Youtube,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { ExternalBlob } from "../backend";
+import { useActor } from "../hooks/useActor";
 import { useInView } from "../hooks/useInView";
 import { getContactInfo } from "../types";
 
@@ -334,7 +336,37 @@ export function ContactUsPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
   const contactInfo = getContactInfo();
-  const ownerPhoto = localStorage.getItem("contactOwnerPhoto");
+  const [ownerPhoto, setOwnerPhoto] = useState<string | null>(null);
+  const { actor } = useActor();
+
+  useEffect(() => {
+    if (actor) {
+      actor
+        .getFounderPhotoHash()
+        .then((hash) => {
+          if (hash && hash.length > 0) {
+            const blob = ExternalBlob.fromBytes(
+              hash as Uint8Array<ArrayBuffer>,
+            );
+            setOwnerPhoto(blob.getDirectURL());
+          }
+        })
+        .catch(() => {});
+    }
+  }, [actor]);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem("contact_admin_data") || "{}",
+      );
+      if (saved.ownerPhotoUrl && !ownerPhoto) {
+        setOwnerPhoto(saved.ownerPhotoUrl);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [ownerPhoto]);
 
   const { ref: heroRef, inView: heroInView } = useInView();
   const { ref: infoRef, inView: infoInView } = useInView();
