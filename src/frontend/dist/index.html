@@ -3,11 +3,45 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NextGen IT Hub</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="NextGen IT Hub - Manash PC World 2.0 | Document Converter, Job Updates, Government Services, Entertainment & More" />
+    <meta name="theme-color" content="#d4af37" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="NextGen IT Hub" />
+    <meta name="application-name" content="NextGen IT Hub" />
+    <meta name="msapplication-TileColor" content="#0a0f2e" />
+
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" href="/assets/generated/nextgen-it-hub-icon-transparent.dim_512x512.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/generated/nextgen-it-hub-icon-transparent.dim_512x512.png" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9877323479681817" crossorigin="anonymous"></script>
-    <script type="module" crossorigin src="/assets/index-CrKTQEQi.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CXv9WBdm.css">
+    <script type="module" crossorigin src="/assets/index-CRCLp9Ze.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BlX0MsQn.css">
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js')
+            .then(function(reg) {
+              console.log('SW registered:', reg.scope);
+            })
+            .catch(function(err) {
+              console.log('SW registration failed:', err);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

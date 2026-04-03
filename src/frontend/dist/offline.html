@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>No Internet - NextGen IT Hub</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #0a0f2e 0%, #1a1040 50%, #0a0f2e 100%);
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 480px;
+    }
+    .icon {
+      font-size: 80px;
+      margin-bottom: 24px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(0.95); }
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #d4af37;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 16px;
+      color: #9ca3af;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    .btn {
+      background: linear-gradient(135deg, #d4af37, #f59e0b);
+      color: #0a0f2e;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+    }
+    .logo-text {
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 40px;
+    }
+    .logo-text span {
+      color: #d4af37;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📡</div>
+    <h1>No Internet Connection</h1>
+    <p>It looks like you're offline. Please check your internet connection and try again.</p>
+    <a href="/" class="btn" onclick="window.location.reload()">Try Again</a>
+    <p class="logo-text">© <span>NextGen IT Hub</span> — Manash PC World 2.0</p>
+  </div>
+</body>
+</html>

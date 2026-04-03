@@ -1,5 +1,6 @@
 import {
   Facebook,
+  Globe,
   Instagram,
   Mail,
   MapPin,
@@ -37,6 +38,58 @@ const AUTHORISED_LOGOS = [
     alt: "Assam Government",
   },
 ];
+
+interface OtherWebsite {
+  id: string;
+  name: string;
+  description: string;
+  url: string;
+  logoUrl: string;
+  previewUrl: string;
+}
+
+const DEFAULT_WEBSITES: OtherWebsite[] = [
+  {
+    id: "1",
+    name: "CSC Portal",
+    description: "Common Service Centre - Digital India services for citizens",
+    url: "https://www.csc.gov.in",
+    logoUrl: "https://www.google.com/s2/favicons?domain=csc.gov.in&sz=64",
+    previewUrl: "",
+  },
+  {
+    id: "2",
+    name: "Digital India",
+    description:
+      "Government of India's digital initiative for empowering citizens",
+    url: "https://www.digitalindia.gov.in",
+    logoUrl:
+      "https://www.google.com/s2/favicons?domain=digitalindia.gov.in&sz=64",
+    previewUrl: "",
+  },
+  {
+    id: "3",
+    name: "Income Tax Portal",
+    description:
+      "Official Income Tax e-filing portal for tax returns and PAN services",
+    url: "https://www.incometax.gov.in",
+    logoUrl: "https://www.google.com/s2/favicons?domain=incometax.gov.in&sz=64",
+    previewUrl: "",
+  },
+];
+
+function getOtherWebsites(): OtherWebsite[] {
+  try {
+    const stored = localStorage.getItem("otherWebsites");
+    if (!stored) return DEFAULT_WEBSITES;
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) && parsed.length > 0
+      ? parsed
+      : DEFAULT_WEBSITES;
+  } catch {
+    return DEFAULT_WEBSITES;
+  }
+}
 
 function AuthorisedCarousel() {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -81,6 +134,195 @@ function AuthorisedCarousel() {
               className="max-w-full max-h-full object-contain"
               loading="lazy"
             />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function OtherWebsitesSection() {
+  const [websites] = useState<OtherWebsite[]>(() => getOtherWebsites());
+  const { ref: sectionRef, inView: sectionInView } = useInView();
+
+  if (websites.length === 0) return null;
+
+  return (
+    <div
+      ref={sectionRef as React.RefObject<HTMLDivElement>}
+      className={`max-w-5xl mx-auto px-4 pb-12 transition-all duration-700 ${
+        sectionInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      }`}
+    >
+      {/* Section heading */}
+      <div className="text-center mb-8">
+        <div
+          className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-4 uppercase tracking-wider"
+          style={{
+            background: "oklch(0.78 0.18 65 / 0.15)",
+            border: "1px solid oklch(0.78 0.18 65 / 0.4)",
+            color: "oklch(0.78 0.18 65)",
+          }}
+        >
+          <Globe size={12} /> Partner Websites
+        </div>
+        <h2
+          className="text-2xl md:text-3xl font-extrabold mb-2 font-display"
+          style={{
+            background:
+              "linear-gradient(135deg, oklch(0.78 0.18 65), oklch(0.92 0.10 80))",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Our Partner Websites
+        </h2>
+        <p
+          className="text-sm max-w-md mx-auto"
+          style={{ color: "oklch(0.6 0.04 240)" }}
+        >
+          Trusted government portals and digital services we work with
+        </p>
+      </div>
+
+      {/* Cards grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {websites.map((site, idx) => (
+          <div
+            key={site.id}
+            className="group rounded-2xl overflow-hidden transition-all duration-300"
+            style={{
+              background: "oklch(0.14 0.04 250)",
+              border: "1px solid oklch(0.25 0.06 250)",
+              transitionDelay: `${idx * 80}ms`,
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLDivElement).style.border =
+                "1px solid oklch(0.78 0.18 65)";
+              (e.currentTarget as HTMLDivElement).style.boxShadow =
+                "0 0 24px oklch(0.78 0.18 65 / 0.25)";
+              (e.currentTarget as HTMLDivElement).style.transform =
+                "translateY(-4px)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLDivElement).style.border =
+                "1px solid oklch(0.25 0.06 250)";
+              (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+              (e.currentTarget as HTMLDivElement).style.transform =
+                "translateY(0)";
+            }}
+          >
+            {/* Preview area */}
+            <div
+              className="relative w-full overflow-hidden"
+              style={{ height: "160px" }}
+            >
+              {site.previewUrl ? (
+                <img
+                  src={site.previewUrl}
+                  alt={`${site.name} preview`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div
+                  className="w-full h-full flex items-center justify-center"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, oklch(0.18 0.06 250), oklch(0.22 0.08 260))",
+                  }}
+                >
+                  {site.logoUrl ? (
+                    <img
+                      src={site.logoUrl}
+                      alt={site.name}
+                      className="w-16 h-16 object-contain rounded-xl"
+                      style={{
+                        filter:
+                          "drop-shadow(0 0 12px oklch(0.78 0.18 65 / 0.5))",
+                      }}
+                    />
+                  ) : (
+                    <Globe
+                      size={48}
+                      style={{ color: "oklch(0.78 0.18 65 / 0.6)" }}
+                    />
+                  )}
+                  {/* Decorative glow orb */}
+                  <div
+                    className="absolute inset-0 opacity-20"
+                    style={{
+                      background:
+                        "radial-gradient(circle at 50% 50%, oklch(0.78 0.18 65), transparent 65%)",
+                    }}
+                  />
+                </div>
+              )}
+              {/* Shimmer overlay on hover */}
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{
+                  background:
+                    "linear-gradient(135deg, oklch(0.78 0.18 65 / 0.05), transparent)",
+                }}
+              />
+            </div>
+
+            {/* Card body */}
+            <div className="p-4 space-y-3">
+              {/* Logo + name row */}
+              <div className="flex items-center gap-3">
+                {site.logoUrl ? (
+                  <img
+                    src={site.logoUrl}
+                    alt={site.name}
+                    className="w-8 h-8 rounded-lg object-contain flex-shrink-0"
+                    style={{
+                      background: "oklch(0.20 0.05 250)",
+                      padding: "2px",
+                    }}
+                  />
+                ) : (
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ background: "oklch(0.20 0.05 250)" }}
+                  >
+                    <Globe size={16} style={{ color: "oklch(0.78 0.18 65)" }} />
+                  </div>
+                )}
+                <h3
+                  className="font-bold text-sm leading-tight"
+                  style={{ color: "oklch(0.78 0.18 65)" }}
+                >
+                  {site.name}
+                </h3>
+              </div>
+
+              {/* Description */}
+              <p
+                className="text-xs leading-relaxed line-clamp-2"
+                style={{ color: "oklch(0.65 0.04 240)" }}
+              >
+                {site.description}
+              </p>
+
+              {/* Visit button */}
+              <a
+                href={site.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-xs font-semibold transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-95"
+                style={{
+                  background:
+                    "linear-gradient(135deg, oklch(0.72 0.18 60), oklch(0.82 0.16 70))",
+                  color: "oklch(0.12 0.03 250)",
+                  boxShadow: "0 2px 8px oklch(0.78 0.18 65 / 0.3)",
+                }}
+                data-ocid="contact.link"
+              >
+                <Globe size={12} />
+                Visit Website →
+              </a>
+            </div>
           </div>
         ))}
       </div>
@@ -349,7 +591,7 @@ export function ContactUsPage() {
                   color: "oklch(0.75 0.15 145)",
                 }}
               >
-                Message sent successfully! We’ll get back to you soon.
+                Message sent successfully! We'll get back to you soon.
               </div>
             )}
 
@@ -506,6 +748,16 @@ export function ContactUsPage() {
           {/* Carousel */}
           <AuthorisedCarousel />
         </div>
+      </div>
+
+      {/* Partner Websites Section */}
+      <div
+        style={{
+          borderTop: "1px solid oklch(0.20 0.05 250)",
+          paddingTop: "3rem",
+        }}
+      >
+        <OtherWebsitesSection />
       </div>
 
       {/* Google Maps Embed */}
