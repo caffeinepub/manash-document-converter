@@ -53,7 +53,14 @@ export function FormGuidePage() {
     if (!id || !formGuidelines[id]) {
       setNotFound(true);
     } else {
-      setGuide(formGuidelines[id]);
+      let guide = { ...formGuidelines[id] };
+      try {
+        const custom = JSON.parse(
+          localStorage.getItem("customFormGuidelines") || "{}",
+        );
+        if (custom[id]) guide = { ...guide, ...custom[id] };
+      } catch {}
+      setGuide(guide);
     }
   }, []);
 

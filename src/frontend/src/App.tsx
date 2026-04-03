@@ -17,6 +17,7 @@ import { GovDocumentsPage } from "./pages/GovDocumentsPage";
 import { HomePage } from "./pages/HomePage";
 import { ImageToolsPage } from "./pages/ImageToolsPage";
 import { JobUpdatesPage } from "./pages/JobUpdatesPage";
+import { MusicCategoryPage } from "./pages/MusicCategoryPage";
 import { PanCardPortalPage } from "./pages/PanCardPortalPage";
 import { ProductDetailPage } from "./pages/ProductDetailPage";
 import { ProductsPage } from "./pages/ProductsPage";
@@ -41,13 +42,15 @@ export type Page =
   | "certificate-album"
   | "pan-card"
   | "entertainment"
-  | "assam-tourism";
+  | "assam-tourism"
+  | "music-category";
 
 export default function App() {
   const [page, setPage] = useState<Page>("home");
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null,
   );
+  const [musicCategory, setMusicCategory] = useState<string>("Bihu");
   const [cart, setCart] = useState<CartItem[]>(() => {
     try {
       return JSON.parse(localStorage.getItem("cart") || "[]");
@@ -55,6 +58,17 @@ export default function App() {
       return [];
     }
   });
+
+  // Check for ?musiccat= param on mount — if present, render the music category page
+  useEffect(() => {
+    const musicCat = new URLSearchParams(window.location.search).get(
+      "musiccat",
+    );
+    if (musicCat) {
+      setMusicCategory(musicCat);
+      setPage("music-category");
+    }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
@@ -65,6 +79,16 @@ export default function App() {
     if (extra?.productId) setSelectedProductId(extra.productId);
     window.scrollTo(0, 0);
   };
+
+  // When on music-category page, render standalone (no header/footer nav)
+  if (page === "music-category") {
+    return (
+      <>
+        <MusicCategoryPage category={musicCategory} />
+        <Toaster />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">

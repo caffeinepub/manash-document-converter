@@ -1062,6 +1062,534 @@ function QuizGame() {
   );
 }
 
+// ── Music Library ────────────────────────────────────────────────────────────
+
+type MusicCategory =
+  | "Bihu"
+  | "Folk"
+  | "Movie"
+  | "Devotional"
+  | "Modern"
+  | "Zubeen Garg";
+
+interface MusicSong {
+  id: string;
+  title: string;
+  artist: string;
+  category: MusicCategory;
+  youtubeId: string;
+}
+
+const DEFAULT_MUSIC_SONGS: MusicSong[] = [
+  // Bihu
+  {
+    id: "m1",
+    title: "Bihu Bihu",
+    artist: "Zubeen Garg",
+    category: "Bihu",
+    youtubeId: "4SKgQHPElyM",
+  },
+  {
+    id: "m2",
+    title: "O Mur Apunar Desh",
+    artist: "Traditional",
+    category: "Bihu",
+    youtubeId: "P_0pS_JkC2E",
+  },
+  {
+    id: "m3",
+    title: "Tumi Aahibane",
+    artist: "Zubeen Garg",
+    category: "Bihu",
+    youtubeId: "Qn9e6D0U_a4",
+  },
+  {
+    id: "m4",
+    title: "Bihugeet Medley",
+    artist: "Various Artists",
+    category: "Bihu",
+    youtubeId: "LXb3EKWsInQ",
+  },
+  // Folk
+  {
+    id: "m5",
+    title: "Mur Ghar Suwali",
+    artist: "Traditional",
+    category: "Folk",
+    youtubeId: "oPvxPFhJ_EA",
+  },
+  {
+    id: "m6",
+    title: "O Maidame",
+    artist: "Traditional",
+    category: "Folk",
+    youtubeId: "dQw4w9WgXcQ",
+  },
+  {
+    id: "m7",
+    title: "Bhaona",
+    artist: "Traditional",
+    category: "Folk",
+    youtubeId: "60ItHLz5WEA",
+  },
+  {
+    id: "m8",
+    title: "Husori",
+    artist: "Traditional",
+    category: "Folk",
+    youtubeId: "9bZkp7q19f0",
+  },
+  // Movie
+  {
+    id: "m9",
+    title: "Rongmon",
+    artist: "Zubeen Garg",
+    category: "Movie",
+    youtubeId: "ktvTqknDobU",
+  },
+  {
+    id: "m10",
+    title: "Ratir Xapun",
+    artist: "Various Artists",
+    category: "Movie",
+    youtubeId: "YQHsXMglC9A",
+  },
+  {
+    id: "m11",
+    title: "Kopou Phool",
+    artist: "Various Artists",
+    category: "Movie",
+    youtubeId: "OPf0YbXqDm0",
+  },
+  {
+    id: "m12",
+    title: "Kon Sei Baideu",
+    artist: "Various Artists",
+    category: "Movie",
+    youtubeId: "hT_nvWreIhg",
+  },
+  {
+    id: "m13",
+    title: "Priya Priya",
+    artist: "Various Artists",
+    category: "Movie",
+    youtubeId: "JGwWNGJdvx8",
+  },
+  {
+    id: "m14",
+    title: "Mur Buku",
+    artist: "Various Artists",
+    category: "Movie",
+    youtubeId: "RgKAFK5djSk",
+  },
+  // Devotional
+  {
+    id: "m15",
+    title: "Jai Kamakhya",
+    artist: "Traditional",
+    category: "Devotional",
+    youtubeId: "sEnFCsOFtXw",
+  },
+  {
+    id: "m16",
+    title: "Om Namah Shivaya",
+    artist: "Traditional",
+    category: "Devotional",
+    youtubeId: "xo1VInw-SKc",
+  },
+  {
+    id: "m17",
+    title: "Bisnupada",
+    artist: "Traditional",
+    category: "Devotional",
+    youtubeId: "pRpeEdMmmQ0",
+  },
+  {
+    id: "m18",
+    title: "Naam Kirtan",
+    artist: "Traditional",
+    category: "Devotional",
+    youtubeId: "3JZ_D3ELwOQ",
+  },
+  // Modern
+  {
+    id: "m19",
+    title: "Kuwori Baa",
+    artist: "Modern Artist",
+    category: "Modern",
+    youtubeId: "8UVNT4wvIGY",
+  },
+  {
+    id: "m20",
+    title: "Chenehi Morom",
+    artist: "Modern Artist",
+    category: "Modern",
+    youtubeId: "d-diB65scQU",
+  },
+  {
+    id: "m21",
+    title: "Akou Ebar",
+    artist: "Modern Artist",
+    category: "Modern",
+    youtubeId: "09R8_2nJtjg",
+  },
+  {
+    id: "m22",
+    title: "Axomor Jibon",
+    artist: "Modern Artist",
+    category: "Modern",
+    youtubeId: "lp-EO5I60KA",
+  },
+  // Zubeen Garg
+  {
+    id: "m23",
+    title: "Dil Dil Assam",
+    artist: "Zubeen Garg",
+    category: "Zubeen Garg",
+    youtubeId: "L_jWHffIx5E",
+  },
+  {
+    id: "m24",
+    title: "Rongmon (Zubeen)",
+    artist: "Zubeen Garg",
+    category: "Zubeen Garg",
+    youtubeId: "YqeW9_5kURI",
+  },
+  {
+    id: "m25",
+    title: "Moi Eti Jajabor",
+    artist: "Zubeen Garg",
+    category: "Zubeen Garg",
+    youtubeId: "K4gb-AlU-m4",
+  },
+  {
+    id: "m26",
+    title: "Tumi Aahibane (ZG)",
+    artist: "Zubeen Garg",
+    category: "Zubeen Garg",
+    youtubeId: "CdqoNKCCt7A",
+  },
+  {
+    id: "m27",
+    title: "Aai",
+    artist: "Zubeen Garg",
+    category: "Zubeen Garg",
+    youtubeId: "Vt_bMGFoAb8",
+  },
+  {
+    id: "m28",
+    title: "O Pori",
+    artist: "Zubeen Garg",
+    category: "Zubeen Garg",
+    youtubeId: "H7jtC8vjXw8",
+  },
+];
+
+const CATEGORY_COLORS: Record<string, string> = {
+  Bihu: "oklch(0.72 0.20 145)",
+  Folk: "oklch(0.72 0.18 55)",
+  Movie: "oklch(0.65 0.22 280)",
+  Devotional: "oklch(0.70 0.18 30)",
+  Modern: "oklch(0.65 0.20 200)",
+  "Zubeen Garg": "oklch(0.78 0.18 65)",
+};
+
+function MusicLibrary() {
+  const savedData = (() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("entertainment_admin_data") || "{}",
+      );
+    } catch {
+      return {};
+    }
+  })();
+  const songs: MusicSong[] =
+    (savedData.musicSongs as MusicSong[] | undefined) ?? DEFAULT_MUSIC_SONGS;
+
+  const [selectedCategory, setSelectedCategory] = useState<
+    "All" | MusicCategory
+  >("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortAZ, setSortAZ] = useState(true);
+  const [expandedSong, setExpandedSong] = useState<string | null>(null);
+
+  const categories: ("All" | MusicCategory)[] = [
+    "All",
+    "Bihu",
+    "Folk",
+    "Movie",
+    "Devotional",
+    "Modern",
+    "Zubeen Garg",
+  ];
+
+  const filtered = songs
+    .filter(
+      (s) => selectedCategory === "All" || s.category === selectedCategory,
+    )
+    .filter((s) => {
+      const q = searchQuery.toLowerCase();
+      return (
+        s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)
+      );
+    })
+    .sort((a, b) =>
+      sortAZ ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title),
+    );
+
+  return (
+    <div className="space-y-5">
+      {/* Search + Sort row */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+        <div className="relative flex-1">
+          <svg
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+            style={{ color: "oklch(0.55 0.06 240)" }}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+            />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search songs or artists..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all"
+            style={{
+              background: "oklch(0.14 0.04 250)",
+              border: "1px solid oklch(0.25 0.06 250)",
+              color: "oklch(0.90 0.02 240)",
+            }}
+            data-ocid="entertainment.music.search_input"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => setSortAZ(!sortAZ)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-80 shrink-0"
+          style={{
+            background: "oklch(0.18 0.05 250)",
+            border: "1px solid oklch(0.78 0.18 65 / 0.4)",
+            color: "oklch(0.78 0.18 65)",
+          }}
+          data-ocid="entertainment.music.toggle"
+        >
+          <span>{sortAZ ? "A → Z" : "Z → A"}</span>
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Category tabs */}
+      <div
+        className="flex gap-2 overflow-x-auto pb-1"
+        style={{ scrollbarWidth: "none" }}
+      >
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            type="button"
+            onClick={() => setSelectedCategory(cat)}
+            className="shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200"
+            style={
+              selectedCategory === cat
+                ? {
+                    background: "oklch(0.78 0.18 65)",
+                    color: "oklch(0.10 0.03 250)",
+                  }
+                : {
+                    background: "oklch(0.16 0.05 250)",
+                    border: "1px solid oklch(0.25 0.06 250)",
+                    color: "oklch(0.70 0.06 240)",
+                  }
+            }
+            data-ocid="entertainment.music.tab"
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Results count */}
+      <p className="text-xs" style={{ color: "oklch(0.55 0.04 240)" }}>
+        {filtered.length} song{filtered.length !== 1 ? "s" : ""} found
+      </p>
+
+      {/* Song grid */}
+      {filtered.length === 0 ? (
+        <div
+          className="text-center py-12 rounded-2xl"
+          style={{
+            background: "oklch(0.14 0.04 250)",
+            color: "oklch(0.55 0.04 240)",
+          }}
+          data-ocid="entertainment.music.empty_state"
+        >
+          No songs found. Try a different search or category.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((song, idx) => {
+            const isExpanded = expandedSong === song.id;
+            return (
+              <div
+                key={song.id}
+                className="rounded-2xl overflow-hidden transition-all duration-300"
+                style={{
+                  background: "oklch(0.14 0.04 250)",
+                  border: `1px solid ${isExpanded ? "oklch(0.78 0.18 65 / 0.5)" : "oklch(0.22 0.05 250)"}`,
+                  boxShadow: isExpanded
+                    ? "0 0 20px oklch(0.78 0.18 65 / 0.15)"
+                    : "none",
+                }}
+                data-ocid={`entertainment.music.item.${idx + 1}`}
+              >
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className="font-bold text-sm truncate"
+                        style={{ color: "oklch(0.92 0.03 240)" }}
+                      >
+                        {song.title}
+                      </p>
+                      <p
+                        className="text-xs mt-0.5 truncate"
+                        style={{ color: "oklch(0.60 0.05 240)" }}
+                      >
+                        {song.artist}
+                      </p>
+                      <span
+                        className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full font-medium"
+                        style={{
+                          background: `${CATEGORY_COLORS[song.category] ?? "oklch(0.78 0.18 65)"}22`,
+                          color:
+                            CATEGORY_COLORS[song.category] ??
+                            "oklch(0.78 0.18 65)",
+                          border: `1px solid ${CATEGORY_COLORS[song.category] ?? "oklch(0.78 0.18 65)"}44`,
+                        }}
+                      >
+                        {song.category}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpandedSong(isExpanded ? null : song.id)
+                      }
+                      className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:scale-105"
+                      style={{
+                        background: isExpanded
+                          ? "oklch(0.78 0.18 65)"
+                          : "oklch(0.20 0.06 250)",
+                        color: isExpanded
+                          ? "oklch(0.10 0.03 250)"
+                          : "oklch(0.78 0.18 65)",
+                      }}
+                      data-ocid="entertainment.music.button"
+                      aria-label={isExpanded ? "Collapse" : "Play"}
+                    >
+                      {isExpanded ? (
+                        <svg
+                          className="w-4 h-4"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <rect x="6" y="4" width="4" height="16" rx="1" />
+                          <rect x="14" y="4" width="4" height="16" rx="1" />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="w-4 h-4 ml-0.5"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+                {isExpanded && (
+                  <div className="relative" style={{ paddingBottom: "56.25%" }}>
+                    <iframe
+                      className="absolute inset-0 w-full h-full"
+                      src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1`}
+                      title={song.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* More Songs button — only shown when a specific category is selected */}
+      {selectedCategory !== "All" && (
+        <div className="flex justify-center mt-6">
+          <button
+            type="button"
+            onClick={() =>
+              window.open(
+                `${window.location.origin}${window.location.pathname}?musiccat=${selectedCategory}`,
+                "_blank",
+              )
+            }
+            className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95"
+            style={{
+              background:
+                "linear-gradient(135deg, oklch(0.78 0.18 65), oklch(0.85 0.15 80))",
+              color: "oklch(0.10 0.03 250)",
+              boxShadow: "0 4px 20px oklch(0.78 0.18 65 / 0.4)",
+              border: "none",
+              cursor: "pointer",
+            }}
+            data-ocid="entertainment.music.button"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+            </svg>
+            More Songs &rarr;
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Section Wrapper ──────────────────────────────────────────────────────────
 
 function Section({
@@ -1185,7 +1713,7 @@ export function EntertainmentPage({ navigate }: Props) {
             className="text-base md:text-lg mb-6"
             style={{ color: "oklch(0.70 0.06 240)" }}
           >
-            Games · Music · Horoscope · Fun Facts · Bihu & Assam Culture
+            Games · Music Library · Horoscope · Fun Facts · Bihu & Assam Culture
           </p>
           <button
             type="button"
@@ -1279,6 +1807,11 @@ export function EntertainmentPage({ navigate }: Props) {
               </div>
             ))}
           </div>
+        </Section>
+
+        {/* ── Section 2.5: Music Library ── */}
+        <Section title="Music Library" emoji="🎵">
+          <MusicLibrary />
         </Section>
 
         {/* ── Section 3: Fun Facts & Jokes ── */}
