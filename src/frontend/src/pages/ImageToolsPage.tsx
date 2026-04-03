@@ -523,31 +523,34 @@ function BgRemoveTool() {
   const removeBackground = async () => {
     if (!file) return;
     setLoading(true);
-    setProgress("Loading AI model (~40MB on first run)...");
+    setProgress("Connecting to remove.bg API...");
     try {
-      // Dynamic import to avoid bundle size issues
-      // eslint-disable-next-line no-new-func
-      const dynamicImport = new Function("m", "return import(m)");
-      const bgModule = (await dynamicImport("@imgly/background-removal")) as {
-        removeBackground: (f: File | Blob, opts?: object) => Promise<Blob>;
-      };
-      const removeBg = bgModule.removeBackground;
-      setProgress("Processing image (may take 10-30 seconds)...");
-      const blob = await removeBg(file, {
-        progress: (_key: string, current: number, total: number) => {
-          if (total > 0)
-            setProgress(
-              `Loading model: ${Math.round((current / total) * 100)}%`,
-            );
+      const formData = new FormData();
+      formData.append("image_file", file);
+      formData.append("size", "auto");
+
+      const response = await fetch("https://api.remove.bg/v1.0/removebg", {
+        method: "POST",
+        headers: {
+          "X-Api-Key": "UputND68rsXjraZifg5jTM7d",
         },
+        body: formData,
       });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`API error: ${response.status} - ${errText}`);
+      }
+
+      setProgress("Processing complete!");
+      const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       setResultUrl(url);
       setProgress("");
       toast.success("Background removed!");
     } catch (e) {
       console.error(e);
-      toast.error("Failed to remove background");
+      toast.error("Failed to remove background. Please try again.");
       setProgress("");
     } finally {
       setLoading(false);
@@ -568,8 +571,8 @@ function BgRemoveTool() {
       <div className="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-blue-700">
         <Info size={16} className="mt-0.5 shrink-0" />
         <span>
-          First run downloads an AI model (~40MB). All processing is done in
-          your browser — your image is never uploaded.
+          Powered by remove.bg API — professional AI background removal. Upload
+          your image and get a clean transparent PNG in seconds.
         </span>
       </div>
       {!file ? (

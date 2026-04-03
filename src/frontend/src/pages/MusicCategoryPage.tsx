@@ -12,8 +12,10 @@ interface ExtendedSong {
   id: string;
   title: string;
   artist: string;
+  singerName?: string;
   category: MusicCategory;
-  youtubeId: string;
+  youtubeId?: string;
+  platformLink?: string;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -1615,7 +1617,9 @@ export function MusicCategoryPage({ category }: Props) {
     const q = search.toLowerCase();
     return categorySongs.filter(
       (s) =>
-        s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q),
+        s.title.toLowerCase().includes(q) ||
+        s.artist.toLowerCase().includes(q) ||
+        (s.singerName ?? "").toLowerCase().includes(q),
     );
   }, [categorySongs, search]);
 
@@ -1623,8 +1627,9 @@ export function MusicCategoryPage({ category }: Props) {
   const artistGroups = useMemo(() => {
     const groups: Record<string, ExtendedSong[]> = {};
     for (const song of filteredSongs) {
-      if (!groups[song.artist]) groups[song.artist] = [];
-      groups[song.artist].push(song);
+      const key = song.singerName ?? song.artist;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(song);
     }
     return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
   }, [filteredSongs]);
@@ -2091,8 +2096,19 @@ function SongCard({
   catColor: string;
   index: number;
 }) {
-  const thumbnailUrl = `https://img.youtube.com/vi/${song.youtubeId}/mqdefault.jpg`;
-  const ytUrl = `https://www.youtube.com/watch?v=${song.youtubeId}`;
+  const effectivePlatformLink =
+    song.platformLink ??
+    (song.youtubeId
+      ? `https://www.youtube.com/watch?v=${song.youtubeId}`
+      : "#");
+  const effectiveYoutubeId =
+    song.youtubeId ??
+    (song.platformLink?.includes("youtube.com/watch?v=")
+      ? song.platformLink.split("v=")[1]?.split("&")[0]
+      : null);
+  const thumbnailUrl = effectiveYoutubeId
+    ? `https://img.youtube.com/vi/${effectiveYoutubeId}/mqdefault.jpg`
+    : null;
   const [imgError, setImgError] = useState(false);
 
   return (
@@ -2121,7 +2137,7 @@ function SongCard({
       data-ocid={`music_category.item.${index}`}
     >
       {/* Thumbnail */}
-      {!imgError ? (
+      {!imgError && thumbnailUrl ? (
         <div
           style={{
             position: "relative",
@@ -2130,7 +2146,7 @@ function SongCard({
           }}
         >
           <img
-            src={thumbnailUrl}
+            src={thumbnailUrl ?? ""}
             alt={song.title}
             onError={() => setImgError(true)}
             style={{
@@ -2217,7 +2233,7 @@ function SongCard({
           </span>
 
           <a
-            href={ytUrl}
+            href={effectivePlatformLink}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -2226,8 +2242,8 @@ function SongCard({
               gap: "0.35rem",
               padding: "0.35rem 0.75rem",
               borderRadius: "0.5rem",
-              background: "#FF0000",
-              color: "#fff",
+              background: "oklch(0.78 0.18 65)",
+              color: "oklch(0.10 0.03 250)",
               fontSize: "0.72rem",
               fontWeight: 700,
               textDecoration: "none",
@@ -2251,7 +2267,7 @@ function SongCard({
             >
               <path d="M8 5v14l11-7z" />
             </svg>
-            Play on YouTube
+            Play
           </a>
         </div>
       </div>
