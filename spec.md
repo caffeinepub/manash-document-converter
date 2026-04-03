@@ -1,52 +1,75 @@
 # NextGen-manash-pc-World-2.0
 
 ## Current State
-
-The Music Library in `EntertainmentPage.tsx` has:
-- `MusicSong` interface with fields: id, title, singerName, movieName, category, genre, releaseDate, platformLink, youtubeVideoId, lyrics, composer, lyricist, musicDirector, label, audioFileUrl, downloadLink, coverImage
-- Browse tabs: By Category, By Singer, By Movie
-- `SongCard` component that shows song details, YouTube embed, lyrics, download link in an expandable panel
-- `MusicCategoryPage.tsx` — standalone page for "More Songs" with 220+ extended songs per category
-- Admin panel has all song fields including `coverImage` and `youtubeVideoId`
-
-**Current problems:**
-1. Song cards do NOT prominently show cover photo — coverImage field exists but is not used prominently
-2. Tab filtering issue — songs from one artist (e.g. Zubeen Garg) may appear in multiple category tabs
-3. Each song category/singer/movie does NOT open a dedicated new tab page with all details
-4. Clicking a song category button does not open a new tab — it filters inline
+- Full-stack web platform with dark navy + gold theme throughout
+- All pages use hardcoded OKLCH dark values in index.css and inline styles
+- No theme toggle exists anywhere
+- JobUpdatesPage.tsx has a premium hero section, job listings, CSC Login button in hero and sidebar
+- AdminPage.tsx has many tabs: Products, Orders, Job Updates, Govt Documents, Govt Forms, Contact Us, PAN Card Portal, Homepage, Entertainment, Assam Tourism, AI Chat, Navigation, Form Guidelines, Music Songs, Site Settings, Footer
+- App.tsx wraps all pages in a `<div className="min-h-screen bg-white">` (bg-white is overridden by body styles)
 
 ## Requested Changes (Diff)
 
 ### Add
-- **Prominent cover photo** on every song card: large cover image displayed at top of card (16:9 or square aspect ratio). If no coverImage, use YouTube thumbnail `https://img.youtube.com/vi/{videoId}/hqdefault.jpg` as fallback. If no YouTube ID either, show a stylized placeholder with music note icon.
-- **Each category/singer/movie button opens a new tab** — when user clicks a Category card (e.g. "Bihu"), Singer name (e.g. "Zubeen Garg"), or Movie name — it opens a NEW browser tab with a dedicated full page showing all songs for that selection, with cover photos, full details, YouTube embed, lyrics, download links
-- **New dedicated song detail page** — `/music-detail` route that accepts query params `?id=songId` and shows full song page: large cover photo, YouTube embed, all metadata, lyrics, download link
-- **New tab navigation pages** — `/music-songs?cat=Bihu`, `/music-songs?singer=Zubeen+Garg`, `/music-songs?movie=Yaone` — these pages render a full list of songs filtered by the param, each with cover photo card, "More Info" expanding to full details inline
+1. **Global Light/Dark/Auto Theme System**
+   - A `ThemeProvider` context (`src/frontend/src/hooks/useTheme.tsx`) that:
+     - Stores user preference in localStorage (`theme`: `light` | `dark` | `auto`)
+     - On `auto`, detects system preference via `prefers-color-scheme: dark`
+     - Applies `class="dark"` or `class="light"` to `<html>` element
+   - Light theme CSS variables in `index.css` under `.light` class:
+     - Background: white/light grey (oklch ~0.97 0.01 250)
+     - Foreground: dark navy (oklch ~0.15 0.04 250)
+     - Card: oklch 0.93 0.01 250
+     - Primary: gold oklch 0.65 0.18 65 (stays gold)
+     - Border: oklch 0.85 0.02 250
+   - Dark theme variables remain as current (under `.dark` class)
+   - Default remains dark
+
+2. **Theme Toggle Button**
+   - In `Header.tsx`: Add a Sun/Moon/Auto toggle button in the right icons area (before cart icon)
+   - In `HomePage.tsx` footer section: Add the same toggle
+   - Toggle cycles through: Auto → Light → Dark → Auto
+   - Icons: Sun (light), Moon (dark), Monitor/Sparkle (auto)
+   - Shows current mode label on hover
+
+3. **CSC Bridge Section on Job Updates Page**
+   - Add a prominent CSC (Common Service Centre) bridge section at the TOP of JobUpdatesPage, before the hero/job listings
+   - Design: premium card/banner with dark navy bg, gold accents
+   - Content:
+     - Title: "CSC – Common Service Centre"
+     - Subtitle: "Digital India's Network of Over 5 Lakh+ Service Points"
+     - Services grid (6 icons): PAN Card, Aadhaar, Banking, Insurance, Passport, Digital Literacy
+     - Big "CSC Login" CTA button → opens `https://www.csc.gov.in` in new tab
+     - "Register as CSC VLE" secondary button → opens `https://register.csc.gov.in` in new tab
+   - Animated entrance (fadeInUp)
+
+4. **CSC Section Admin Tab**
+   - In `AdminPage.tsx`: Add a new "CSC Section" tab
+   - Fields editable:
+     - CSC section title
+     - CSC section subtitle/description
+     - CSC Login URL
+     - Register VLE URL
+     - Services list (name + icon emoji) — add/edit/delete
+     - Show/hide toggle for the entire CSC bridge section
+   - Settings stored in localStorage key `cscSectionSettings`
 
 ### Modify
-- **`SongCard` component** — redesign to show:
-  - Top: large cover image (full width of card, ~200px tall, object-cover)
-  - Below: song title (bold), singer name, movie name (if any), category badge
-  - Bottom: two action buttons — "Play" (opens YouTube embed or audio) and "More Info" (opens new tab with song detail page)
-- **Tab filtering fix** — when Zubeen Garg category tab is selected, show ONLY songs with `category === "Zubeen Garg"`. When Bihu is selected, show ONLY `category === "Bihu"`. No cross-category mixing. The A-Z Singer tab shows all songs by that specific singer regardless of category.
-- **Category card buttons** — clicking now calls `window.open('/music-songs?cat=CATEGORY', '_blank')` instead of filtering inline
-- **Singer buttons** — clicking calls `window.open('/music-songs?singer=SINGER_NAME', '_blank')`
-- **Movie buttons** — clicking calls `window.open('/music-songs?movie=MOVIE_NAME', '_blank')`
-- **`MusicCategoryPage.tsx`** — update to handle all three query params: `cat`, `singer`, `movie`. Also update song cards to use the same new prominent cover photo design.
+- `index.css`: Add `.light` and `.dark` class CSS variable overrides so both themes work
+- `App.tsx`: Wrap with ThemeProvider, replace `bg-white` with theme-aware class
+- `Header.tsx`: Add theme toggle button
+- `HomePage.tsx`: Add theme toggle in footer area
+- `JobUpdatesPage.tsx`: Add CSC bridge section at top, reading from `cscSectionSettings` localStorage
 
 ### Remove
-- Inline category song list view (the inline filtered view after clicking a category card) — replace with new-tab navigation
-- Old "More Songs" button at bottom (its function is now replaced by the new-tab category/singer/movie page approach)
+- Nothing removed
 
 ## Implementation Plan
-
-1. **Add `/music-songs` route** in `App.tsx` pointing to a new `MusicSongsPage` component (or reuse/refactor `MusicCategoryPage`)
-2. **Refactor `MusicCategoryPage.tsx`** to accept `cat`, `singer`, or `movie` query params and show appropriate filtered song list with the new card design
-3. **Redesign `SongCard`** in both `EntertainmentPage.tsx` and `MusicCategoryPage.tsx`:
-   - Top: cover image using coverImage || YouTube thumbnail || placeholder
-   - Middle: title, singer, movie, category badge  
-   - Bottom: "▶ Play" button + "ℹ More Info" button that opens new tab to `/music-songs?id=songId` or expands inline
-4. **Fix tab filtering** in `EntertainmentPage.tsx` — category buttons now open new tab instead of filtering inline; singer/movie buttons also open new tab
-5. **Keep inline browse tabs** (Category/Singer/Movie) in Entertainment page as navigation grids — clicking any item opens a new tab
-6. **Update Admin panel** — no changes needed to admin song fields, but ensure `coverImage` field is visible and labeled clearly as "Cover Image URL"
-7. **Add `/music-songs` to App.tsx router**
+1. Create `src/frontend/src/hooks/useTheme.tsx` — ThemeProvider + useTheme hook
+2. Update `src/frontend/src/index.css` — add `.light` and `.dark` CSS variable blocks
+3. Update `src/frontend/src/App.tsx` — wrap with ThemeProvider, fix root div class
+4. Update `src/frontend/src/components/Header.tsx` — add theme toggle button with Sun/Moon/Monitor icons
+5. Update `src/frontend/src/pages/HomePage.tsx` — add theme toggle in footer area
+6. Update `src/frontend/src/pages/JobUpdatesPage.tsx` — add CSC bridge section at top using localStorage settings
+7. Update `src/frontend/src/pages/AdminPage.tsx` — add CSC Section tab with full CRUD for the bridge section settings
+8. Validate (lint, typecheck, build)

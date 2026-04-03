@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Header } from "./components/Header";
 import { Toaster } from "./components/ui/sonner";
+import { ThemeProvider } from "./hooks/useTheme";
 import { AccountPage } from "./pages/AccountPage";
 import { AdminPage } from "./pages/AdminPage";
 import { AiChatPage } from "./pages/AiChatPage";
@@ -45,7 +46,7 @@ export type Page =
   | "assam-tourism"
   | "music-category";
 
-export default function App() {
+function AppInner() {
   const [page, setPage] = useState<Page>("home");
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null,
@@ -105,7 +106,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       <Header
         page={page}
         navigate={navigate}
@@ -145,5 +146,13 @@ export default function App() {
       {page === "assam-tourism" && <AssamTourismPage navigate={navigate} />}
       <Toaster />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppInner />
+    </ThemeProvider>
   );
 }
