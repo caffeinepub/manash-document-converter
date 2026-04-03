@@ -6,6 +6,7 @@ import {
   FileText,
   Mail,
   Menu,
+  Mountain,
   ScrollText,
   ShoppingCart,
   User,
@@ -35,7 +36,8 @@ export function Header({ page, navigate, cartCount }: Props) {
     { label: "PAN Portal", page: "pan-card" },
     { label: "Contact Us", page: "contact-us" },
     { label: "Manash 2.0", page: "ai-chat" },
-    { label: "D83cDfae Entertainment", page: "entertainment" },
+    { label: "\uD83C\uDFAE Entertainment", page: "entertainment" },
+    { label: "\uD83C\uDFD4\uFE0F Assam Tourism", page: "assam-tourism" },
   ];
 
   return (
@@ -118,6 +120,7 @@ export function Header({ page, navigate, cartCount }: Props) {
                 {l.page === "pan-card" && <CreditCard size={14} />}
                 {l.page === "contact-us" && <Mail size={14} />}
                 {l.page === "ai-chat" && <Bot size={14} />}
+                {l.page === "assam-tourism" && <Mountain size={14} />}
                 {l.label}
               </button>
             ))}

@@ -5,6 +5,7 @@ import { AccountPage } from "./pages/AccountPage";
 import { AdminPage } from "./pages/AdminPage";
 import { AiChatPage } from "./pages/AiChatPage";
 import { AssamFormsPage } from "./pages/AssamFormsPage";
+import { AssamTourismPage } from "./pages/AssamTourismPage";
 import { AuthPage } from "./pages/AuthPage";
 import { CartPage } from "./pages/CartPage";
 import { CertificateAlbumPage } from "./pages/CertificateAlbumPage";
@@ -39,7 +40,8 @@ export type Page =
   | "ai-chat"
   | "certificate-album"
   | "pan-card"
-  | "entertainment";
+  | "entertainment"
+  | "assam-tourism";
 
 export default function App() {
   const [page, setPage] = useState<Page>("home");
@@ -102,6 +104,7 @@ export default function App() {
       {page === "certificate-album" && <CertificateAlbumPage />}
       {page === "pan-card" && <PanCardPortalPage />}
       {page === "entertainment" && <EntertainmentPage navigate={navigate} />}
+      {page === "assam-tourism" && <AssamTourismPage navigate={navigate} />}
       <Toaster />
     </div>
   );

@@ -10,6 +10,7 @@ import {
   Mail,
   MapPin,
   Monitor,
+  Mountain,
   Phone,
   Plus,
   Save,
@@ -80,7 +81,8 @@ type Tab =
   | "homepage"
   | "pan-card"
   | "govt-forms"
-  | "entertainment";
+  | "entertainment"
+  | "assam-tourism";
 
 const ADMIN_EMAIL = "admin@nextgenit.com";
 const ADMIN_PASSWORD = "Admin@123";
@@ -317,6 +319,7 @@ export function AdminPage({ navigate }: Props) {
               "pan-card",
               "govt-forms",
               "entertainment",
+              "assam-tourism",
             ] as Tab[]
           ).map((t) => (
             <button
@@ -338,6 +341,7 @@ export function AdminPage({ navigate }: Props) {
               {t === "pan-card" && <CreditCard size={14} />}
               {t === "govt-forms" && <Library size={14} />}
               {t === "entertainment" && <Tv size={14} />}
+              {t === "assam-tourism" && <Mountain size={14} />}
               {t === "job-updates"
                 ? "Job Updates"
                 : t === "gov-documents"
@@ -352,7 +356,9 @@ export function AdminPage({ navigate }: Props) {
                           ? "Govt Forms"
                           : t === "entertainment"
                             ? "Entertainment"
-                            : t}
+                            : t === "assam-tourism"
+                              ? "Assam Tourism"
+                              : t}
             </button>
           ))}
         </div>
@@ -1329,6 +1335,9 @@ export function AdminPage({ navigate }: Props) {
 
         {/* ── ENTERTAINMENT TAB ── */}
         {tab === "entertainment" && <EntertainmentAdminTab />}
+
+        {/* ── ASSAM TOURISM TAB ── */}
+        {tab === "assam-tourism" && <AssamTourismAdminTab />}
       </div>
       <GovDocDialog
         open={govDocDialogOpen}
@@ -4703,6 +4712,357 @@ function EntertainmentAdminTab() {
               <Save size={14} /> Save Jokes
             </button>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Assam Tourism Admin Tab ────────────────────────────────────────────────
+const ASSAM_TOURISM_LS_KEY = "assamTourismPlaces";
+
+interface CustomPlace {
+  id: string;
+  name: string;
+  tagline: string;
+  description: string;
+  image: string;
+  bestTime: string;
+  howToReach: string;
+  localFood: string;
+  culturalInfo: string;
+  category: string;
+}
+
+const EMPTY_PLACE: CustomPlace = {
+  id: "",
+  name: "",
+  tagline: "",
+  description: "",
+  image: "",
+  bestTime: "",
+  howToReach: "",
+  localFood: "",
+  culturalInfo: "",
+  category: "Nature",
+};
+
+const ASSAM_CATEGORIES = [
+  "Wildlife",
+  "Culture & Heritage",
+  "Spiritual",
+  "Nature",
+  "History & Heritage",
+  "Festival & Culture",
+  "Tea & Culture",
+  "Nature & Hill Station",
+];
+
+function AssamTourismAdminTab() {
+  const [places, setPlaces] = useState<CustomPlace[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(ASSAM_TOURISM_LS_KEY) || "[]");
+    } catch {
+      return [];
+    }
+  });
+  const [form, setForm] = useState<CustomPlace>({ ...EMPTY_PLACE });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+
+  const save = () => {
+    if (!form.name.trim()) {
+      toast.error("Place name is required");
+      return;
+    }
+    let updated: CustomPlace[];
+    if (editingId) {
+      updated = places.map((p) =>
+        p.id === editingId ? { ...form, id: editingId } : p,
+      );
+      toast.success("Place updated!");
+    } else {
+      const newPlace = { ...form, id: `custom-${Date.now()}` };
+      updated = [newPlace, ...places];
+      toast.success("Place added!");
+    }
+    setPlaces(updated);
+    localStorage.setItem(ASSAM_TOURISM_LS_KEY, JSON.stringify(updated));
+    setForm({ ...EMPTY_PLACE });
+    setEditingId(null);
+    setShowForm(false);
+  };
+
+  const remove = (id: string) => {
+    const updated = places.filter((p) => p.id !== id);
+    setPlaces(updated);
+    localStorage.setItem(ASSAM_TOURISM_LS_KEY, JSON.stringify(updated));
+    toast.success("Place removed");
+  };
+
+  const startEdit = (place: CustomPlace) => {
+    setForm({ ...place });
+    setEditingId(place.id);
+    setShowForm(true);
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-xl font-bold text-[#0B2A4A] flex items-center gap-2">
+            <Mountain size={20} className="text-[#1E88FF]" />
+            Manage Assam Tourism Places
+          </h2>
+          <p className="text-sm text-gray-500 mt-1">
+            10 built-in places are always shown. Add custom places below — they
+            appear at the top of the tourism page.
+          </p>
+        </div>
+        <Button
+          onClick={() => {
+            setForm({ ...EMPTY_PLACE });
+            setEditingId(null);
+            setShowForm(true);
+          }}
+          className="flex items-center gap-1.5 bg-[#1E88FF] hover:bg-[#1565C0]"
+          data-ocid="assam-tourism.open_modal_button"
+        >
+          <Plus size={16} /> Add New Place
+        </Button>
+      </div>
+
+      {/* Info banner */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-sm text-blue-800">
+        <strong>Built-in places (10):</strong> Kaziranga, Majuli, Kamakhya
+        Temple, Brahmaputra River, Sivasagar, Manas National Park, Haflong,
+        Tezpur, Jorhat Tea Gardens, Bihu Festival — these cannot be deleted.
+      </div>
+
+      {/* Add/Edit Form */}
+      {showForm && (
+        <div
+          className="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-6"
+          data-ocid="assam-tourism.dialog"
+        >
+          <h3 className="text-lg font-bold text-[#0B2A4A] mb-4">
+            {editingId ? "Edit Place" : "Add New Place"}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                Place Name *
+              </Label>
+              <Input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="e.g. Dipor Bil"
+                data-ocid="assam-tourism.input"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                Tagline
+              </Label>
+              <Input
+                value={form.tagline}
+                onChange={(e) => setForm({ ...form, tagline: e.target.value })}
+                placeholder="Short catchy tagline"
+                data-ocid="assam-tourism.input"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                Description
+              </Label>
+              <Textarea
+                value={form.description}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+                placeholder="Full description of the place..."
+                rows={3}
+                data-ocid="assam-tourism.textarea"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                Image URL
+              </Label>
+              <Input
+                value={form.image}
+                onChange={(e) => setForm({ ...form, image: e.target.value })}
+                placeholder="https://... or /assets/..."
+                data-ocid="assam-tourism.input"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                Category
+              </Label>
+              <select
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                data-ocid="assam-tourism.select"
+              >
+                {ASSAM_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                Best Time to Visit
+              </Label>
+              <Input
+                value={form.bestTime}
+                onChange={(e) => setForm({ ...form, bestTime: e.target.value })}
+                placeholder="e.g. October to March"
+                data-ocid="assam-tourism.input"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                How to Reach
+              </Label>
+              <Input
+                value={form.howToReach}
+                onChange={(e) =>
+                  setForm({ ...form, howToReach: e.target.value })
+                }
+                placeholder="Airport, railway, road info..."
+                data-ocid="assam-tourism.input"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                Local Food
+              </Label>
+              <Input
+                value={form.localFood}
+                onChange={(e) =>
+                  setForm({ ...form, localFood: e.target.value })
+                }
+                placeholder="Must-try local dishes..."
+                data-ocid="assam-tourism.input"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                Cultural Info
+              </Label>
+              <Input
+                value={form.culturalInfo}
+                onChange={(e) =>
+                  setForm({ ...form, culturalInfo: e.target.value })
+                }
+                placeholder="Cultural significance, activities..."
+                data-ocid="assam-tourism.input"
+              />
+            </div>
+          </div>
+          <div className="flex gap-3 mt-5">
+            <Button
+              onClick={save}
+              className="bg-[#1E88FF] hover:bg-[#1565C0]"
+              data-ocid="assam-tourism.save_button"
+            >
+              <Save size={14} className="mr-1.5" />
+              {editingId ? "Update Place" : "Add Place"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowForm(false);
+                setEditingId(null);
+                setForm({ ...EMPTY_PLACE });
+              }}
+              data-ocid="assam-tourism.cancel_button"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Places Table */}
+      {places.length === 0 ? (
+        <div
+          className="text-center py-16 text-gray-400"
+          data-ocid="assam-tourism.empty_state"
+        >
+          <Mountain size={40} className="mx-auto mb-3 opacity-30" />
+          <p>No custom places added yet.</p>
+          <p className="text-sm mt-1">Click "Add New Place" to get started.</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-gray-200">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                  Name
+                </th>
+                <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                  Category
+                </th>
+                <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                  Tagline
+                </th>
+                <th className="text-left px-4 py-3 text-gray-600 font-semibold">
+                  Best Time
+                </th>
+                <th className="text-right px-4 py-3 text-gray-600 font-semibold">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {places.map((place, i) => (
+                <tr
+                  key={place.id}
+                  className="border-t border-gray-100 hover:bg-gray-50 transition-colors"
+                  data-ocid={`assam-tourism.row.${i + 1}`}
+                >
+                  <td className="px-4 py-3 font-medium text-[#0B2A4A]">
+                    {place.name}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
+                      {place.category}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-500 max-w-[200px] truncate">
+                    {place.tagline}
+                  </td>
+                  <td className="px-4 py-3 text-gray-500">{place.bestTime}</td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(place)}
+                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                        data-ocid={`assam-tourism.edit_button.${i + 1}`}
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => remove(place.id)}
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                        data-ocid={`assam-tourism.delete_button.${i + 1}`}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
