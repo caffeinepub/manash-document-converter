@@ -1,35 +1,32 @@
-# Manash PC World 2.0
+# NextGen Manash PC World 2.0 — Entertainment Hub
 
 ## Current State
-- `/assam-forms` page (`AssamFormsPage.tsx`) displays ~50+ government PDF forms in a card grid
-- Each `FormCard` has: category badge, title, description, language tag, file size, and a gold **Download PDF** button
-- No "More Info" button exists currently
-- No form-specific guidelines pages exist
+App has multiple pages: Home, Shop, Converter, Image Tools, Job Updates, Gov Documents, Assam Forms, Contact Us, AI Chat, PAN Card Portal, Admin. Navigation is handled via a `Page` type union in App.tsx. Header component has navigation links.
 
 ## Requested Changes (Diff)
 
 ### Add
-- **"More Info" button** on every form card — blue background (`bg-blue-600`), white font, placed next to the Download PDF button
-- **`FormGuidelinesPage` component** — a new page/route that opens in a **new browser tab** (`window.open`) showing detailed English guidelines for a specific form
-- **Guidelines data map** — a data object keyed by form `id`, containing for each form:
-  - What is this form?
-  - Who can apply?
-  - Documents required
-  - Step-by-step how to fill
-  - Where to submit
-  - Fee details
-- All 50+ default forms must have their own dedicated guidelines content
+- New `/entertainment` route and `EntertainmentPage` component
+- Entertainment Hub button on Homepage — animated, prominent, redirects to `/entertainment`
+- "Entertainment" link in navigation bar (Header)
+- EntertainmentPage with the following sections:
+  1. **Mini Games** — Snake game, Tic Tac Toe, Quiz game (browser-based, no external deps)
+  2. **YouTube Embeds** — Assamese/Bollywood popular songs & videos (static embed list)
+  3. **Fun Facts & Jokes** — Rotating daily content (static array, changes per day)
+  4. **Horoscope** — Daily rashifal for 12 zodiac signs (static content)
+  5. **News Ticker** — Trending headline ticker (static headlines rotating)
+  6. **Local Assam Content** — Bihu songs, cultural highlights section
 
 ### Modify
-- `FormCard` component — add the blue "More Info" button that calls `window.open('/form-guide?id=<formId>', '_blank')`
-- `App.tsx` or router — add route for `/form-guide` page
+- `App.tsx` — Add `"entertainment"` to `Page` type, import `EntertainmentPage`, add route handler
+- `Header.tsx` — Add "Entertainment" nav link
+- `HomePage.tsx` — Add animated "Entertainment Hub" button/section that navigates to entertainment page
 
 ### Remove
 - Nothing removed
 
 ## Implementation Plan
-1. Create a `formGuidelines` data map in a new file `src/frontend/src/data/formGuidelines.ts` with detailed English guidelines for all 50+ forms
-2. Create `FormGuidePage.tsx` — reads `?id=` query param, looks up the guidelines, renders a clean well-structured page with sections: What is this form, Who can apply, Documents required, Step-by-step guide, Where to submit, Fee
-3. Update `AssamFormsPage.tsx` `FormCard` component — add blue "More Info" button next to Download PDF, clicking it calls `window.open('/form-guide?id=' + form.id, '_blank')`
-4. Register `/form-guide` route in App.tsx
-5. Validate and deploy
+1. Create `src/frontend/src/pages/EntertainmentPage.tsx` with all 6 sections
+2. Update `App.tsx` — add `"entertainment"` to Page type, import and render EntertainmentPage
+3. Update `Header.tsx` — add Entertainment nav link
+4. Update `HomePage.tsx` — add animated Entertainment Hub button between sections

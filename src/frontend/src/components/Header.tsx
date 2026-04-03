@@ -35,6 +35,7 @@ export function Header({ page, navigate, cartCount }: Props) {
     { label: "PAN Portal", page: "pan-card" },
     { label: "Contact Us", page: "contact-us" },
     { label: "Manash 2.0", page: "ai-chat" },
+    { label: "D83cDfae Entertainment", page: "entertainment" },
   ];
 
   return (

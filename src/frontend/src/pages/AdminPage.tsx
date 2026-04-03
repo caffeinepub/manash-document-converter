@@ -16,6 +16,7 @@ import {
   Settings,
   Star,
   Trash2,
+  Tv,
   Upload,
   User,
   Wifi,
@@ -78,7 +79,8 @@ type Tab =
   | "certificate"
   | "homepage"
   | "pan-card"
-  | "govt-forms";
+  | "govt-forms"
+  | "entertainment";
 
 const ADMIN_EMAIL = "admin@nextgenit.com";
 const ADMIN_PASSWORD = "Admin@123";
@@ -314,6 +316,7 @@ export function AdminPage({ navigate }: Props) {
               "homepage",
               "pan-card",
               "govt-forms",
+              "entertainment",
             ] as Tab[]
           ).map((t) => (
             <button
@@ -334,6 +337,7 @@ export function AdminPage({ navigate }: Props) {
               {t === "homepage" && <Home size={14} />}
               {t === "pan-card" && <CreditCard size={14} />}
               {t === "govt-forms" && <Library size={14} />}
+              {t === "entertainment" && <Tv size={14} />}
               {t === "job-updates"
                 ? "Job Updates"
                 : t === "gov-documents"
@@ -346,7 +350,9 @@ export function AdminPage({ navigate }: Props) {
                         ? "PAN Card"
                         : t === "govt-forms"
                           ? "Govt Forms"
-                          : t}
+                          : t === "entertainment"
+                            ? "Entertainment"
+                            : t}
             </button>
           ))}
         </div>
@@ -1320,6 +1326,9 @@ export function AdminPage({ navigate }: Props) {
 
         {/* ── GOVT FORMS TAB ── */}
         {tab === "govt-forms" && <GovFormsAdminTab />}
+
+        {/* ── ENTERTAINMENT TAB ── */}
+        {tab === "entertainment" && <EntertainmentAdminTab />}
       </div>
       <GovDocDialog
         open={govDocDialogOpen}
@@ -4229,6 +4238,473 @@ function GovFormsAdminTab() {
           </div>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+// ── Entertainment Admin Tab ──────────────────────────────────────────────────
+
+interface EntertainmentAdminData {
+  newsHeadlines: string[];
+  youtubeVideos: { id: string; title: string }[];
+  bihuVideos: { id: string; title: string }[];
+  funFacts: string[];
+  jokes: { setup: string; punchline: string }[];
+}
+
+const ENT_LS_KEY = "entertainment_admin_data";
+
+function loadEntData(): EntertainmentAdminData {
+  try {
+    return JSON.parse(localStorage.getItem(ENT_LS_KEY) || "{}");
+  } catch {
+    return {} as EntertainmentAdminData;
+  }
+}
+
+function saveEntData(data: EntertainmentAdminData) {
+  localStorage.setItem(ENT_LS_KEY, JSON.stringify(data));
+}
+
+const DEFAULT_HEADLINES = [
+  "India launches new digital infrastructure initiative across rural Assam",
+  "Kaziranga rhino population reaches record high of 3,000+",
+  "Guwahati selected as Smart City for 2026 development plan",
+  "Assam tea exports hit all-time high this quarter",
+  "India becomes 3rd largest economy — GDP surpasses Japan",
+  "New railway line connecting Nalbari to Guwahati approved",
+  "ISRO successfully launches 100th satellite from Sriharikota",
+  "Digital India initiative reaches 80 crore internet users",
+  "Bihu festival to be nominated for UNESCO heritage listing",
+  "Assam government launches free broadband for rural schools",
+];
+
+const DEFAULT_YOUTUBE = [
+  { id: "RgKAFK5djSk", title: "Wiz Khalifa — See You Again" },
+  { id: "JGwWNGJdvx8", title: "Ed Sheeran — Shape of You" },
+  { id: "ktvTqknDobU", title: "Pharrell Williams — Happy" },
+  { id: "YQHsXMglC9A", title: "Adele — Hello" },
+  { id: "OPf0YbXqDm0", title: "Mark Ronson ft. Bruno Mars — Uptown Funk" },
+  { id: "hT_nvWreIhg", title: "OneRepublic — Counting Stars" },
+];
+
+const DEFAULT_BIHU = [
+  { id: "dQw4w9WgXcQ", title: "Traditional Bihu Songs" },
+  { id: "9bZkp7q19f0", title: "Bihu Dance Performance" },
+  { id: "60ItHLz5WEA", title: "Assamese Folk Music" },
+];
+
+const DEFAULT_FACTS = [
+  "The human brain can process images in as little as 13 milliseconds.",
+  "Honey never spoils — 3,000-year-old honey found in Egyptian tombs is still edible.",
+  "Assam produces more than 50% of India's total tea output.",
+  "A group of flamingos is called a 'flamboyance'.",
+  "The Brahmaputra River is one of the few rivers in the world that flows both west and east.",
+];
+
+const DEFAULT_JOKES = [
+  {
+    setup: "Why don't scientists trust atoms?",
+    punchline: "Because they make up everything!",
+  },
+  {
+    setup: "Why did the math book look so sad?",
+    punchline: "Because it had too many problems.",
+  },
+  { setup: "What do you call a fish without eyes?", punchline: "A fsh!" },
+];
+
+type EntSubTab = "headlines" | "youtube" | "bihu" | "facts" | "jokes";
+
+function EntertainmentAdminTab() {
+  const saved = loadEntData();
+
+  const [subTab, setSubTab] = useState<EntSubTab>("headlines");
+
+  const [headlines, setHeadlines] = useState<string[]>(
+    saved.newsHeadlines ?? DEFAULT_HEADLINES,
+  );
+  const [youtubeVideos, setYoutubeVideos] = useState<
+    { id: string; title: string }[]
+  >(saved.youtubeVideos ?? DEFAULT_YOUTUBE);
+  const [bihuVideos, setBihuVideos] = useState<{ id: string; title: string }[]>(
+    saved.bihuVideos ?? DEFAULT_BIHU,
+  );
+  const [funFacts, setFunFacts] = useState<string[]>(
+    saved.funFacts ?? DEFAULT_FACTS,
+  );
+  const [jokes, setJokes] = useState<{ setup: string; punchline: string }[]>(
+    saved.jokes ?? DEFAULT_JOKES,
+  );
+
+  function saveAll(overrides: Partial<EntertainmentAdminData> = {}) {
+    const data: EntertainmentAdminData = {
+      newsHeadlines: overrides.newsHeadlines ?? headlines,
+      youtubeVideos: overrides.youtubeVideos ?? youtubeVideos,
+      bihuVideos: overrides.bihuVideos ?? bihuVideos,
+      funFacts: overrides.funFacts ?? funFacts,
+      jokes: overrides.jokes ?? jokes,
+    };
+    saveEntData(data);
+    toast.success("Entertainment content saved!");
+  }
+
+  const subTabs: { key: EntSubTab; label: string }[] = [
+    { key: "headlines", label: "News Headlines" },
+    { key: "youtube", label: "YouTube Videos" },
+    { key: "bihu", label: "Bihu Videos" },
+    { key: "facts", label: "Fun Facts" },
+    { key: "jokes", label: "Jokes" },
+  ];
+
+  return (
+    <div>
+      <h2 className="text-xl font-bold text-[#0B2A4A] mb-6 flex items-center gap-2">
+        <Tv size={20} className="text-[#1E88FF]" /> Entertainment Hub
+      </h2>
+
+      {/* Sub-tabs */}
+      <div className="flex gap-1 border-b border-gray-200 mb-6 overflow-x-auto">
+        {subTabs.map((s) => (
+          <button
+            type="button"
+            key={s.key}
+            onClick={() => setSubTab(s.key)}
+            className={`px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
+              subTab === s.key
+                ? "border-[#1E88FF] text-[#0B2A4A]"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+            data-ocid={`entertainment.${s.key}.tab`}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Headlines ── */}
+      {subTab === "headlines" && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-semibold text-[#0B2A4A] mb-4">News Headlines</h3>
+          <div className="space-y-2 mb-4">
+            {headlines.map((h, i) => (
+              <div key={h || `h-${i}`} className="flex gap-2">
+                <input
+                  type="text"
+                  value={h}
+                  onChange={(e) => {
+                    const updated = [...headlines];
+                    updated[i] = e.target.value;
+                    setHeadlines(updated);
+                  }}
+                  className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88FF]"
+                  data-ocid={`entertainment.headlines.input.${i + 1}`}
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setHeadlines(headlines.filter((_, j) => j !== i))
+                  }
+                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  data-ocid={`entertainment.headlines.delete_button.${i + 1}`}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setHeadlines([...headlines, ""])}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+              data-ocid="entertainment.headlines.secondary_button"
+            >
+              <Plus size={14} /> Add Headline
+            </button>
+            <button
+              type="button"
+              onClick={() => saveAll({ newsHeadlines: headlines })}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm bg-[#1E88FF] hover:bg-[#1565C0] text-white rounded-lg font-medium transition-colors"
+              data-ocid="entertainment.headlines.save_button"
+            >
+              <Save size={14} /> Save Headlines
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── YouTube Videos ── */}
+      {subTab === "youtube" && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-semibold text-[#0B2A4A] mb-4">YouTube Videos</h3>
+          <div className="space-y-2 mb-4">
+            <div className="grid grid-cols-[1fr_2fr_auto] gap-2 text-xs font-semibold text-gray-500 px-1">
+              <span>YouTube ID</span>
+              <span>Title</span>
+              <span />
+            </div>
+            {youtubeVideos.map((v, i) => (
+              <div
+                key={v.id || `yt-${i}`}
+                className="grid grid-cols-[1fr_2fr_auto] gap-2"
+              >
+                <input
+                  type="text"
+                  value={v.id}
+                  placeholder="e.g. RgKAFK5djSk"
+                  onChange={(e) => {
+                    const updated = [...youtubeVideos];
+                    updated[i] = { ...updated[i], id: e.target.value };
+                    setYoutubeVideos(updated);
+                  }}
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88FF]"
+                  data-ocid={`entertainment.youtube.input.${i + 1}`}
+                />
+                <input
+                  type="text"
+                  value={v.title}
+                  placeholder="Video title"
+                  onChange={(e) => {
+                    const updated = [...youtubeVideos];
+                    updated[i] = { ...updated[i], title: e.target.value };
+                    setYoutubeVideos(updated);
+                  }}
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88FF]"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setYoutubeVideos(youtubeVideos.filter((_, j) => j !== i))
+                  }
+                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  data-ocid={`entertainment.youtube.delete_button.${i + 1}`}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                setYoutubeVideos([...youtubeVideos, { id: "", title: "" }])
+              }
+              className="flex items-center gap-1.5 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+              data-ocid="entertainment.youtube.secondary_button"
+            >
+              <Plus size={14} /> Add Video
+            </button>
+            <button
+              type="button"
+              onClick={() => saveAll({ youtubeVideos })}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm bg-[#1E88FF] hover:bg-[#1565C0] text-white rounded-lg font-medium transition-colors"
+              data-ocid="entertainment.youtube.save_button"
+            >
+              <Save size={14} /> Save Videos
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Bihu Videos ── */}
+      {subTab === "bihu" && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-semibold text-[#0B2A4A] mb-4">
+            Bihu Cultural Videos
+          </h3>
+          <div className="space-y-2 mb-4">
+            <div className="grid grid-cols-[1fr_2fr_auto] gap-2 text-xs font-semibold text-gray-500 px-1">
+              <span>YouTube ID</span>
+              <span>Title</span>
+              <span />
+            </div>
+            {bihuVideos.map((v, i) => (
+              <div
+                key={v.id || `bh-${i}`}
+                className="grid grid-cols-[1fr_2fr_auto] gap-2"
+              >
+                <input
+                  type="text"
+                  value={v.id}
+                  placeholder="e.g. dQw4w9WgXcQ"
+                  onChange={(e) => {
+                    const updated = [...bihuVideos];
+                    updated[i] = { ...updated[i], id: e.target.value };
+                    setBihuVideos(updated);
+                  }}
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88FF]"
+                  data-ocid={`entertainment.bihu.input.${i + 1}`}
+                />
+                <input
+                  type="text"
+                  value={v.title}
+                  placeholder="Video title"
+                  onChange={(e) => {
+                    const updated = [...bihuVideos];
+                    updated[i] = { ...updated[i], title: e.target.value };
+                    setBihuVideos(updated);
+                  }}
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88FF]"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setBihuVideos(bihuVideos.filter((_, j) => j !== i))
+                  }
+                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  data-ocid={`entertainment.bihu.delete_button.${i + 1}`}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                setBihuVideos([...bihuVideos, { id: "", title: "" }])
+              }
+              className="flex items-center gap-1.5 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+              data-ocid="entertainment.bihu.secondary_button"
+            >
+              <Plus size={14} /> Add Video
+            </button>
+            <button
+              type="button"
+              onClick={() => saveAll({ bihuVideos })}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm bg-[#1E88FF] hover:bg-[#1565C0] text-white rounded-lg font-medium transition-colors"
+              data-ocid="entertainment.bihu.save_button"
+            >
+              <Save size={14} /> Save Bihu Videos
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Fun Facts ── */}
+      {subTab === "facts" && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-semibold text-[#0B2A4A] mb-4">Fun Facts</h3>
+          <div className="space-y-2 mb-4">
+            {funFacts.map((fact, i) => (
+              <div key={fact || `f-${i}`} className="flex gap-2">
+                <input
+                  type="text"
+                  value={fact}
+                  onChange={(e) => {
+                    const updated = [...funFacts];
+                    updated[i] = e.target.value;
+                    setFunFacts(updated);
+                  }}
+                  className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88FF]"
+                  data-ocid={`entertainment.facts.input.${i + 1}`}
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFunFacts(funFacts.filter((_, j) => j !== i))
+                  }
+                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  data-ocid={`entertainment.facts.delete_button.${i + 1}`}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setFunFacts([...funFacts, ""])}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+              data-ocid="entertainment.facts.secondary_button"
+            >
+              <Plus size={14} /> Add Fact
+            </button>
+            <button
+              type="button"
+              onClick={() => saveAll({ funFacts })}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm bg-[#1E88FF] hover:bg-[#1565C0] text-white rounded-lg font-medium transition-colors"
+              data-ocid="entertainment.facts.save_button"
+            >
+              <Save size={14} /> Save Facts
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Jokes ── */}
+      {subTab === "jokes" && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-semibold text-[#0B2A4A] mb-4">Jokes</h3>
+          <div className="space-y-2 mb-4">
+            <div className="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs font-semibold text-gray-500 px-1">
+              <span>Setup (Question)</span>
+              <span>Punchline (Answer)</span>
+              <span />
+            </div>
+            {jokes.map((joke, i) => (
+              <div
+                key={joke.setup || `j-${i}`}
+                className="grid grid-cols-[1fr_1fr_auto] gap-2"
+              >
+                <input
+                  type="text"
+                  value={joke.setup}
+                  placeholder="Why did the...?"
+                  onChange={(e) => {
+                    const updated = [...jokes];
+                    updated[i] = { ...updated[i], setup: e.target.value };
+                    setJokes(updated);
+                  }}
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88FF]"
+                  data-ocid={`entertainment.jokes.input.${i + 1}`}
+                />
+                <input
+                  type="text"
+                  value={joke.punchline}
+                  placeholder="Because..."
+                  onChange={(e) => {
+                    const updated = [...jokes];
+                    updated[i] = { ...updated[i], punchline: e.target.value };
+                    setJokes(updated);
+                  }}
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88FF]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setJokes(jokes.filter((_, j) => j !== i))}
+                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  data-ocid={`entertainment.jokes.delete_button.${i + 1}`}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setJokes([...jokes, { setup: "", punchline: "" }])}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+              data-ocid="entertainment.jokes.secondary_button"
+            >
+              <Plus size={14} /> Add Joke
+            </button>
+            <button
+              type="button"
+              onClick={() => saveAll({ jokes })}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm bg-[#1E88FF] hover:bg-[#1565C0] text-white rounded-lg font-medium transition-colors"
+              data-ocid="entertainment.jokes.save_button"
+            >
+              <Save size={14} /> Save Jokes
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

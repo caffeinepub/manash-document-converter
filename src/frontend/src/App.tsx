@@ -11,6 +11,7 @@ import { CertificateAlbumPage } from "./pages/CertificateAlbumPage";
 import { CheckoutPage } from "./pages/CheckoutPage";
 import { ContactUsPage } from "./pages/ContactUsPage";
 import { ConverterPage } from "./pages/ConverterPage";
+import { EntertainmentPage } from "./pages/EntertainmentPage";
 import { GovDocumentsPage } from "./pages/GovDocumentsPage";
 import { HomePage } from "./pages/HomePage";
 import { ImageToolsPage } from "./pages/ImageToolsPage";
@@ -37,7 +38,8 @@ export type Page =
   | "contact-us"
   | "ai-chat"
   | "certificate-album"
-  | "pan-card";
+  | "pan-card"
+  | "entertainment";
 
 export default function App() {
   const [page, setPage] = useState<Page>("home");
@@ -99,6 +101,7 @@ export default function App() {
       {page === "ai-chat" && <AiChatPage />}
       {page === "certificate-album" && <CertificateAlbumPage />}
       {page === "pan-card" && <PanCardPortalPage />}
+      {page === "entertainment" && <EntertainmentPage navigate={navigate} />}
       <Toaster />
     </div>
   );
