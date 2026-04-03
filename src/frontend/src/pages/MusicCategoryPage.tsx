@@ -13,9 +13,18 @@ interface ExtendedSong {
   title: string;
   artist: string;
   singerName?: string;
+  movieName?: string;
   category: MusicCategory;
   youtubeId?: string;
   platformLink?: string;
+  lyrics?: string;
+  composer?: string;
+  lyricist?: string;
+  musicDirector?: string;
+  label?: string;
+  audioFileUrl?: string;
+  downloadLink?: string;
+  coverImage?: string;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -1589,27 +1598,105 @@ interface Props {
   category: string;
 }
 
-export function MusicCategoryPage({ category }: Props) {
+// Parse the category prop — it may be a plain category name, or prefixed with
+// __cat__, __singer__, or __movie__ for the new filter modes.
+function parseFilterMode(raw: string): {
+  mode: "category" | "singer" | "movie";
+  value: string;
+} {
+  if (raw.startsWith("__singer__"))
+    return { mode: "singer", value: raw.slice("__singer__".length) };
+  if (raw.startsWith("__movie__"))
+    return { mode: "movie", value: raw.slice("__movie__".length) };
+  if (raw.startsWith("__cat__"))
+    return { mode: "category", value: raw.slice("__cat__".length) };
+  return { mode: "category", value: raw };
+}
+
+export function MusicCategoryPage({ category: categoryProp }: Props) {
+  const { mode: filterMode, value: filterValue } =
+    parseFilterMode(categoryProp);
+
+  // For backwards-compat: category is the actual category name when mode === "category"
+  const category = filterMode === "category" ? filterValue : filterValue;
+
   const [search, setSearch] = useState("");
   const [activeLetterFilter, setActiveLetterFilter] = useState<string | null>(
     null,
   );
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  const catColor = CATEGORY_COLORS[category] ?? "oklch(0.78 0.18 65)";
+  const catColor =
+    filterMode === "category"
+      ? (CATEGORY_COLORS[category] ?? "oklch(0.78 0.18 65)")
+      : "oklch(0.78 0.18 65)";
 
-  // Filter songs by category
+  // Build all songs from defaults + admin-added songs, then filter by mode
   const categorySongs = useMemo(() => {
-    const builtIn = EXTENDED_SONGS.filter((s) => s.category === category);
+    // Get all admin songs (all categories) then filter per mode
+    let allAdminSongs: ExtendedSong[] = [];
     try {
-      const adminSongs = JSON.parse(
-        localStorage.getItem(`adminMusicSongs_${category}`) || "[]",
-      ) as ExtendedSong[];
-      return [...builtIn, ...adminSongs];
+      const entData = JSON.parse(
+        localStorage.getItem("entertainment_admin_data") || "{}",
+      );
+      allAdminSongs = (
+        (entData.musicSongs as
+          | Array<{
+              id: string;
+              title: string;
+              singerName: string;
+              category: string;
+              youtubeVideoId?: string;
+              platformLink?: string;
+              lyrics?: string;
+              composer?: string;
+              lyricist?: string;
+              musicDirector?: string;
+              label?: string;
+              audioFileUrl?: string;
+              downloadLink?: string;
+              coverImage?: string;
+              movieName?: string;
+            }>
+          | undefined) ?? []
+      ).map((s) => ({
+        id: s.id,
+        title: s.title,
+        artist: s.singerName,
+        singerName: s.singerName,
+        category: s.category as MusicCategory,
+        youtubeId: s.youtubeVideoId,
+        platformLink: s.platformLink,
+        lyrics: s.lyrics,
+        composer: s.composer,
+        lyricist: s.lyricist,
+        musicDirector: s.musicDirector,
+        label: s.label,
+        audioFileUrl: s.audioFileUrl,
+        downloadLink: s.downloadLink,
+        coverImage: s.coverImage,
+        movieName: s.movieName,
+      }));
     } catch {
-      return builtIn;
+      /* ignore */
     }
-  }, [category]);
+
+    const adminIds = new Set(allAdminSongs.map((s) => s.id));
+    const allSongs = [
+      ...EXTENDED_SONGS.filter((s) => !adminIds.has(s.id)),
+      ...allAdminSongs,
+    ];
+
+    // Filter based on mode
+    if (filterMode === "singer") {
+      return allSongs.filter((s) => (s.singerName ?? s.artist) === filterValue);
+    }
+    if (filterMode === "movie") {
+      return allSongs.filter((s) => s.movieName === filterValue);
+    }
+    // mode === "category"
+    return allSongs.filter((s) => s.category === category);
+  }, [filterMode, filterValue, category]);
 
   // Filter by search
   const filteredSongs = useMemo(() => {
@@ -1623,16 +1710,26 @@ export function MusicCategoryPage({ category }: Props) {
     );
   }, [categorySongs, search]);
 
-  // Group by artist, sorted A-Z
+  // Group songs by appropriate key based on filter mode
+  // Singer mode: group by movie (or "Singles" if no movie)
+  // Movie mode: group by singer
+  // Category mode: group by artist/singer (A-Z)
   const artistGroups = useMemo(() => {
     const groups: Record<string, ExtendedSong[]> = {};
     for (const song of filteredSongs) {
-      const key = song.singerName ?? song.artist;
+      let key: string;
+      if (filterMode === "singer") {
+        key = song.movieName || "Singles / Albums";
+      } else if (filterMode === "movie") {
+        key = song.singerName ?? song.artist;
+      } else {
+        key = song.singerName ?? song.artist;
+      }
       if (!groups[key]) groups[key] = [];
       groups[key].push(song);
     }
     return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
-  }, [filteredSongs]);
+  }, [filteredSongs, filterMode]);
 
   // A-Z navigation letters
   const availableLetters = useMemo(() => {
@@ -1723,7 +1820,11 @@ export function MusicCategoryPage({ category }: Props) {
                     margin: 0,
                   }}
                 >
-                  {category} Songs
+                  {filterMode === "singer"
+                    ? `${filterValue} — All Songs`
+                    : filterMode === "movie"
+                      ? `${filterValue} — Movie Songs`
+                      : `${category} Songs`}
                 </h1>
                 <p
                   style={{
@@ -1775,7 +1876,13 @@ export function MusicCategoryPage({ category }: Props) {
             </span>
             <input
               type="text"
-              placeholder={`Search ${category} songs or artists...`}
+              placeholder={
+                filterMode === "singer"
+                  ? `Search ${filterValue} songs...`
+                  : filterMode === "movie"
+                    ? `Search ${filterValue} songs...`
+                    : `Search ${category} songs or artists...`
+              }
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{
@@ -1884,7 +1991,11 @@ export function MusicCategoryPage({ category }: Props) {
               fontWeight: 700,
             }}
           >
-            {category}
+            {filterMode === "singer"
+              ? `🎤 ${filterValue}`
+              : filterMode === "movie"
+                ? `🎬 ${filterValue}`
+                : category}
           </span>
           <span style={{ color: "oklch(0.60 0.05 240)", fontSize: "0.8rem" }}>
             {filteredSongs.length} song{filteredSongs.length !== 1 ? "s" : ""} ·{" "}
@@ -2068,9 +2179,14 @@ export function MusicCategoryPage({ category }: Props) {
         }}
       >
         <p>
-          🎵 {category} Songs Library &nbsp;·&nbsp;{" "}
-          {totalSongs.toLocaleString()} songs &nbsp;·&nbsp; ©{" "}
-          {new Date().getFullYear()}&nbsp;
+          🎵{" "}
+          {filterMode === "singer"
+            ? filterValue
+            : filterMode === "movie"
+              ? filterValue
+              : category}{" "}
+          Songs Library &nbsp;·&nbsp; {totalSongs.toLocaleString()} songs
+          &nbsp;·&nbsp; © {new Date().getFullYear()}&nbsp;
           <a
             href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
             target="_blank"
@@ -2096,20 +2212,25 @@ function SongCard({
   catColor: string;
   index: number;
 }) {
-  const effectivePlatformLink =
-    song.platformLink ??
-    (song.youtubeId
-      ? `https://www.youtube.com/watch?v=${song.youtubeId}`
-      : "#");
   const effectiveYoutubeId =
     song.youtubeId ??
     (song.platformLink?.includes("youtube.com/watch?v=")
       ? song.platformLink.split("v=")[1]?.split("&")[0]
       : null);
+  const effectivePlatformLink =
+    song.platformLink ??
+    (effectiveYoutubeId
+      ? `https://www.youtube.com/watch?v=${effectiveYoutubeId}`
+      : "#");
   const thumbnailUrl = effectiveYoutubeId
     ? `https://img.youtube.com/vi/${effectiveYoutubeId}/mqdefault.jpg`
     : null;
   const [imgError, setImgError] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const hasAudio = !!song.audioFileUrl;
+  const hasYoutube = !!effectiveYoutubeId;
+  const hasPlatformLink = !!song.platformLink;
 
   return (
     <div
@@ -2117,27 +2238,14 @@ function SongCard({
         borderRadius: "0.875rem",
         overflow: "hidden",
         background: "oklch(0.14 0.04 250)",
-        border: "1px solid oklch(0.22 0.05 250)",
-        transition:
-          "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.transform =
-          "translateY(-2px)";
-        (e.currentTarget as HTMLDivElement).style.borderColor = `${catColor}55`;
-        (e.currentTarget as HTMLDivElement).style.boxShadow =
-          `0 8px 24px ${catColor}18`;
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.transform = "";
-        (e.currentTarget as HTMLDivElement).style.borderColor =
-          "oklch(0.22 0.05 250)";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "";
+        border: `1px solid ${isOpen ? `${catColor}55` : "oklch(0.22 0.05 250)"}`,
+        boxShadow: isOpen ? `0 0 16px ${catColor}20` : "none",
+        transition: "border-color 0.18s ease, box-shadow 0.18s ease",
       }}
       data-ocid={`music_category.item.${index}`}
     >
-      {/* Thumbnail */}
-      {!imgError && thumbnailUrl ? (
+      {/* Thumbnail — hidden when open to show player instead */}
+      {!isOpen && !imgError && thumbnailUrl ? (
         <div
           style={{
             position: "relative",
@@ -2146,7 +2254,7 @@ function SongCard({
           }}
         >
           <img
-            src={thumbnailUrl ?? ""}
+            src={thumbnailUrl}
             alt={song.title}
             onError={() => setImgError(true)}
             style={{
@@ -2166,7 +2274,7 @@ function SongCard({
             }}
           />
         </div>
-      ) : (
+      ) : !isOpen ? (
         <div
           style={{
             aspectRatio: "16/9",
@@ -2179,16 +2287,16 @@ function SongCard({
         >
           🎵
         </div>
-      )}
+      ) : null}
 
       {/* Info */}
-      <div style={{ padding: "0.75rem 1rem 1rem" }}>
+      <div style={{ padding: "0.75rem 1rem 0.75rem" }}>
         <h3
           style={{
             fontSize: "0.875rem",
             fontWeight: 700,
             color: "oklch(0.92 0.03 240)",
-            margin: "0 0 0.25rem",
+            margin: "0 0 0.2rem",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -2213,8 +2321,8 @@ function SongCard({
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
             gap: "0.5rem",
+            flexWrap: "wrap",
           }}
         >
           <span
@@ -2231,30 +2339,23 @@ function SongCard({
           >
             {song.category}
           </span>
-
-          <a
-            href={effectivePlatformLink}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => setIsOpen((v) => !v)}
             style={{
               display: "inline-flex",
               alignItems: "center",
               gap: "0.35rem",
               padding: "0.35rem 0.75rem",
               borderRadius: "0.5rem",
-              background: "oklch(0.78 0.18 65)",
-              color: "oklch(0.10 0.03 250)",
+              background: isOpen ? catColor : "oklch(0.22 0.06 250)",
+              color: isOpen ? "oklch(0.10 0.03 250)" : "oklch(0.85 0.04 240)",
+              border: `1px solid ${isOpen ? catColor : "oklch(0.30 0.06 250)"}`,
               fontSize: "0.72rem",
               fontWeight: 700,
-              textDecoration: "none",
-              transition: "opacity 0.15s",
+              cursor: "pointer",
               flexShrink: 0,
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.opacity = "0.85";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.opacity = "1";
+              transition: "all 0.15s",
             }}
             data-ocid="music_category.button"
           >
@@ -2265,12 +2366,239 @@ function SongCard({
               fill="currentColor"
               aria-hidden="true"
             >
-              <path d="M8 5v14l11-7z" />
+              <path
+                d={isOpen ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z"}
+              />
             </svg>
-            Play
-          </a>
+            {isOpen ? "Close" : "Play / Info"}
+          </button>
+          {song.downloadLink && (
+            <a
+              href={song.downloadLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.35rem",
+                padding: "0.35rem 0.6rem",
+                borderRadius: "0.5rem",
+                background: "oklch(0.18 0.08 155)",
+                color: "oklch(0.72 0.18 155)",
+                border: "1px solid oklch(0.28 0.10 155)",
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                textDecoration: "none",
+              }}
+              data-ocid="music_category.button"
+            >
+              ⬇
+            </a>
+          )}
         </div>
       </div>
+
+      {/* Expanded panel */}
+      {isOpen && (
+        <div
+          style={{
+            borderTop: `1px solid ${catColor}30`,
+            padding: "0.75rem 1rem 1rem",
+          }}
+        >
+          {/* Player */}
+          {hasAudio ? (
+            <audio
+              controls
+              style={{ width: "100%", marginBottom: "0.75rem" }}
+              src={song.audioFileUrl}
+            >
+              <track kind="captions" />
+            </audio>
+          ) : hasYoutube ? (
+            <div
+              style={{
+                borderRadius: "0.625rem",
+                overflow: "hidden",
+                background: "#000",
+                marginBottom: "0.75rem",
+              }}
+            >
+              <iframe
+                width="100%"
+                height="200"
+                src={`https://www.youtube.com/embed/${effectiveYoutubeId}`}
+                title={song.title}
+                frameBorder="0"
+                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                style={{ display: "block" }}
+              />
+            </div>
+          ) : hasPlatformLink ? (
+            <a
+              href={effectivePlatformLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                width: "100%",
+                padding: "0.75rem",
+                borderRadius: "0.625rem",
+                background: catColor,
+                color: "oklch(0.10 0.03 250)",
+                fontWeight: 700,
+                fontSize: "0.875rem",
+                textDecoration: "none",
+                marginBottom: "0.75rem",
+              }}
+              data-ocid="music_category.button"
+            >
+              ▶ Play on Platform
+            </a>
+          ) : null}
+
+          {/* Metadata */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "0.4rem 1rem",
+              marginBottom: "0.5rem",
+            }}
+          >
+            {song.composer && (
+              <div>
+                <p
+                  style={{
+                    fontSize: "0.65rem",
+                    color: "oklch(0.50 0.04 240)",
+                    margin: 0,
+                  }}
+                >
+                  Composer
+                </p>
+                <p
+                  style={{
+                    fontSize: "0.72rem",
+                    fontWeight: 600,
+                    color: "oklch(0.82 0.04 240)",
+                    margin: 0,
+                  }}
+                >
+                  {song.composer}
+                </p>
+              </div>
+            )}
+            {song.lyricist && (
+              <div>
+                <p
+                  style={{
+                    fontSize: "0.65rem",
+                    color: "oklch(0.50 0.04 240)",
+                    margin: 0,
+                  }}
+                >
+                  Lyricist
+                </p>
+                <p
+                  style={{
+                    fontSize: "0.72rem",
+                    fontWeight: 600,
+                    color: "oklch(0.82 0.04 240)",
+                    margin: 0,
+                  }}
+                >
+                  {song.lyricist}
+                </p>
+              </div>
+            )}
+            {song.musicDirector && (
+              <div>
+                <p
+                  style={{
+                    fontSize: "0.65rem",
+                    color: "oklch(0.50 0.04 240)",
+                    margin: 0,
+                  }}
+                >
+                  Music Director
+                </p>
+                <p
+                  style={{
+                    fontSize: "0.72rem",
+                    fontWeight: 600,
+                    color: "oklch(0.82 0.04 240)",
+                    margin: 0,
+                  }}
+                >
+                  {song.musicDirector}
+                </p>
+              </div>
+            )}
+            {song.label && (
+              <div>
+                <p
+                  style={{
+                    fontSize: "0.65rem",
+                    color: "oklch(0.50 0.04 240)",
+                    margin: 0,
+                  }}
+                >
+                  Label
+                </p>
+                <p
+                  style={{
+                    fontSize: "0.72rem",
+                    fontWeight: 600,
+                    color: "oklch(0.82 0.04 240)",
+                    margin: 0,
+                  }}
+                >
+                  {song.label}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Lyrics */}
+          {song.lyrics && (
+            <div>
+              <p
+                style={{
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  color: catColor,
+                  marginBottom: "0.4rem",
+                }}
+              >
+                📝 Lyrics
+              </p>
+              <pre
+                style={{
+                  fontSize: "0.7rem",
+                  whiteSpace: "pre-wrap",
+                  borderRadius: "0.5rem",
+                  padding: "0.75rem",
+                  background: "oklch(0.11 0.03 250)",
+                  border: `1px solid ${catColor}20`,
+                  color: "oklch(0.80 0.04 240)",
+                  fontFamily: "inherit",
+                  lineHeight: 1.6,
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                  margin: 0,
+                }}
+              >
+                {song.lyrics}
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

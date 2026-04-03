@@ -59,13 +59,27 @@ export default function App() {
     }
   });
 
-  // Check for ?musiccat= param on mount — if present, render the music category page
+  // Check for music-related params on mount — if present, render the music category page
   useEffect(() => {
-    const musicCat = new URLSearchParams(window.location.search).get(
-      "musiccat",
-    );
+    const params = new URLSearchParams(window.location.search);
+    // Legacy param
+    const musicCat = params.get("musiccat");
+    // New params
+    const cat = params.get("cat");
+    const singer = params.get("singer");
+    const movie = params.get("movie");
+
     if (musicCat) {
       setMusicCategory(musicCat);
+      setPage("music-category");
+    } else if (cat) {
+      setMusicCategory(`__cat__${cat}`);
+      setPage("music-category");
+    } else if (singer) {
+      setMusicCategory(`__singer__${singer}`);
+      setPage("music-category");
+    } else if (movie) {
+      setMusicCategory(`__movie__${movie}`);
       setPage("music-category");
     }
   }, []);

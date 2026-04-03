@@ -1080,12 +1080,20 @@ interface MusicSong {
   category: MusicCategory;
   genre?: string;
   releaseDate?: string;
-  platformLink: string;
+  platformLink?: string;
+  youtubeVideoId?: string;
   lyrics?: string;
+  composer?: string;
+  lyricist?: string;
+  musicDirector?: string;
+  label?: string;
+  audioFileUrl?: string;
+  downloadLink?: string;
+  coverImage?: string;
 }
 
 const DEFAULT_MUSIC_SONGS: MusicSong[] = [
-  // BIHU
+  // ── BIHU ─────────────────────────────────────────────────────────────────
   {
     id: "b1",
     title: "O Mur Apunar Desh",
@@ -1093,8 +1101,13 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Bihu",
     genre: "Classical Bihu",
     releaseDate: "1965",
+    youtubeVideoId: "P_0pS_JkC2E",
     platformLink: "https://www.youtube.com/watch?v=P_0pS_JkC2E",
-    lyrics: "O mur apunar desh...\nJokhon aahile bohag...",
+    composer: "Dr. Bhupen Hazarika",
+    lyricist: "Dr. Bhupen Hazarika",
+    label: "Saregama",
+    lyrics:
+      "O mur apunar desh...\nJokhon aahile bohag...\nRongali biyeli haahi...",
   },
   {
     id: "b2",
@@ -1103,7 +1116,11 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Bihu",
     genre: "Modern Bihu",
     releaseDate: "2005",
+    youtubeVideoId: "4SKgQHPElyM",
     platformLink: "https://www.youtube.com/watch?v=4SKgQHPElyM",
+    composer: "Zubeen Garg",
+    lyricist: "Atul Kumar Bhuyan",
+    label: "Assam Music",
     lyrics: "Bihu bihu bihu eti ananda...\nBohag mahor din...",
   },
   {
@@ -1113,7 +1130,10 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Bihu",
     genre: "Modern Bihu",
     releaseDate: "2007",
+    youtubeVideoId: "Qn9e6D0U_a4",
     platformLink: "https://www.youtube.com/watch?v=Qn9e6D0U_a4",
+    composer: "Zubeen Garg",
+    label: "Assam Music",
   },
   {
     id: "b4",
@@ -1122,7 +1142,10 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Bihu",
     genre: "Bihu Geet",
     releaseDate: "2010",
+    youtubeVideoId: "rZfxAFKy8A0",
     platformLink: "https://www.youtube.com/watch?v=rZfxAFKy8A0",
+    composer: "Zubeen Garg",
+    label: "Assam Music",
   },
   {
     id: "b5",
@@ -1131,7 +1154,10 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Bihu",
     genre: "Folk Bihu",
     releaseDate: "2012",
+    youtubeVideoId: "yRgL0DiG3fE",
     platformLink: "https://www.youtube.com/watch?v=yRgL0DiG3fE",
+    composer: "Angaraag Papon Mahanta",
+    label: "Saregama",
   },
   {
     id: "b6",
@@ -1140,9 +1166,11 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Bihu",
     genre: "Bihu Geet",
     releaseDate: "2008",
+    youtubeVideoId: "hW1xK8rB9tV",
     platformLink: "https://www.youtube.com/watch?v=hW1xK8rB9tV",
+    label: "Assam Music",
   },
-  // FOLK
+  // ── FOLK ──────────────────────────────────────────────────────────────────
   {
     id: "f1",
     title: "Mur Ghar Suwali",
@@ -1150,7 +1178,10 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Folk",
     genre: "Lokgeet",
     releaseDate: "1985",
+    youtubeVideoId: "oPvxPFhJ_EA",
     platformLink: "https://www.youtube.com/watch?v=oPvxPFhJ_EA",
+    composer: "Khagen Mahanta",
+    label: "Saregama",
   },
   {
     id: "f2",
@@ -1159,7 +1190,9 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Folk",
     genre: "Husori",
     releaseDate: "Traditional",
+    youtubeVideoId: "9bZkp7q19f0",
     platformLink: "https://www.youtube.com/watch?v=9bZkp7q19f0",
+    label: "Folk Heritage",
   },
   {
     id: "f3",
@@ -1168,7 +1201,9 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Folk",
     genre: "Lokgeet",
     releaseDate: "1990",
+    youtubeVideoId: "60ItHLz5WEA",
     platformLink: "https://www.youtube.com/watch?v=60ItHLz5WEA",
+    label: "Folk Heritage",
   },
   {
     id: "f4",
@@ -1177,9 +1212,11 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Folk",
     genre: "Lokgeet",
     releaseDate: "1992",
+    youtubeVideoId: "dQw4w9WgXcQ",
     platformLink: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    label: "Folk Heritage",
   },
-  // MOVIE
+  // ── MOVIE ─────────────────────────────────────────────────────────────────
   {
     id: "mv1",
     title: "Mayabini",
@@ -1188,8 +1225,14 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Movie",
     genre: "Romantic",
     releaseDate: "2014",
+    youtubeVideoId: "ktvTqknDobU",
     platformLink: "https://www.youtube.com/watch?v=ktvTqknDobU",
-    lyrics: "Mayabini mayabini...\nTumi amar sapunar desh...",
+    composer: "Zubeen Garg",
+    lyricist: "Nilim Kumar",
+    musicDirector: "Zubeen Garg",
+    label: "Assam Talkies",
+    lyrics:
+      "Mayabini mayabini...\nTumi amar sapunar desh...\nMayabini mayabini...",
   },
   {
     id: "mv2",
@@ -1199,7 +1242,10 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Movie",
     genre: "Romantic",
     releaseDate: "2012",
+    youtubeVideoId: "ktvTqknDobU",
     platformLink: "https://www.youtube.com/watch?v=ktvTqknDobU",
+    composer: "Zubeen Garg",
+    label: "Assam Music",
   },
   {
     id: "mv3",
@@ -1209,7 +1255,9 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Movie",
     genre: "Romantic",
     releaseDate: "2011",
+    youtubeVideoId: "OPf0YbXqDm0",
     platformLink: "https://www.youtube.com/watch?v=OPf0YbXqDm0",
+    label: "Assam Music",
   },
   {
     id: "mv4",
@@ -1219,7 +1267,9 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Movie",
     genre: "Romantic",
     releaseDate: "2013",
+    youtubeVideoId: "JGwWNGJdvx8",
     platformLink: "https://www.youtube.com/watch?v=JGwWNGJdvx8",
+    label: "Assam Talkies",
   },
   {
     id: "mv5",
@@ -1229,7 +1279,9 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     category: "Movie",
     genre: "Sad",
     releaseDate: "2016",
+    youtubeVideoId: "YQHsXMglC9A",
     platformLink: "https://www.youtube.com/watch?v=YQHsXMglC9A",
+    label: "Assam Music",
   },
   {
     id: "mv6",
@@ -1238,130 +1290,170 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     movieName: "Hiya Diya Niya",
     category: "Movie",
     genre: "Emotional",
-    releaseDate: "2009",
+    releaseDate: "2006",
+    youtubeVideoId: "RgKAFK5djSk",
     platformLink: "https://www.youtube.com/watch?v=RgKAFK5djSk",
+    composer: "Zubeen Garg",
+    label: "Assam Music",
   },
-  // DEVOTIONAL
+  // ── DEVOTIONAL ────────────────────────────────────────────────────────────
   {
     id: "d1",
-    title: "Jai Kamakhya",
-    singerName: "Traditional",
-    category: "Devotional",
-    genre: "Devi Stuti",
-    releaseDate: "Traditional",
-    platformLink: "https://www.youtube.com/watch?v=sEnFCsOFtXw",
-  },
-  {
-    id: "d2",
     title: "Naam Kirtan",
-    singerName: "Traditional",
-    category: "Devotional",
-    genre: "Borgeet",
-    releaseDate: "Traditional",
-    platformLink: "https://www.youtube.com/watch?v=3JZ_D3ELwOQ",
-  },
-  {
-    id: "d3",
-    title: "Bisnupada",
-    singerName: "Traditional",
-    category: "Devotional",
-    genre: "Borgeet",
-    releaseDate: "Traditional",
-    platformLink: "https://www.youtube.com/watch?v=pRpeEdMmmQ0",
-  },
-  {
-    id: "d4",
-    title: "Satnamur Kirtan",
     singerName: "Traditional",
     category: "Devotional",
     genre: "Naam Kirtan",
     releaseDate: "Traditional",
+    youtubeVideoId: "sEnFCsOFtXw",
+    platformLink: "https://www.youtube.com/watch?v=sEnFCsOFtXw",
+    label: "Folk Heritage",
+  },
+  {
+    id: "d2",
+    title: "Borgeet — Srimanta Sankardev",
+    singerName: "Traditional",
+    category: "Devotional",
+    genre: "Borgeet",
+    releaseDate: "Traditional",
+    youtubeVideoId: "3JZ_D3ELwOQ",
+    platformLink: "https://www.youtube.com/watch?v=3JZ_D3ELwOQ",
+    composer: "Srimanta Sankardev",
+    label: "Folk Heritage",
+  },
+  {
+    id: "d3",
+    title: "Kirtana Ghosha",
+    singerName: "Traditional",
+    category: "Devotional",
+    genre: "Kirtan",
+    releaseDate: "Traditional",
+    youtubeVideoId: "pRpeEdMmmQ0",
+    platformLink: "https://www.youtube.com/watch?v=pRpeEdMmmQ0",
+    label: "Folk Heritage",
+  },
+  {
+    id: "d4",
+    title: "Bishnu Naam",
+    singerName: "Khagen Mahanta",
+    category: "Devotional",
+    genre: "Bhakti",
+    releaseDate: "2000",
+    youtubeVideoId: "xo1VInw-SKc",
     platformLink: "https://www.youtube.com/watch?v=xo1VInw-SKc",
+    composer: "Khagen Mahanta",
+    label: "Saregama",
   },
-  // MODERN
+  // ── MODERN ────────────────────────────────────────────────────────────────
   {
-    id: "mo1",
-    title: "Kuwori Baa",
+    id: "mod1",
+    title: "Mor Minar",
     singerName: "Neel Akash",
     category: "Modern",
-    genre: "Modern Pop",
+    genre: "Pop",
     releaseDate: "2018",
+    youtubeVideoId: "8UVNT4wvIGY",
     platformLink: "https://www.youtube.com/watch?v=8UVNT4wvIGY",
+    composer: "Neel Akash",
+    label: "Assam Music",
   },
   {
-    id: "mo2",
-    title: "Chenehi Morom",
+    id: "mod2",
+    title: "Eri Aai",
     singerName: "Neel Akash",
     category: "Modern",
-    genre: "Romantic Pop",
+    genre: "Sad Pop",
     releaseDate: "2019",
+    youtubeVideoId: "d-diB65scQU",
     platformLink: "https://www.youtube.com/watch?v=d-diB65scQU",
+    label: "Assam Music",
   },
   {
-    id: "mo3",
-    title: "Akou Ebar",
+    id: "mod3",
+    title: "Tumi Ahibone",
     singerName: "Simanta Shekhar",
     category: "Modern",
-    genre: "Modern Assamese",
+    genre: "Pop",
     releaseDate: "2017",
+    youtubeVideoId: "09R8_2nJtjg",
     platformLink: "https://www.youtube.com/watch?v=09R8_2nJtjg",
+    composer: "Simanta Shekhar",
+    label: "Assam Music",
   },
   {
-    id: "mo4",
-    title: "Axomor Jibon",
+    id: "mod4",
+    title: "Jiyon Geet",
     singerName: "Simanta Shekhar",
     category: "Modern",
-    genre: "Patriotic",
+    genre: "Inspirational",
     releaseDate: "2015",
+    youtubeVideoId: "lp-EO5I60KA",
     platformLink: "https://www.youtube.com/watch?v=lp-EO5I60KA",
+    label: "Assam Music",
   },
-  // ZUBEEN GARG
+  // ── ZUBEEN GARG SPECIAL ───────────────────────────────────────────────────
   {
-    id: "z1",
-    title: "Dil Dil Assam",
-    singerName: "Zubeen Garg",
-    category: "Zubeen Garg",
-    genre: "Patriotic",
-    releaseDate: "2016",
-    platformLink: "https://www.youtube.com/watch?v=L_jWHffIx5E",
-  },
-  {
-    id: "z2",
-    title: "Moi Eti Jajabor",
-    singerName: "Zubeen Garg",
-    category: "Zubeen Garg",
-    genre: "Autobiographical",
-    releaseDate: "2004",
-    platformLink: "https://www.youtube.com/watch?v=K4gb-AlU-m4",
-    lyrics: "Moi eti jajabor...\nDoor desh bhromibo...",
-  },
-  {
-    id: "z3",
-    title: "Aai",
-    singerName: "Zubeen Garg",
-    category: "Zubeen Garg",
-    genre: "Emotional/Mother",
-    releaseDate: "2003",
-    platformLink: "https://www.youtube.com/watch?v=Vt_bMGFoAb8",
-    lyrics: "Aai tumi kothaai aase...\nMoi Tomar Suwali...",
-  },
-  {
-    id: "z4",
-    title: "O Pori",
+    id: "zg1",
+    title: "Xewali Phool",
     singerName: "Zubeen Garg",
     category: "Zubeen Garg",
     genre: "Romantic",
-    releaseDate: "2008",
-    platformLink: "https://www.youtube.com/watch?v=H7jtC8vjXw8",
+    releaseDate: "2004",
+    youtubeVideoId: "L_jWHffIx5E",
+    platformLink: "https://www.youtube.com/watch?v=L_jWHffIx5E",
+    composer: "Zubeen Garg",
+    lyricist: "Nilim Kumar",
+    label: "Assam Music",
+    lyrics: "Xewali phool tumi...\nMor aakaxor tara...",
   },
   {
-    id: "z5",
-    title: "Xebote Joi Hok",
+    id: "zg2",
+    title: "Maa",
     singerName: "Zubeen Garg",
     category: "Zubeen Garg",
-    genre: "Motivational",
-    releaseDate: "2010",
+    genre: "Emotional",
+    releaseDate: "2008",
+    youtubeVideoId: "K4gb-AlU-m4",
+    platformLink: "https://www.youtube.com/watch?v=K4gb-AlU-m4",
+    composer: "Zubeen Garg",
+    label: "Assam Music",
+    lyrics: "Maa tumi aamaar...\nTumi aamaar jibon...",
+  },
+  {
+    id: "zg3",
+    title: "Deuta",
+    singerName: "Zubeen Garg",
+    category: "Zubeen Garg",
+    genre: "Emotional",
+    releaseDate: "2008",
+    youtubeVideoId: "Vt_bMGFoAb8",
+    platformLink: "https://www.youtube.com/watch?v=Vt_bMGFoAb8",
+    composer: "Zubeen Garg",
+    label: "Assam Music",
+  },
+  {
+    id: "zg4",
+    title: "Amar Sonar Axom",
+    singerName: "Zubeen Garg",
+    category: "Zubeen Garg",
+    genre: "Patriotic",
+    releaseDate: "2006",
+    youtubeVideoId: "H7jtC8vjXw8",
+    platformLink: "https://www.youtube.com/watch?v=H7jtC8vjXw8",
+    composer: "Zubeen Garg",
+    label: "Assam Music",
+    lyrics: "Amar sonar Axom...\nLuit par desh aamaar...",
+  },
+  {
+    id: "zg5",
+    title: "Luitor Sadhu",
+    singerName: "Zubeen Garg",
+    category: "Zubeen Garg",
+    genre: "Inspirational",
+    releaseDate: "2009",
+    youtubeVideoId: "YqeW9_5kURI",
     platformLink: "https://www.youtube.com/watch?v=YqeW9_5kURI",
+    composer: "Zubeen Garg",
+    label: "Assam Music",
   },
 ];
 
@@ -1379,154 +1471,146 @@ type BrowseTab = "category" | "singer" | "movie";
 function SongCard({
   song,
   idx,
-  expandedLyrics,
-  toggleLyrics,
 }: {
   song: MusicSong;
   idx: number;
-  expandedLyrics: string | null;
-  toggleLyrics: (id: string) => void;
 }) {
-  const isLyricsOpen = expandedLyrics === song.id;
+  const catColor = CATEGORY_COLORS[song.category] ?? "oklch(0.78 0.18 65)";
+
+  // Cover image: admin URL > YouTube thumbnail > fallback
+  const coverImageSrc = song.coverImage
+    ? song.coverImage
+    : song.youtubeVideoId
+      ? `https://img.youtube.com/vi/${song.youtubeVideoId}/hqdefault.jpg`
+      : null;
+
+  const openSongPage = () => {
+    const base = `${window.location.origin}${window.location.pathname}`;
+    const cat = encodeURIComponent(song.category);
+    window.open(`${base}?cat=${cat}`, "_blank");
+  };
+
   return (
     <div
-      className="rounded-2xl overflow-hidden transition-all duration-300"
+      className="rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
       style={{
         background: "oklch(0.14 0.04 250)",
-        border: `1px solid ${isLyricsOpen ? "oklch(0.78 0.18 65 / 0.5)" : "oklch(0.22 0.05 250)"}`,
-        boxShadow: isLyricsOpen
-          ? "0 0 20px oklch(0.78 0.18 65 / 0.15)"
-          : "none",
+        border: "1px solid oklch(0.22 0.05 250)",
+        boxShadow: "0 2px 8px oklch(0.08 0.04 250 / 0.6)",
       }}
       data-ocid={`entertainment.music.item.${idx + 1}`}
     >
-      <div className="p-4">
-        <div className="flex-1 min-w-0 mb-3">
-          <p
-            className="font-bold text-sm truncate"
-            style={{ color: "oklch(0.92 0.03 240)" }}
+      {/* Cover Image */}
+      <div
+        className="relative w-full overflow-hidden"
+        style={{ height: "180px" }}
+      >
+        {coverImageSrc ? (
+          <img
+            src={coverImageSrc}
+            alt={song.title}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+              const parent = (e.target as HTMLImageElement).parentElement;
+              if (parent) {
+                parent.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${catColor}10;font-size:3rem;">🎵</div>`;
+              }
+            }}
+          />
+        ) : (
+          <div
+            className="w-full h-full flex items-center justify-center text-5xl"
+            style={{ background: `${catColor}10` }}
           >
-            {song.title}
-          </p>
-          <p
-            className="text-xs mt-0.5 truncate"
-            style={{ color: "oklch(0.60 0.05 240)" }}
-          >
-            {song.singerName}
-          </p>
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            {song.movieName && (
-              <span
-                className="text-xs px-2 py-0.5 rounded-full font-medium"
-                style={{
-                  background: "oklch(0.65 0.22 280 / 0.15)",
-                  color: "oklch(0.65 0.22 280)",
-                  border: "1px solid oklch(0.65 0.22 280 / 0.3)",
-                }}
-              >
-                {song.movieName}
-              </span>
-            )}
-            <span
-              className="text-xs px-2 py-0.5 rounded-full font-medium"
-              style={{
-                background: `${CATEGORY_COLORS[song.category] ?? "oklch(0.78 0.18 65)"}22`,
-                color: CATEGORY_COLORS[song.category] ?? "oklch(0.78 0.18 65)",
-                border: `1px solid ${CATEGORY_COLORS[song.category] ?? "oklch(0.78 0.18 65)"}44`,
-              }}
-            >
-              {song.category}
-            </span>
-            {song.releaseDate && (
-              <span
-                className="text-xs px-2 py-0.5 rounded-full"
-                style={{
-                  background: "oklch(0.17 0.04 250)",
-                  color: "oklch(0.50 0.04 240)",
-                }}
-              >
-                {song.releaseDate}
-              </span>
-            )}
+            🎵
           </div>
-        </div>
-
-        <div className="flex gap-2 flex-wrap">
-          <a
-            href={song.platformLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-80"
+        )}
+        {/* Gradient overlay */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to top, oklch(0.14 0.04 250) 0%, oklch(0.14 0.04 250 / 0.3) 60%, transparent 100%)",
+          }}
+        />
+        {/* Category badge on image */}
+        <div className="absolute top-2 left-2">
+          <span
+            className="px-2 py-0.5 rounded-full text-xs font-bold"
             style={{
-              background: "oklch(0.78 0.18 65)",
+              background: `${catColor}cc`,
               color: "oklch(0.10 0.03 250)",
-              textDecoration: "none",
             }}
-            data-ocid="entertainment.music.button"
           >
-            <svg
-              className="w-3 h-3"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path d="M8 5v14l11-7z" />
-            </svg>
-            Play
-          </a>
-          <button
-            type="button"
-            onClick={() => toggleLyrics(song.id)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-80"
-            style={{
-              background: isLyricsOpen
-                ? "oklch(0.50 0.22 250)"
-                : "oklch(0.28 0.15 250)",
-              color: "#fff",
-            }}
-            data-ocid="entertainment.music.toggle"
-          >
-            {isLyricsOpen ? "Hide" : "More Info"}
-          </button>
+            {song.category}
+          </span>
         </div>
       </div>
 
-      {isLyricsOpen && (
-        <div
-          className="px-4 pb-4"
-          style={{
-            borderTop: "1px solid oklch(0.22 0.05 250)",
-            paddingTop: "0.75rem",
-          }}
+      {/* Content */}
+      <div className="p-3">
+        <p
+          className="font-bold text-sm truncate"
+          style={{ color: "oklch(0.78 0.18 65)" }}
         >
+          {song.title}
+        </p>
+        <p
+          className="text-xs mt-0.5 truncate"
+          style={{ color: "oklch(0.65 0.05 240)" }}
+        >
+          {song.singerName}
+        </p>
+        {song.movieName && (
           <p
-            className="text-xs font-semibold mb-2"
-            style={{ color: "oklch(0.70 0.10 65)" }}
+            className="text-xs italic mt-0.5 truncate"
+            style={{ color: "oklch(0.52 0.06 280)" }}
           >
-            Lyrics
+            🎬 {song.movieName}
           </p>
-          {song.lyrics ? (
-            <pre
-              className="text-xs whitespace-pre-wrap rounded-xl p-3 leading-relaxed"
-              style={{
-                background: "oklch(0.11 0.03 250)",
-                border: "1px solid oklch(0.20 0.05 250)",
-                color: "oklch(0.82 0.04 240)",
-                fontFamily: "monospace",
-              }}
-            >
-              {song.lyrics}
-            </pre>
-          ) : (
-            <p
-              className="text-xs italic"
-              style={{ color: "oklch(0.50 0.04 240)" }}
-            >
-              Lyrics not available yet.
-            </p>
-          )}
+        )}
+        {song.releaseDate && (
+          <p
+            className="text-xs mt-0.5"
+            style={{ color: "oklch(0.45 0.04 240)" }}
+          >
+            {song.releaseDate}
+          </p>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex gap-2 mt-3 flex-wrap">
+          <button
+            type="button"
+            onClick={openSongPage}
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-90 active:scale-95"
+            style={{
+              background: "oklch(0.78 0.18 65)",
+              color: "oklch(0.10 0.03 250)",
+              minWidth: "70px",
+            }}
+            data-ocid="entertainment.music.button"
+          >
+            ▶ Play
+          </button>
+          <button
+            type="button"
+            onClick={openSongPage}
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-90 active:scale-95"
+            style={{
+              background: "transparent",
+              color: "oklch(0.78 0.18 65)",
+              border: "1.5px solid oklch(0.78 0.18 65)",
+              minWidth: "80px",
+            }}
+            data-ocid="entertainment.music.button"
+          >
+            ℹ More Info
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -1545,15 +1629,10 @@ function MusicLibrary() {
     (savedData.musicSongs as MusicSong[] | undefined) ?? DEFAULT_MUSIC_SONGS;
 
   const [browseTab, setBrowseTab] = useState<BrowseTab>("category");
-  const [selectedCategory, setSelectedCategory] = useState<
-    "All" | MusicCategory
-  >("All");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortAZ, setSortAZ] = useState(true);
-  const [expandedLyrics, setExpandedLyrics] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
-  const categories: ("All" | MusicCategory)[] = [
-    "All",
+  // All unique categories
+  const ALL_CATEGORIES: MusicCategory[] = [
     "Bihu",
     "Folk",
     "Movie",
@@ -1561,402 +1640,295 @@ function MusicLibrary() {
     "Modern",
     "Zubeen Garg",
   ];
+  const CATEGORY_EMOJIS: Record<MusicCategory, string> = {
+    Bihu: "🌸",
+    Folk: "🪘",
+    Movie: "🎬",
+    Devotional: "🙏",
+    Modern: "🎸",
+    "Zubeen Garg": "⭐",
+  };
 
-  const filteredByCategory = songs
-    .filter(
-      (s) => selectedCategory === "All" || s.category === selectedCategory,
-    )
-    .filter((s) => {
-      const q = searchQuery.toLowerCase();
-      return (
-        s.title.toLowerCase().includes(q) ||
-        s.singerName.toLowerCase().includes(q) ||
-        (s.movieName ?? "").toLowerCase().includes(q)
-      );
-    })
-    .sort((a, b) =>
-      sortAZ ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title),
-    );
+  // All unique artists A-Z
+  const allArtists = [...new Set(songs.map((s) => s.singerName))].sort((a, b) =>
+    a.localeCompare(b),
+  );
+  // All unique movies
+  const allMovies = [
+    ...new Set(songs.filter((s) => s.movieName).map((s) => s.movieName!)),
+  ].sort((a, b) => a.localeCompare(b));
 
-  const bySinger = (() => {
-    const groups: Record<string, MusicSong[]> = {};
-    for (const s of songs) {
-      if (!groups[s.singerName]) groups[s.singerName] = [];
-      groups[s.singerName].push(s);
-    }
-    return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
-  })();
+  const base = `${window.location.origin}${window.location.pathname}`;
 
-  const byMovie = (() => {
-    const movieSongs = songs.filter((s) => s.movieName);
-    const groups: Record<string, MusicSong[]> = {};
-    for (const s of movieSongs) {
-      const key = s.movieName!;
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(s);
-    }
-    return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
-  })();
+  const openCategory = (cat: MusicCategory) => {
+    window.open(`${base}?cat=${encodeURIComponent(cat)}`, "_blank");
+  };
+  const openSinger = (singer: string) => {
+    window.open(`${base}?singer=${encodeURIComponent(singer)}`, "_blank");
+  };
+  const openMovie = (movie: string) => {
+    window.open(`${base}?movie=${encodeURIComponent(movie)}`, "_blank");
+  };
 
-  const toggleLyrics = (songId: string) =>
-    setExpandedLyrics((prev) => (prev === songId ? null : songId));
+  const tabBtn = (tab: BrowseTab, label: string) => (
+    <button
+      key={tab}
+      type="button"
+      onClick={() => {
+        setBrowseTab(tab);
+        setSearch("");
+      }}
+      className="px-5 py-2 rounded-full text-sm font-bold transition-all duration-200"
+      style={{
+        background:
+          browseTab === tab ? "oklch(0.78 0.18 65)" : "oklch(0.16 0.05 250)",
+        color:
+          browseTab === tab ? "oklch(0.10 0.03 250)" : "oklch(0.75 0.04 240)",
+        border: `1.5px solid ${browseTab === tab ? "oklch(0.78 0.18 65)" : "oklch(0.28 0.06 250)"}`,
+      }}
+      data-ocid={`entertainment.music.${tab}.tab`}
+    >
+      {label}
+    </button>
+  );
+
+  // Preview songs for the selected browse tab (first 6)
+  const previewSongs =
+    browseTab === "category"
+      ? songs.slice(0, 6)
+      : browseTab === "singer"
+        ? songs.slice(0, 6)
+        : songs.filter((s) => !!s.movieName).slice(0, 6);
+
+  const filteredArtists = allArtists.filter((a) =>
+    a.toLowerCase().includes(search.toLowerCase()),
+  );
+  const filteredMovies = allMovies.filter((m) =>
+    m.toLowerCase().includes(search.toLowerCase()),
+  );
 
   return (
     <div className="space-y-5">
+      {/* Browse tab switcher */}
       <div className="flex gap-2 flex-wrap">
-        {(["category", "singer", "movie"] as BrowseTab[]).map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            onClick={() => setBrowseTab(tab)}
-            className="px-5 py-2 rounded-full text-sm font-bold transition-all duration-200"
-            style={{
-              background:
-                browseTab === tab
-                  ? "oklch(0.78 0.18 65)"
-                  : "oklch(0.16 0.05 250)",
-              color:
-                browseTab === tab
-                  ? "oklch(0.10 0.03 250)"
-                  : "oklch(0.75 0.04 240)",
-              border: `1.5px solid ${browseTab === tab ? "oklch(0.78 0.18 65)" : "oklch(0.28 0.06 250)"}`,
-            }}
-            data-ocid={`entertainment.music.${tab}.tab`}
-          >
-            {tab === "category"
-              ? "By Category"
-              : tab === "singer"
-                ? "By Singer"
-                : "By Movie"}
-          </button>
-        ))}
+        {tabBtn("category", "By Category")}
+        {tabBtn("singer", "By Singer")}
+        {tabBtn("movie", "By Movie")}
       </div>
 
+      {/* Search bar (for singer/movie tabs) */}
+      {browseTab !== "category" && (
+        <input
+          type="text"
+          placeholder={
+            browseTab === "singer" ? "Search singer..." : "Search movie..."
+          }
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
+          style={{
+            background: "oklch(0.14 0.04 250)",
+            border: "1px solid oklch(0.25 0.06 250)",
+            color: "oklch(0.90 0.02 240)",
+          }}
+          data-ocid="entertainment.music.search_input"
+        />
+      )}
+
+      {/* ── CATEGORY TAB ── */}
       {browseTab === "category" && (
+        <div className="space-y-5">
+          {/* Category cards grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {ALL_CATEGORIES.map((cat) => {
+              const catSongs = songs.filter((s) => s.category === cat);
+              const catColor = CATEGORY_COLORS[cat] ?? "oklch(0.78 0.18 65)";
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => openCategory(cat)}
+                  className="relative rounded-2xl p-4 text-left transition-all duration-200 hover:scale-105 active:scale-95"
+                  style={{
+                    background: `${catColor}12`,
+                    border: `1.5px solid ${catColor}40`,
+                  }}
+                  data-ocid="entertainment.music.tab"
+                >
+                  <div className="text-2xl mb-1">{CATEGORY_EMOJIS[cat]}</div>
+                  <p className="text-sm font-bold" style={{ color: catColor }}>
+                    {cat}
+                  </p>
+                  <p
+                    className="text-xs"
+                    style={{ color: "oklch(0.55 0.04 240)" }}
+                  >
+                    {catSongs.length} songs
+                  </p>
+                  <p
+                    className="text-xs mt-1"
+                    style={{ color: "oklch(0.50 0.06 65)" }}
+                  >
+                    Click to open ↗
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Preview songs */}
+          <div>
+            <p
+              className="text-xs font-semibold mb-3"
+              style={{ color: "oklch(0.60 0.05 240)" }}
+            >
+              Recent Songs — Click a category card to see all songs in a new tab
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {previewSongs.map((song, idx) => (
+                <SongCard key={song.id} song={song} idx={idx} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SINGER TAB ── */}
+      {browseTab === "singer" && (
         <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-            <div className="relative flex-1">
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
-                style={{ color: "oklch(0.55 0.06 240)" }}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
-                />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search songs, singers, movies..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all"
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {filteredArtists.length === 0 ? (
+              <div
+                className="col-span-2 text-center py-10 rounded-2xl"
                 style={{
                   background: "oklch(0.14 0.04 250)",
-                  border: "1px solid oklch(0.25 0.06 250)",
-                  color: "oklch(0.90 0.02 240)",
+                  color: "oklch(0.55 0.04 240)",
                 }}
-                data-ocid="entertainment.music.search_input"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => setSortAZ(!sortAZ)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-80 shrink-0"
-              style={{
-                background: "oklch(0.18 0.05 250)",
-                border: "1px solid oklch(0.78 0.18 65 / 0.4)",
-                color: "oklch(0.78 0.18 65)",
-              }}
-              data-ocid="entertainment.music.toggle"
-            >
-              {sortAZ ? "A to Z" : "Z to A"}
-            </button>
-          </div>
-
-          <div
-            className="flex gap-2 overflow-x-auto pb-1"
-            style={{ scrollbarWidth: "none" }}
-          >
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className="shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200"
-                style={
-                  selectedCategory === cat
-                    ? {
-                        background: "oklch(0.78 0.18 65)",
-                        color: "oklch(0.10 0.03 250)",
-                      }
-                    : {
-                        background: "oklch(0.16 0.05 250)",
-                        border: "1px solid oklch(0.25 0.06 250)",
-                        color: "oklch(0.70 0.06 240)",
-                      }
-                }
-                data-ocid="entertainment.music.tab"
+                data-ocid="entertainment.music.empty_state"
               >
-                {cat}
-              </button>
-            ))}
+                No singers found.
+              </div>
+            ) : (
+              filteredArtists.map((artist) => {
+                const artistSongCount = songs.filter(
+                  (s) => s.singerName === artist,
+                ).length;
+                const initial = artist[0]?.toUpperCase() ?? "?";
+                return (
+                  <button
+                    key={artist}
+                    type="button"
+                    onClick={() => openSinger(artist)}
+                    className="flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:scale-105 active:scale-95"
+                    style={{
+                      background: "oklch(0.14 0.04 250)",
+                      border: "1px solid oklch(0.22 0.05 250)",
+                    }}
+                    data-ocid="entertainment.music.button"
+                  >
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                      style={{
+                        background: "oklch(0.78 0.18 65 / 0.15)",
+                        border: "1px solid oklch(0.78 0.18 65 / 0.4)",
+                        color: "oklch(0.78 0.18 65)",
+                      }}
+                    >
+                      {initial}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className="text-sm font-semibold truncate"
+                        style={{ color: "oklch(0.90 0.03 240)" }}
+                      >
+                        {artist}
+                      </p>
+                      <p
+                        className="text-xs"
+                        style={{ color: "oklch(0.55 0.04 240)" }}
+                      >
+                        {artistSongCount} song{artistSongCount !== 1 ? "s" : ""}{" "}
+                        · Opens in new tab ↗
+                      </p>
+                    </div>
+                    <span
+                      className="text-xs"
+                      style={{ color: "oklch(0.50 0.04 240)" }}
+                    >
+                      ›
+                    </span>
+                  </button>
+                );
+              })
+            )}
           </div>
+        </div>
+      )}
 
-          <p className="text-xs" style={{ color: "oklch(0.55 0.04 240)" }}>
-            {filteredByCategory.length} song
-            {filteredByCategory.length !== 1 ? "s" : ""} found
-          </p>
-
-          {filteredByCategory.length === 0 ? (
+      {/* ── MOVIE TAB ── */}
+      {browseTab === "movie" && (
+        <div className="space-y-4">
+          {filteredMovies.length === 0 ? (
             <div
-              className="text-center py-12 rounded-2xl"
+              className="text-center py-10 rounded-2xl"
               style={{
                 background: "oklch(0.14 0.04 250)",
                 color: "oklch(0.55 0.04 240)",
               }}
               data-ocid="entertainment.music.empty_state"
             >
-              No songs found. Try a different search or category.
+              No movie songs available yet.
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredByCategory.map((song, idx) => (
-                <SongCard
-                  key={song.id}
-                  song={song}
-                  idx={idx}
-                  expandedLyrics={expandedLyrics}
-                  toggleLyrics={toggleLyrics}
-                />
-              ))}
-            </div>
-          )}
-
-          {selectedCategory !== "All" && (
-            <div className="flex justify-center mt-6">
-              <button
-                type="button"
-                onClick={() =>
-                  window.open(
-                    `${window.location.origin}${window.location.pathname}?musiccat=${selectedCategory}`,
-                    "_blank",
-                  )
-                }
-                className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95"
-                style={{
-                  background:
-                    "linear-gradient(135deg, oklch(0.78 0.18 65), oklch(0.85 0.15 80))",
-                  color: "oklch(0.10 0.03 250)",
-                  boxShadow: "0 4px 20px oklch(0.78 0.18 65 / 0.4)",
-                  border: "none",
-                }}
-                data-ocid="entertainment.music.button"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-                </svg>
-                More {selectedCategory} Songs
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {browseTab === "singer" && (
-        <div className="space-y-6">
-          {bySinger.map(([singerName, singerSongs]) => (
-            <div key={singerName}>
-              <div className="flex items-center gap-3 mb-3">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-                  style={{
-                    background: "oklch(0.78 0.18 65 / 0.15)",
-                    color: "oklch(0.78 0.18 65)",
-                    border: "1px solid oklch(0.78 0.18 65 / 0.3)",
-                  }}
-                >
-                  {singerName[0]?.toUpperCase()}
-                </div>
-                <h3
-                  className="font-bold text-base"
-                  style={{ color: "oklch(0.90 0.03 240)" }}
-                >
-                  {singerName}
-                </h3>
-                <span
-                  className="text-xs px-2 py-0.5 rounded-full"
-                  style={{
-                    background: "oklch(0.18 0.05 250)",
-                    color: "oklch(0.60 0.04 240)",
-                  }}
-                >
-                  {singerSongs.length} songs
-                </span>
-                <div
-                  className="flex-1 h-px"
-                  style={{ background: "oklch(0.25 0.05 250)" }}
-                />
-              </div>
-              <div className="space-y-2 pl-11">
-                {singerSongs.map((song) => (
-                  <div
-                    key={song.id}
-                    className="flex items-center justify-between gap-3 py-2 px-3 rounded-xl"
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {filteredMovies.map((movie) => {
+                const movSongs = songs.filter((s) => s.movieName === movie);
+                return (
+                  <button
+                    key={movie}
+                    type="button"
+                    onClick={() => openMovie(movie)}
+                    className="flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:scale-105 active:scale-95"
                     style={{
                       background: "oklch(0.14 0.04 250)",
-                      border: "1px solid oklch(0.20 0.05 250)",
+                      border: "1px solid oklch(0.65 0.22 280 / 0.25)",
                     }}
+                    data-ocid="entertainment.music.button"
                   >
-                    <div className="flex-1 min-w-0 flex flex-wrap items-center gap-1.5">
-                      <span
-                        className="text-sm font-semibold"
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
+                      style={{
+                        background: "oklch(0.65 0.22 280 / 0.15)",
+                        border: "1px solid oklch(0.65 0.22 280 / 0.35)",
+                      }}
+                    >
+                      🎬
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className="text-sm font-semibold truncate"
                         style={{ color: "oklch(0.90 0.03 240)" }}
                       >
-                        {song.title}
-                      </span>
-                      {song.movieName && (
-                        <span
-                          className="text-xs px-1.5 py-0.5 rounded"
-                          style={{
-                            background: "oklch(0.65 0.22 280 / 0.15)",
-                            color: "oklch(0.65 0.22 280)",
-                          }}
-                        >
-                          {song.movieName}
-                        </span>
-                      )}
-                      {song.releaseDate && (
-                        <span
-                          className="text-xs"
-                          style={{ color: "oklch(0.50 0.04 240)" }}
-                        >
-                          {song.releaseDate}
-                        </span>
-                      )}
-                    </div>
-                    <a
-                      href={song.platformLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-80"
-                      style={{
-                        background: "oklch(0.78 0.18 65)",
-                        color: "oklch(0.10 0.03 250)",
-                        textDecoration: "none",
-                      }}
-                      data-ocid="entertainment.music.button"
-                    >
-                      Play
-                    </a>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {browseTab === "movie" && (
-        <div className="space-y-6">
-          {byMovie.length === 0 ? (
-            <div
-              className="text-center py-12 rounded-2xl"
-              style={{
-                background: "oklch(0.14 0.04 250)",
-                color: "oklch(0.55 0.04 240)",
-              }}
-            >
-              No movie songs available.
-            </div>
-          ) : (
-            byMovie.map(([movieName, movieSongs]) => (
-              <div key={movieName}>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="text-xl">🎬</div>
-                  <h3
-                    className="font-bold text-base"
-                    style={{ color: "oklch(0.90 0.03 240)" }}
-                  >
-                    {movieName}
-                  </h3>
-                  <span
-                    className="text-xs px-2 py-0.5 rounded-full"
-                    style={{
-                      background: "oklch(0.65 0.22 280 / 0.15)",
-                      color: "oklch(0.65 0.22 280)",
-                    }}
-                  >
-                    {movieSongs.length} song{movieSongs.length !== 1 ? "s" : ""}
-                  </span>
-                  <div
-                    className="flex-1 h-px"
-                    style={{ background: "oklch(0.25 0.05 250)" }}
-                  />
-                </div>
-                <div className="space-y-2 pl-9">
-                  {movieSongs.map((song) => (
-                    <div
-                      key={song.id}
-                      className="flex items-center justify-between gap-3 py-2 px-3 rounded-xl"
-                      style={{
-                        background: "oklch(0.14 0.04 250)",
-                        border: "1px solid oklch(0.20 0.05 250)",
-                      }}
-                    >
-                      <div className="flex-1 min-w-0 flex flex-wrap items-center gap-1.5">
-                        <span
-                          className="text-sm font-semibold"
-                          style={{ color: "oklch(0.90 0.03 240)" }}
-                        >
-                          {song.title}
-                        </span>
-                        <span
-                          className="text-xs"
-                          style={{ color: "oklch(0.60 0.05 240)" }}
-                        >
-                          {song.singerName}
-                        </span>
-                        {song.releaseDate && (
-                          <span
-                            className="text-xs"
-                            style={{ color: "oklch(0.50 0.04 240)" }}
-                          >
-                            {song.releaseDate}
-                          </span>
-                        )}
-                      </div>
-                      <a
-                        href={song.platformLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-80"
-                        style={{
-                          background: "oklch(0.78 0.18 65)",
-                          color: "oklch(0.10 0.03 250)",
-                          textDecoration: "none",
-                        }}
-                        data-ocid="entertainment.music.button"
+                        {movie}
+                      </p>
+                      <p
+                        className="text-xs"
+                        style={{ color: "oklch(0.55 0.04 240)" }}
                       >
-                        Play
-                      </a>
+                        {movSongs.length} song{movSongs.length !== 1 ? "s" : ""}{" "}
+                        · Opens in new tab ↗
+                      </p>
                     </div>
-                  ))}
-                </div>
-              </div>
-            ))
+                    <span
+                      className="text-xs"
+                      style={{ color: "oklch(0.50 0.04 240)" }}
+                    >
+                      ›
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           )}
         </div>
       )}

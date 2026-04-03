@@ -1,76 +1,52 @@
 # NextGen-manash-pc-World-2.0
 
 ## Current State
-- Entertainment Hub at `/entertainment` has a Music Library sub-section (MusicLibrary component inside EntertainmentPage.tsx)
-- Current Music Library: YouTube embed player, categories (Bihu, Folk, Movie, Devotional, Modern, Zubeen Garg), search, A-Z sort, expandable song cards with YouTube iframe embed
-- MusicCategoryPage.tsx: "More Songs" page opened in new tab per category, has 220+ songs with YouTube IDs, singer-grouped with sticky A-Z nav
-- Admin Panel (AdminPage.tsx) has Entertainment > Music tab: CRUD for songs with fields: id, title, artist, category, youtubeId
-- ImageToolsPage.tsx: Background Removal tool uses `@imgly/background-removal` (client-side AI) — currently broken/slow. No remove.bg API integration.
+
+The Music Library in `EntertainmentPage.tsx` has:
+- `MusicSong` interface with fields: id, title, singerName, movieName, category, genre, releaseDate, platformLink, youtubeVideoId, lyrics, composer, lyricist, musicDirector, label, audioFileUrl, downloadLink, coverImage
+- Browse tabs: By Category, By Singer, By Movie
+- `SongCard` component that shows song details, YouTube embed, lyrics, download link in an expandable panel
+- `MusicCategoryPage.tsx` — standalone page for "More Songs" with 220+ extended songs per category
+- Admin panel has all song fields including `coverImage` and `youtubeVideoId`
+
+**Current problems:**
+1. Song cards do NOT prominently show cover photo — coverImage field exists but is not used prominently
+2. Tab filtering issue — songs from one artist (e.g. Zubeen Garg) may appear in multiple category tabs
+3. Each song category/singer/movie does NOT open a dedicated new tab page with all details
+4. Clicking a song category button does not open a new tab — it filters inline
 
 ## Requested Changes (Diff)
 
 ### Add
-- New song fields: `singerName`, `movieName`, `genre`, `releaseDate`, `platformLink` (replaces `youtubeId`), `lyrics` (multiline text)
-- Music Library browse view: THREE tabs — By Category, By Singer (A-Z), By Movie — all browseable
-- "More Info" button on each song card (blue, white font) that expands/shows lyrics below the song details
-- Admin Panel: update Music Songs tab to support new fields including a Lyrics textarea for each song
-- Background Removal tool: replace `@imgly/background-removal` with remove.bg API (`UputND68rsXjraZifg5jTM7d`) via fetch call
-- Pre-load 30+ real Assamese songs with real platform links (YouTube), singer names, movie names, release dates — NO Hindi/Bollywood content
+- **Prominent cover photo** on every song card: large cover image displayed at top of card (16:9 or square aspect ratio). If no coverImage, use YouTube thumbnail `https://img.youtube.com/vi/{videoId}/hqdefault.jpg` as fallback. If no YouTube ID either, show a stylized placeholder with music note icon.
+- **Each category/singer/movie button opens a new tab** — when user clicks a Category card (e.g. "Bihu"), Singer name (e.g. "Zubeen Garg"), or Movie name — it opens a NEW browser tab with a dedicated full page showing all songs for that selection, with cover photos, full details, YouTube embed, lyrics, download links
+- **New dedicated song detail page** — `/music-detail` route that accepts query params `?id=songId` and shows full song page: large cover photo, YouTube embed, all metadata, lyrics, download link
+- **New tab navigation pages** — `/music-songs?cat=Bihu`, `/music-songs?singer=Zubeen+Garg`, `/music-songs?movie=Yaone` — these pages render a full list of songs filtered by the param, each with cover photo card, "More Info" expanding to full details inline
 
 ### Modify
-- MusicSong interface: replace `youtubeId: string` with `platformLink: string`, add `singerName`, `movieName`, `genre`, `releaseDate`, `lyrics` fields
-- Music Library in EntertainmentPage: replace YouTube embed player with external link redirect (open platformLink in new tab), add three browse tabs
-- MusicCategoryPage.tsx (More Songs page): replace YouTube embed with external link, add singer/movie browse tabs, update song data to use new fields
-- Admin Music tab: update form fields to include singerName, movieName, genre, releaseDate, platformLink, lyrics textarea
-- DEFAULT_MUSIC_SONGS / DEFAULT_MUSIC_SONGS_ADMIN: replace all old data with real Assamese songs only (no Bollywood), with real YouTube links as platformLink
-- Background removal in ImageToolsPage: replace @imgly import with remove.bg REST API call using key `UputND68rsXjraZifg5jTM7d`
+- **`SongCard` component** — redesign to show:
+  - Top: large cover image (full width of card, ~200px tall, object-cover)
+  - Below: song title (bold), singer name, movie name (if any), category badge
+  - Bottom: two action buttons — "Play" (opens YouTube embed or audio) and "More Info" (opens new tab with song detail page)
+- **Tab filtering fix** — when Zubeen Garg category tab is selected, show ONLY songs with `category === "Zubeen Garg"`. When Bihu is selected, show ONLY `category === "Bihu"`. No cross-category mixing. The A-Z Singer tab shows all songs by that specific singer regardless of category.
+- **Category card buttons** — clicking now calls `window.open('/music-songs?cat=CATEGORY', '_blank')` instead of filtering inline
+- **Singer buttons** — clicking calls `window.open('/music-songs?singer=SINGER_NAME', '_blank')`
+- **Movie buttons** — clicking calls `window.open('/music-songs?movie=MOVIE_NAME', '_blank')`
+- **`MusicCategoryPage.tsx`** — update to handle all three query params: `cat`, `singer`, `movie`. Also update song cards to use the same new prominent cover photo design.
 
 ### Remove
-- YouTube iframe embed from song cards (replaced by external link button)
-- `youtubeId` field from song interfaces (replaced by `platformLink`)
-- All non-Assamese / placeholder / Hindi/Bollywood songs from default data
+- Inline category song list view (the inline filtered view after clicking a category card) — replace with new-tab navigation
+- Old "More Songs" button at bottom (its function is now replaced by the new-tab category/singer/movie page approach)
 
 ## Implementation Plan
 
-1. **Update MusicSong interface** in EntertainmentPage.tsx and MusicCategoryPage.tsx:
-   - Remove `youtubeId`, add `singerName`, `movieName`, `genre`, `releaseDate`, `platformLink`, `lyrics`
-
-2. **Replace DEFAULT_MUSIC_SONGS** with 30+ real Assamese songs across all categories:
-   - Bihu: O Mur Apunar Desh, Bihu Bihu (Zubeen Garg), Tumi Aahibane, etc.
-   - Folk: Mur Ghar Suwali, Husori, etc.
-   - Movie: Mayabini (Yaone, Zubeen Garg), Rongmon, Kopou Phool, etc.
-   - Devotional: Jai Kamakhya, Naam Kirtan, etc.
-   - Modern: Kuwori Baa (Neel Akash), Chenehi Morom, etc.
-   - Zubeen Garg: Dil Dil Assam, Moi Eti Jajabor, Aai, O Pori, etc.
-   - Each with real YouTube URL as platformLink, singer name, movie name where applicable
-
-3. **Update MusicLibrary component** in EntertainmentPage.tsx:
-   - Replace YouTube embed expand panel with:
-     - Collapsible "More Info" section showing lyrics (if available)
-     - External "Play" button linking to platformLink in new tab
-   - Add 3 browse tabs at top: "By Category" | "By Singer" | "By Movie"
-   - "By Singer" tab: groups songs A-Z by singerName
-   - "By Movie" tab: groups songs by movieName (only songs with a movie)
-   - "By Category" tab: existing category filter behavior
-
-4. **Update MusicCategoryPage.tsx** (More Songs new-tab page):
-   - Update ExtendedSong interface to new fields
-   - Replace YouTube embed with platform link button
-   - Update song data to all-Assamese with real links
-   - Keep singer-grouped A-Z navigation
-
-5. **Update Admin Panel** music tab in AdminPage.tsx:
-   - Update MusicSongAdmin interface to match new fields
-   - Add form fields: singerName, movieName, genre, releaseDate, platformLink, lyrics (textarea)
-   - Update DEFAULT_MUSIC_SONGS_ADMIN to match new data
-
-6. **Fix Background Removal** in ImageToolsPage.tsx:
-   - Replace `@imgly/background-removal` dynamic import with remove.bg REST API:
-     ```
-     POST https://api.remove.bg/v1.0/removebg
-     Headers: X-Api-Key: UputND68rsXjraZifg5jTM7d
-     Body: FormData with image_file
-     Response: blob (PNG with transparent background)
-     ```
-   - Update progress text to reflect API call instead of model loading
-   - Handle errors with toast.error
+1. **Add `/music-songs` route** in `App.tsx` pointing to a new `MusicSongsPage` component (or reuse/refactor `MusicCategoryPage`)
+2. **Refactor `MusicCategoryPage.tsx`** to accept `cat`, `singer`, or `movie` query params and show appropriate filtered song list with the new card design
+3. **Redesign `SongCard`** in both `EntertainmentPage.tsx` and `MusicCategoryPage.tsx`:
+   - Top: cover image using coverImage || YouTube thumbnail || placeholder
+   - Middle: title, singer, movie, category badge  
+   - Bottom: "▶ Play" button + "ℹ More Info" button that opens new tab to `/music-songs?id=songId` or expands inline
+4. **Fix tab filtering** in `EntertainmentPage.tsx` — category buttons now open new tab instead of filtering inline; singer/movie buttons also open new tab
+5. **Keep inline browse tabs** (Category/Singer/Movie) in Entertainment page as navigation grids — clicking any item opens a new tab
+6. **Update Admin panel** — no changes needed to admin song fields, but ensure `coverImage` field is visible and labeled clearly as "Cover Image URL"
+7. **Add `/music-songs` to App.tsx router**
