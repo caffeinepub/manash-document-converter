@@ -63,6 +63,7 @@ export function Header({ page, navigate, cartCount }: Props) {
     { label: "Manash 2.0", page: "ai-chat" },
     { label: "\uD83C\uDFAE Entertainment", page: "entertainment" },
     { label: "\uD83C\uDFD4\uFE0F Assam Tourism", page: "assam-tourism" },
+    { label: "⚙️ Admin Panel", page: "admin" },
   ];
 
   return (
