@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Header } from "./components/Header";
 import { Toaster } from "./components/ui/sonner";
+import { useActor } from "./hooks/useActor";
 import { ThemeProvider } from "./hooks/useTheme";
 import { AccountPage } from "./pages/AccountPage";
 import { AdminPage } from "./pages/AdminPage";
@@ -23,6 +24,7 @@ import { PanCardPortalPage } from "./pages/PanCardPortalPage";
 import { ProductDetailPage } from "./pages/ProductDetailPage";
 import { ProductsPage } from "./pages/ProductsPage";
 import type { CartItem } from "./types";
+import { setStorageActor, syncFromBackend } from "./utils/adminStorage";
 
 export type Page =
   | "home"
@@ -52,6 +54,7 @@ function AppInner() {
     null,
   );
   const [musicCategory, setMusicCategory] = useState<string>("Bihu");
+  const [synced, setSynced] = useState(false);
   const [cart, setCart] = useState<CartItem[]>(() => {
     try {
       return JSON.parse(localStorage.getItem("cart") || "[]");
@@ -59,6 +62,27 @@ function AppInner() {
       return [];
     }
   });
+
+  const { actor, isFetching } = useActor();
+  const syncedRef = useRef(false);
+
+  // On app load, sync all backend admin settings into localStorage so
+  // existing localStorage.getItem() calls pick up persisted data.
+  useEffect(() => {
+    if (!actor || isFetching || syncedRef.current) return;
+    syncedRef.current = true;
+    // Register actor for setAdminData calls in AdminPage
+    setStorageActor(actor);
+    // Pull all persisted admin data from backend into localStorage
+    syncFromBackend(actor).finally(() => {
+      setSynced(true);
+    });
+  }, [actor, isFetching]);
+
+  // Update actor reference when it changes (e.g., after login)
+  useEffect(() => {
+    setStorageActor(actor);
+  }, [actor]);
 
   // Check for music-related params on mount — if present, render the music category page
   useEffect(() => {
@@ -102,6 +126,20 @@ function AppInner() {
         <MusicCategoryPage category={musicCategory} />
         <Toaster />
       </>
+    );
+  }
+
+  // Show loading spinner while syncing from backend (first load only)
+  if (!synced && isFetching) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0f1e]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
+          <p className="text-yellow-400 font-semibold text-lg tracking-wide">
+            Loading NextGen IT Hub...
+          </p>
+        </div>
+      </div>
     );
   }
 

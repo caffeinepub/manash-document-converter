@@ -1,3 +1,5 @@
+import { setAdminData } from "./utils/adminStorage";
+
 export interface Product {
   id: string;
   name: string;
@@ -172,12 +174,12 @@ export function getProducts(): Product[] {
     const stored = localStorage.getItem("products");
     if (stored) return JSON.parse(stored);
   } catch {}
-  localStorage.setItem("products", JSON.stringify(SEED_PRODUCTS));
+  setAdminData("products", JSON.stringify(SEED_PRODUCTS));
   return SEED_PRODUCTS;
 }
 
 export function saveProducts(products: Product[]) {
-  localStorage.setItem("products", JSON.stringify(products));
+  setAdminData("products", JSON.stringify(products));
 }
 
 export function getOrders(): Order[] {
@@ -189,7 +191,7 @@ export function getOrders(): Order[] {
 }
 
 export function saveOrders(orders: Order[]) {
-  localStorage.setItem("orders", JSON.stringify(orders));
+  setAdminData("orders", JSON.stringify(orders));
 }
 
 export function getCustomerSession(): CustomerSession | null {
@@ -430,12 +432,12 @@ export function getJobs(): Job[] {
     const stored = localStorage.getItem("jobs");
     if (stored) return JSON.parse(stored);
   } catch {}
-  localStorage.setItem("jobs", JSON.stringify(SEED_JOBS));
+  setAdminData("jobs", JSON.stringify(SEED_JOBS));
   return SEED_JOBS;
 }
 
 export function saveJobs(jobs: Job[]) {
-  localStorage.setItem("jobs", JSON.stringify(jobs));
+  setAdminData("jobs", JSON.stringify(jobs));
 }
 
 export function getAdmitCards(): AdmitCard[] {
@@ -443,12 +445,12 @@ export function getAdmitCards(): AdmitCard[] {
     const stored = localStorage.getItem("admitCards");
     if (stored) return JSON.parse(stored);
   } catch {}
-  localStorage.setItem("admitCards", JSON.stringify(SEED_ADMIT_CARDS));
+  setAdminData("admitCards", JSON.stringify(SEED_ADMIT_CARDS));
   return SEED_ADMIT_CARDS;
 }
 
 export function saveAdmitCards(cards: AdmitCard[]) {
-  localStorage.setItem("admitCards", JSON.stringify(cards));
+  setAdminData("admitCards", JSON.stringify(cards));
 }
 
 export function getResults(): JobResult[] {
@@ -456,12 +458,12 @@ export function getResults(): JobResult[] {
     const stored = localStorage.getItem("jobResults");
     if (stored) return JSON.parse(stored);
   } catch {}
-  localStorage.setItem("jobResults", JSON.stringify(SEED_RESULTS));
+  setAdminData("jobResults", JSON.stringify(SEED_RESULTS));
   return SEED_RESULTS;
 }
 
 export function saveResults(results: JobResult[]) {
-  localStorage.setItem("jobResults", JSON.stringify(results));
+  setAdminData("jobResults", JSON.stringify(results));
 }
 
 // ─── Government Documents Admin Types ────────────────────────────────────────
@@ -630,12 +632,12 @@ export function getGovDocs(): GovDocAdmin[] {
     const stored = localStorage.getItem("govDocs");
     if (stored) return JSON.parse(stored);
   } catch {}
-  localStorage.setItem("govDocs", JSON.stringify(SEED_GOV_DOCS));
+  setAdminData("govDocs", JSON.stringify(SEED_GOV_DOCS));
   return SEED_GOV_DOCS;
 }
 
 export function saveGovDocs(docs: GovDocAdmin[]): void {
-  localStorage.setItem("govDocs", JSON.stringify(docs));
+  setAdminData("govDocs", JSON.stringify(docs));
 }
 
 // ─── Contact Us Types ─────────────────────────────────────────────────────────
@@ -675,5 +677,5 @@ export function getContactInfo(): ContactInfo {
 }
 
 export function saveContactInfo(info: ContactInfo): void {
-  localStorage.setItem("contactInfo", JSON.stringify(info));
+  setAdminData("contactInfo", JSON.stringify(info));
 }

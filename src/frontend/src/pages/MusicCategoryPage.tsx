@@ -1629,8 +1629,15 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
   const [refreshTick, setRefreshTick] = useState(0);
   useEffect(() => {
     const onFocus = () => setRefreshTick((t) => t + 1);
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "entertainment_admin_data") setRefreshTick((t) => t + 1);
+    };
     window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("storage", onStorage);
+    };
   }, []);
 
   const catColor =

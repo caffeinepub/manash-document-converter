@@ -1673,17 +1673,39 @@ function SongCard({
 }
 
 function MusicLibrary() {
-  const savedData = (() => {
+  const [refreshTick, setRefreshTick] = useState(0);
+
+  useEffect(() => {
+    const onFocus = () => setRefreshTick((t) => t + 1);
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "entertainment_admin_data") setRefreshTick((t) => t + 1);
+    };
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
+  const songs: MusicSong[] = (() => {
+    // refreshTick forces re-evaluation when admin saves or window regains focus
+    void refreshTick;
     try {
-      return JSON.parse(
+      const savedData = JSON.parse(
         localStorage.getItem("entertainment_admin_data") || "{}",
       );
+      const adminSongs: MusicSong[] = savedData.musicSongs ?? [];
+      if (adminSongs.length === 0) return DEFAULT_MUSIC_SONGS;
+      const adminIds = new Set(adminSongs.map((s) => s.id));
+      return [
+        ...DEFAULT_MUSIC_SONGS.filter((s) => !adminIds.has(s.id)),
+        ...adminSongs,
+      ];
     } catch {
-      return {};
+      return DEFAULT_MUSIC_SONGS;
     }
   })();
-  const songs: MusicSong[] =
-    (savedData.musicSongs as MusicSong[] | undefined) ?? DEFAULT_MUSIC_SONGS;
 
   const [browseTab, setBrowseTab] = useState<BrowseTab>("category");
   const [search, setSearch] = useState("");

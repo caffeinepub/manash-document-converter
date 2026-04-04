@@ -91,6 +91,9 @@ actor {
   let shoppingCarts = Map.empty<Principal, [CartItem]>();
   let userProfiles = Map.empty<Principal, UserProfile>();
 
+  // Admin Settings - persistent key-value store for all admin data
+  let adminSettings = Map.empty<Text, Text>();
+
   // Stripe integration
   var stripeConfig : ?Stripe.StripeConfiguration = null;
 
@@ -399,5 +402,27 @@ actor {
 
   public query ({ caller }) func getFounderPhotoHash() : async ?Blob {
     founderPhotoHash;
+  };
+
+  // ─── Admin Settings (Persistent Key-Value Store) ──────────────────────────
+  // Stores all admin panel data permanently on-chain as JSON strings.
+  // Keys: e.g. "adminConfig", "homepageSettings", "musicSongs",
+  //       "jobListings", "contactInfo", "panServices", etc.
+
+  public shared ({ caller }) func setAdminSetting(key : Text, value : Text) : async () {
+    // Allow any caller to save admin settings (auth is done in frontend with password)
+    adminSettings.add(key, value);
+  };
+
+  public query func getAdminSetting(key : Text) : async ?Text {
+    adminSettings.get(key);
+  };
+
+  public query func getAllAdminSettings() : async [(Text, Text)] {
+    adminSettings.entries().toArray();
+  };
+
+  public shared ({ caller }) func deleteAdminSetting(key : Text) : async () {
+    adminSettings.remove(key);
   };
 };
