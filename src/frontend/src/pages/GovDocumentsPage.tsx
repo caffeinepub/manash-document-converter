@@ -52,8 +52,6 @@ interface GovDoc {
   hasGuide?: boolean;
 }
 
-// ─── Application Guide Data ───────────────────────────────────────────────────
-
 interface GuideStep {
   title: string;
   detail: string;
@@ -627,8 +625,6 @@ const applicationGuides: ApplicationGuide[] = [
   },
 ];
 
-// ─── Document List ──────────────────────────────────────────────────────────
-
 const govDocs: GovDoc[] = [
   {
     id: "aadhaar",
@@ -840,11 +836,15 @@ const categories: Category[] = [
   "State Services",
 ];
 
-// ─── Sub-components ──────────────────────────────────────────────────────────
-
 function StepCircle({ number }: { number: number }) {
   return (
-    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#1E88FF] text-white flex items-center justify-center text-sm font-bold shadow-sm">
+    <div
+      className="flex-shrink-0 w-8 h-8 rounded-full text-white flex items-center justify-center text-sm font-bold shadow-sm"
+      style={{
+        background: "linear-gradient(135deg, #FFB6D9, #B4E7FF)",
+        color: "#7c3aed",
+      }}
+    >
       {number}
     </div>
   );
@@ -853,69 +853,95 @@ function StepCircle({ number }: { number: number }) {
 function GuideDetailView({
   guide,
   onBack,
-}: {
-  guide: ApplicationGuide;
-  onBack: () => void;
-}) {
+}: { guide: ApplicationGuide; onBack: () => void }) {
   return (
-    <div className="bg-white rounded-2xl border border-blue-100 shadow-md overflow-hidden">
+    <div
+      className="rounded-3xl overflow-hidden"
+      style={{
+        background: "rgba(255,255,255,0.95)",
+        border: "1.5px solid rgba(255,182,217,0.35)",
+        backdropFilter: "blur(20px)",
+        boxShadow: "0 8px 32px rgba(255,182,217,0.15)",
+      }}
+    >
       {/* Guide Header */}
-      <div className="bg-gradient-to-r from-[#0B2A4A] to-[#1565C0] px-6 py-5">
+      <div
+        className="px-6 py-6"
+        style={{
+          background:
+            "linear-gradient(135deg, #FFB6D9 0%, #d4a0f5 50%, #B4E7FF 100%)",
+        }}
+      >
         <button
           type="button"
           onClick={onBack}
           data-ocid="gov.guide.button"
-          className="flex items-center gap-2 text-blue-200 hover:text-white text-sm mb-4 transition-colors"
+          className="flex items-center gap-2 text-white/90 hover:text-white text-sm mb-4 transition-colors"
         >
           <ArrowLeft size={16} />
           Back to All Documents
         </button>
-        <h2 className="text-xl md:text-2xl font-bold text-white">
+        <h2 className="text-xl md:text-2xl font-bold text-white drop-shadow-sm">
           {guide.title}
         </h2>
-        <p className="text-blue-200 text-sm mt-2 leading-relaxed max-w-3xl">
+        <p className="text-white/85 text-sm mt-2 leading-relaxed max-w-3xl">
           {guide.overview}
         </p>
       </div>
 
       {/* Tabs */}
       <Tabs defaultValue="apply" className="p-5 md:p-6">
-        <TabsList className="flex flex-wrap gap-1 h-auto bg-gray-100 p-1 rounded-xl mb-6">
-          <TabsTrigger
-            value="apply"
-            className="flex items-center gap-1.5 text-xs md:text-sm data-[state=active]:bg-[#0B2A4A] data-[state=active]:text-white"
-            data-ocid="gov.guide.tab"
-          >
-            <ListChecks size={14} /> How to Apply
-          </TabsTrigger>
-          <TabsTrigger
-            value="docs"
-            className="flex items-center gap-1.5 text-xs md:text-sm data-[state=active]:bg-[#0B2A4A] data-[state=active]:text-white"
-            data-ocid="gov.guide.tab"
-          >
-            <FileCheck size={14} /> Documents Required
-          </TabsTrigger>
-          <TabsTrigger
-            value="fees"
-            className="flex items-center gap-1.5 text-xs md:text-sm data-[state=active]:bg-[#0B2A4A] data-[state=active]:text-white"
-            data-ocid="gov.guide.tab"
-          >
-            <IndianRupee size={14} /> Fees & Timeline
-          </TabsTrigger>
-          <TabsTrigger
-            value="links"
-            className="flex items-center gap-1.5 text-xs md:text-sm data-[state=active]:bg-[#0B2A4A] data-[state=active]:text-white"
-            data-ocid="gov.guide.tab"
-          >
-            <Link2 size={14} /> Official Links
-          </TabsTrigger>
+        <TabsList
+          className="flex flex-wrap gap-1 h-auto p-1.5 rounded-2xl mb-6"
+          style={{
+            background: "rgba(255,182,217,0.12)",
+            border: "1px solid rgba(255,182,217,0.25)",
+          }}
+        >
+          {[
+            {
+              value: "apply",
+              icon: <ListChecks size={14} />,
+              label: "How to Apply",
+            },
+            {
+              value: "docs",
+              icon: <FileCheck size={14} />,
+              label: "Documents Required",
+            },
+            {
+              value: "fees",
+              icon: <IndianRupee size={14} />,
+              label: "Fees & Timeline",
+            },
+            {
+              value: "links",
+              icon: <Link2 size={14} />,
+              label: "Official Links",
+            },
+          ].map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className="flex items-center gap-1.5 text-xs md:text-sm rounded-xl data-[state=active]:shadow-md"
+              style={{}}
+              data-ocid="gov.guide.tab"
+            >
+              {tab.icon} {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
-        {/* How to Apply */}
         <TabsContent value="apply" className="space-y-8 mt-0">
           {guide.applySteps.map((section) => (
             <div key={section.heading}>
-              <h3 className="text-base font-bold text-[#0B2A4A] mb-4 pb-2 border-b border-blue-100">
+              <h3
+                className="text-base font-bold mb-4 pb-2"
+                style={{
+                  color: "#be185d",
+                  borderBottom: "2px solid rgba(255,182,217,0.4)",
+                }}
+              >
                 {section.heading}
               </h3>
               <ol className="space-y-4">
@@ -923,10 +949,10 @@ function GuideDetailView({
                   <li key={step.title} className="flex gap-4">
                     <StepCircle number={i + 1} />
                     <div className="flex-1 pt-0.5">
-                      <p className="font-semibold text-gray-900 text-sm">
+                      <p className="font-semibold text-slate-800 text-sm">
                         {step.title}
                       </p>
-                      <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                      <p className="text-sm text-slate-600 mt-1 leading-relaxed">
                         {step.detail}
                       </p>
                     </div>
@@ -937,11 +963,16 @@ function GuideDetailView({
           ))}
         </TabsContent>
 
-        {/* Documents Required */}
         <TabsContent value="docs" className="space-y-6 mt-0">
           {guide.documents.map((docGroup) => (
             <div key={docGroup.category}>
-              <h3 className="text-sm font-bold text-[#0B2A4A] mb-3 pb-2 border-b border-blue-100 uppercase tracking-wide">
+              <h3
+                className="text-sm font-bold mb-3 pb-2 uppercase tracking-wide"
+                style={{
+                  color: "#0369a1",
+                  borderBottom: "2px solid rgba(180,231,255,0.5)",
+                }}
+              >
                 {docGroup.category}
               </h3>
               <ul className="space-y-2">
@@ -949,9 +980,9 @@ function GuideDetailView({
                   <li key={item} className="flex items-start gap-2.5">
                     <CheckCircle2
                       size={16}
-                      className="text-green-500 mt-0.5 flex-shrink-0"
+                      className="text-emerald-500 mt-0.5 flex-shrink-0"
                     />
-                    <span className="text-sm text-gray-700">{item}</span>
+                    <span className="text-sm text-slate-700">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -959,22 +990,27 @@ function GuideDetailView({
           ))}
         </TabsContent>
 
-        {/* Fees & Timeline */}
         <TabsContent value="fees" className="mt-0">
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Fees */}
             <div>
-              <h3 className="text-sm font-bold text-[#0B2A4A] mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-pink-600 mb-3 flex items-center gap-2">
                 <IndianRupee size={15} /> Fee Structure
               </h3>
-              <div className="rounded-xl overflow-hidden border border-gray-200">
+              <div
+                className="rounded-2xl overflow-hidden"
+                style={{ border: "1.5px solid rgba(255,182,217,0.3)" }}
+              >
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-[#0B2A4A] text-white">
-                      <th className="text-left px-4 py-2.5 font-semibold">
+                    <tr
+                      style={{
+                        background: "linear-gradient(135deg, #FFB6D9, #B4E7FF)",
+                      }}
+                    >
+                      <th className="text-left px-4 py-2.5 font-semibold text-white">
                         Service
                       </th>
-                      <th className="text-right px-4 py-2.5 font-semibold">
+                      <th className="text-right px-4 py-2.5 font-semibold text-white">
                         Fee
                       </th>
                     </tr>
@@ -983,12 +1019,15 @@ function GuideDetailView({
                     {guide.fees.map((row, i) => (
                       <tr
                         key={row.service}
-                        className={i % 2 === 0 ? "bg-white" : "bg-blue-50"}
+                        style={{
+                          background:
+                            i % 2 === 0 ? "white" : "rgba(255,182,217,0.06)",
+                        }}
                       >
-                        <td className="px-4 py-2.5 text-gray-700">
+                        <td className="px-4 py-2.5 text-slate-700">
                           {row.service}
                         </td>
-                        <td className="px-4 py-2.5 text-right font-semibold text-[#0B2A4A]">
+                        <td className="px-4 py-2.5 text-right font-semibold text-pink-600">
                           {row.fee}
                         </td>
                       </tr>
@@ -998,36 +1037,52 @@ function GuideDetailView({
               </div>
             </div>
 
-            {/* Processing Time */}
             <div>
-              <h3 className="text-sm font-bold text-[#0B2A4A] mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-sky-600 mb-3 flex items-center gap-2">
                 <Clock size={15} /> Processing Time
               </h3>
               <div className="space-y-3">
                 {guide.processingTime.map((row) => (
                   <div
                     key={row.service}
-                    className="flex items-center justify-between p-3 rounded-xl border border-gray-200 bg-white"
+                    className="flex items-center justify-between p-3 rounded-2xl"
+                    style={{
+                      background: "rgba(180,231,255,0.1)",
+                      border: "1px solid rgba(180,231,255,0.4)",
+                    }}
                   >
-                    <span className="text-sm text-gray-700">{row.service}</span>
-                    <Badge className="bg-[#1E88FF] text-white border-0 text-xs">
+                    <span className="text-sm text-slate-700">
+                      {row.service}
+                    </span>
+                    <Badge
+                      className="text-xs border-0"
+                      style={{
+                        background: "linear-gradient(135deg, #B4E7FF, #93c5fd)",
+                        color: "#0369a1",
+                      }}
+                    >
                       {row.time}
                     </Badge>
                   </div>
                 ))}
               </div>
 
-              {/* Notes */}
               {guide.notes && guide.notes.length > 0 && (
-                <div className="mt-5 p-4 bg-amber-50 rounded-xl border border-amber-200">
-                  <p className="text-xs font-bold text-amber-800 mb-2 uppercase tracking-wide">
+                <div
+                  className="mt-5 p-4 rounded-2xl"
+                  style={{
+                    background: "rgba(255,182,217,0.08)",
+                    border: "1.5px solid rgba(255,182,217,0.3)",
+                  }}
+                >
+                  <p className="text-xs font-bold text-pink-600 mb-2 uppercase tracking-wide">
                     ⚠️ Important Notes
                   </p>
                   <ul className="space-y-1.5">
                     {guide.notes.map((note) => (
                       <li
                         key={note}
-                        className="text-xs text-amber-700 leading-relaxed"
+                        className="text-xs text-slate-600 leading-relaxed"
                       >
                         • {note}
                       </li>
@@ -1039,7 +1094,6 @@ function GuideDetailView({
           </div>
         </TabsContent>
 
-        {/* Official Links */}
         <TabsContent value="links" className="mt-0">
           <div className="grid sm:grid-cols-2 gap-4">
             {guide.officialLinks.map((link) => (
@@ -1048,17 +1102,27 @@ function GuideDetailView({
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-start gap-3 p-4 rounded-xl border border-gray-200 hover:border-[#1E88FF] hover:bg-blue-50 transition-all group"
+                className="flex items-start gap-3 p-4 rounded-2xl transition-all group hover:scale-[1.02] hover:shadow-lg"
+                style={{
+                  background: "rgba(255,255,255,0.9)",
+                  border: "1.5px solid rgba(255,182,217,0.3)",
+                  backdropFilter: "blur(10px)",
+                }}
                 data-ocid="gov.guide.link"
               >
-                <div className="w-9 h-9 rounded-lg bg-[#0B2A4A] flex items-center justify-center flex-shrink-0 group-hover:bg-[#1E88FF] transition-colors">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all group-hover:scale-110"
+                  style={{
+                    background: "linear-gradient(135deg, #FFB6D9, #B4E7FF)",
+                  }}
+                >
                   <ExternalLink size={16} className="text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 group-hover:text-[#1E88FF] transition-colors">
+                  <p className="text-sm font-semibold text-slate-800 group-hover:text-pink-600 transition-colors">
                     {link.label}
                   </p>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
                     {link.description}
                   </p>
                 </div>
@@ -1071,14 +1135,11 @@ function GuideDetailView({
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
-
 export function GovDocumentsPage({ navigate }: { navigate: (p: any) => void }) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [activeGuideId, setActiveGuideId] = useState<string | null>(null);
 
-  // Merge managed docs (from admin panel) with the static icon/color data
   const managedDocs = getGovDocs();
   const mergedDocs = govDocs.map((doc) => {
     const managed = managedDocs.find((m) => m.id === doc.id);
@@ -1112,25 +1173,37 @@ export function GovDocumentsPage({ navigate }: { navigate: (p: any) => void }) {
   return (
     <main
       className="min-h-screen"
-      style={{ background: "oklch(0.12 0.03 250)" }}
+      style={{
+        background:
+          "linear-gradient(160deg, #FFF0F6 0%, #F0F8FF 50%, #FFF0F6 100%)",
+      }}
     >
       {/* Hero Section */}
       <section
-        className="py-12 px-4 animate-fade-in-up"
+        className="py-14 px-4 animate-fade-in-up"
         style={{
           background:
-            "linear-gradient(135deg, oklch(0.14 0.04 250) 0%, oklch(0.18 0.06 260) 100%)",
-          borderBottom: "1px solid oklch(0.25 0.06 250)",
+            "linear-gradient(135deg, rgba(255,182,217,0.25) 0%, rgba(180,231,255,0.25) 100%)",
+          borderBottom: "1.5px solid rgba(255,182,217,0.3)",
+          backdropFilter: "blur(20px)",
         }}
       >
         <div className="max-w-5xl mx-auto text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
             <span className="text-4xl">🏛️</span>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight font-display gradient-text-gold">
+            <h1
+              className="text-3xl md:text-4xl font-bold tracking-tight"
+              style={{
+                background:
+                  "linear-gradient(135deg, #be185d, #7c3aed, #0369a1)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
               Government Documents Portal
             </h1>
           </div>
-          <p className="text-blue-200 text-lg max-w-2xl mx-auto mb-8">
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto mb-8">
             Find, apply, and manage all your official Indian government
             documents in one place. Direct links to official portals — safe,
             quick, and trusted.
@@ -1139,7 +1212,7 @@ export function GovDocumentsPage({ navigate }: { navigate: (p: any) => void }) {
           {/* Search */}
           <div className="relative max-w-xl mx-auto mb-6">
             <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-400"
               size={18}
             />
             <Input
@@ -1147,7 +1220,12 @@ export function GovDocumentsPage({ navigate }: { navigate: (p: any) => void }) {
               placeholder="Search documents (e.g. Aadhaar, Passport, Ration Card...)"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 bg-white text-gray-900 border-0 h-12 rounded-xl text-base"
+              className="pl-10 h-12 rounded-2xl text-base text-slate-800"
+              style={{
+                background: "rgba(255,255,255,0.95)",
+                border: "1.5px solid rgba(255,182,217,0.4)",
+                boxShadow: "0 2px 12px rgba(255,182,217,0.2)",
+              }}
               data-ocid="gov.search_input"
             />
           </div>
@@ -1157,43 +1235,37 @@ export function GovDocumentsPage({ navigate }: { navigate: (p: any) => void }) {
             type="button"
             onClick={() => navigate("assam-forms")}
             data-ocid="gov.forms_library.button"
-            className="group inline-flex items-center gap-4 px-6 py-4 rounded-2xl border transition-all duration-300 hover:scale-105 hover:shadow-2xl max-w-xl w-full"
+            className="group inline-flex items-center gap-4 px-6 py-4 rounded-3xl transition-all duration-300 hover:scale-105 hover:shadow-2xl max-w-xl w-full"
             style={{
               background:
-                "linear-gradient(135deg, oklch(0.22 0.08 75 / 0.8), oklch(0.18 0.06 70 / 0.9))",
-              borderColor: "oklch(0.62 0.15 70 / 0.6)",
-              boxShadow: "0 0 24px oklch(0.62 0.18 70 / 0.25)",
+                "linear-gradient(135deg, rgba(255,182,217,0.9), rgba(180,231,255,0.9))",
+              border: "1.5px solid rgba(255,255,255,0.6)",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 4px 24px rgba(255,182,217,0.4)",
             }}
           >
             <div
-              className="p-3 rounded-xl shrink-0"
-              style={{ background: "oklch(0.62 0.18 70 / 0.3)" }}
+              className="p-3 rounded-2xl shrink-0"
+              style={{ background: "rgba(255,255,255,0.7)" }}
             >
               <span className="text-2xl">📄</span>
             </div>
             <div className="text-left flex-1">
-              <div
-                className="font-bold text-base"
-                style={{ color: "oklch(0.88 0.15 75)" }}
-              >
+              <div className="font-bold text-base text-purple-700">
                 Download Government Forms
               </div>
-              <div
-                className="text-xs mt-0.5"
-                style={{ color: "oklch(0.72 0.10 75)" }}
-              >
+              <div className="text-xs mt-0.5 text-purple-500">
                 Get official PDF forms for PAN, Aadhaar, Assam edistrict & more
               </div>
             </div>
             <svg
-              className="shrink-0 transition-transform group-hover:translate-x-1"
+              className="shrink-0 transition-transform group-hover:translate-x-1 text-purple-500"
               width="20"
               height="20"
               viewBox="0 0 20 20"
               fill="none"
               aria-label="Go to forms library"
               role="img"
-              style={{ color: "oklch(0.78 0.14 75)" }}
             >
               <title>Go to forms library</title>
               <path
@@ -1209,20 +1281,39 @@ export function GovDocumentsPage({ navigate }: { navigate: (p: any) => void }) {
       </section>
 
       {/* Category Tabs */}
-      <section className="bg-white border-b border-gray-200 sticky top-[88px] z-10">
+      <section
+        className="sticky top-[88px] z-10"
+        style={{
+          background: "rgba(255,255,255,0.9)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(255,182,217,0.25)",
+          boxShadow: "0 2px 12px rgba(255,182,217,0.1)",
+        }}
+      >
         <div className="max-w-5xl mx-auto px-4 overflow-x-auto">
-          <div className="flex gap-1 py-3 min-w-max">
+          <div className="flex gap-2 py-3 min-w-max">
             {categories.map((cat) => (
               <button
                 key={cat}
                 type="button"
                 onClick={() => setActiveCategory(cat)}
                 data-ocid={`gov.${cat.toLowerCase().replace(" ", "_")}.tab`}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
-                  activeCategory === cat
-                    ? "bg-[#0B2A4A] text-white shadow-sm"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                className="px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap hover:scale-105"
+                style={{
+                  background:
+                    activeCategory === cat
+                      ? "linear-gradient(135deg, #FFB6D9, #B4E7FF)"
+                      : "rgba(255,240,246,0.8)",
+                  color: activeCategory === cat ? "#7c3aed" : "#64748b",
+                  border:
+                    activeCategory === cat
+                      ? "1.5px solid rgba(255,182,217,0.6)"
+                      : "1.5px solid rgba(226,232,240,0.8)",
+                  boxShadow:
+                    activeCategory === cat
+                      ? "0 2px 12px rgba(255,182,217,0.4)"
+                      : "none",
+                }}
               >
                 {cat}
               </button>
@@ -1243,7 +1334,7 @@ export function GovDocumentsPage({ navigate }: { navigate: (p: any) => void }) {
               />
             ) : filtered.length === 0 ? (
               <div
-                className="text-center py-16 text-gray-400"
+                className="text-center py-16 text-slate-400"
                 data-ocid="gov.empty_state"
               >
                 <span className="text-5xl block mb-3">🔍</span>
@@ -1257,37 +1348,59 @@ export function GovDocumentsPage({ navigate }: { navigate: (p: any) => void }) {
                 {filtered.map((doc, idx) => (
                   <Card
                     key={doc.id}
-                    className="border border-gray-200 hover:shadow-md transition-shadow"
+                    className="transition-all duration-300 hover:scale-[1.02] hover:shadow-xl rounded-3xl overflow-hidden"
+                    style={{
+                      background: "rgba(255,255,255,0.92)",
+                      border: "1.5px solid rgba(255,182,217,0.3)",
+                      backdropFilter: "blur(10px)",
+                      boxShadow: "0 2px 12px rgba(255,182,217,0.1)",
+                    }}
                     data-ocid={`gov.item.${idx + 1}`}
                   >
                     <CardHeader className="pb-3">
                       <div className="flex items-start gap-3">
-                        <div className={`p-2.5 rounded-xl border ${doc.color}`}>
+                        <div
+                          className={`p-2.5 rounded-2xl border ${doc.color}`}
+                        >
                           {doc.icon}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <CardTitle className="text-base font-bold text-gray-900 leading-snug">
+                          <CardTitle className="text-base font-bold text-slate-800 leading-snug">
                             {doc.title}
                           </CardTitle>
-                          <p className="text-xs text-gray-500 mt-0.5">
+                          <p className="text-xs text-slate-500 mt-0.5">
                             {doc.subtitle}
                           </p>
-                          <Badge variant="outline" className="mt-1.5 text-xs">
+                          <Badge
+                            variant="outline"
+                            className="mt-1.5 text-xs rounded-full"
+                            style={{
+                              background: "rgba(255,182,217,0.1)",
+                              color: "#be185d",
+                              border: "1px solid rgba(255,182,217,0.4)",
+                            }}
+                          >
                             {doc.category}
                           </Badge>
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent className="pt-0">
-                      <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                      <p className="text-sm text-slate-600 mb-4 leading-relaxed">
                         {doc.description}
                       </p>
 
-                      {/* Application Guide Button (for 4 docs) */}
                       {doc.hasGuide && (
                         <Button
                           size="sm"
-                          className="w-full mb-3 bg-[#1E88FF] hover:bg-[#1565C0] text-white font-semibold text-xs h-9"
+                          className="w-full mb-3 font-semibold text-xs h-9 rounded-2xl transition-all hover:scale-[1.02]"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, #FFB6D9, #B4E7FF)",
+                            color: "#7c3aed",
+                            border: "none",
+                            boxShadow: "0 2px 8px rgba(255,182,217,0.4)",
+                          }}
                           onClick={() => setActiveGuideId(doc.id)}
                           data-ocid={`gov.${doc.id}.button`}
                         >
@@ -1303,7 +1416,12 @@ export function GovDocumentsPage({ navigate }: { navigate: (p: any) => void }) {
                             variant="outline"
                             size="sm"
                             asChild
-                            className="text-[#0B2A4A] border-[#0B2A4A] hover:bg-[#0B2A4A] hover:text-white transition-colors text-xs h-8"
+                            className="text-xs h-8 rounded-xl transition-all hover:scale-105"
+                            style={{
+                              background: "rgba(180,231,255,0.15)",
+                              color: "#0369a1",
+                              border: "1px solid rgba(180,231,255,0.5)",
+                            }}
                           >
                             <a
                               href={action.url}
@@ -1325,40 +1443,61 @@ export function GovDocumentsPage({ navigate }: { navigate: (p: any) => void }) {
 
           {/* Sidebar: Useful Links */}
           <aside className="lg:w-72 shrink-0">
-            <div className="bg-white border border-gray-200 rounded-xl p-5 sticky top-40">
-              <h2 className="font-bold text-[#0B2A4A] text-base mb-4 flex items-center gap-2">
+            <div
+              className="rounded-3xl p-5 sticky top-40"
+              style={{
+                background: "rgba(255,255,255,0.92)",
+                border: "1.5px solid rgba(255,182,217,0.3)",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 4px 20px rgba(255,182,217,0.1)",
+              }}
+            >
+              <h2
+                className="font-bold text-base mb-4 flex items-center gap-2"
+                style={{ color: "#be185d" }}
+              >
                 <Smartphone size={16} />
                 Useful Portals & Apps
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {usefulLinks.map((link) => (
                   <a
                     key={link.url}
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors group"
+                    className="flex items-center gap-3 p-3 rounded-2xl transition-all group hover:scale-[1.02]"
+                    style={{
+                      background: "rgba(255,240,246,0.5)",
+                      border: "1px solid rgba(255,182,217,0.2)",
+                    }}
                   >
                     <span className="text-xl">{link.icon}</span>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-800 group-hover:text-[#1E88FF] transition-colors">
+                      <p className="text-sm font-semibold text-slate-700 group-hover:text-pink-600 transition-colors">
                         {link.label}
                       </p>
-                      <p className="text-xs text-gray-500">{link.desc}</p>
+                      <p className="text-xs text-slate-500">{link.desc}</p>
                     </div>
                     <ExternalLink
                       size={12}
-                      className="ml-auto text-gray-300 group-hover:text-[#1E88FF] shrink-0"
+                      className="ml-auto text-slate-300 group-hover:text-pink-400 shrink-0"
                     />
                   </a>
                 ))}
               </div>
 
-              <div className="mt-5 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                <p className="text-xs text-blue-700 font-medium mb-1">
+              <div
+                className="mt-5 p-3 rounded-2xl"
+                style={{
+                  background: "rgba(180,231,255,0.15)",
+                  border: "1px solid rgba(180,231,255,0.4)",
+                }}
+              >
+                <p className="text-xs text-sky-700 font-medium mb-1">
                   💡 Pro Tip
                 </p>
-                <p className="text-xs text-blue-600 leading-relaxed">
+                <p className="text-xs text-sky-600 leading-relaxed">
                   Store all your documents digitally on{" "}
                   <strong>DigiLocker</strong> — the official government document
                   wallet accepted across India.
@@ -1369,14 +1508,20 @@ export function GovDocumentsPage({ navigate }: { navigate: (p: any) => void }) {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-[#0B2A4A] text-blue-200 text-center text-xs py-4 mt-8">
+      <footer
+        className="text-center text-xs py-4 mt-8"
+        style={{
+          background: "rgba(255,182,217,0.1)",
+          borderTop: "1px solid rgba(255,182,217,0.2)",
+          color: "#94a3b8",
+        }}
+      >
         © {new Date().getFullYear()}. Built with love using{" "}
         <a
           href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="underline hover:text-white"
+          className="underline hover:text-pink-500"
         >
           caffeine.ai
         </a>

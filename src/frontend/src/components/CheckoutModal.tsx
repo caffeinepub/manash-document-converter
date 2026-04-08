@@ -9,24 +9,30 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import {
-  type CartItem,
-  DeliveryType,
-  PaymentMethod,
-  type Product,
-} from "../backend";
-import { useActor } from "../hooks/useActor";
+import type { CartItem, Order, Product } from "../types";
+import { getOrders, saveOrders } from "../types";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+
+// Local enums matching types.ts Order shape
+enum DeliveryType {
+  Pickup = "pickup",
+  Delivery = "delivery",
+}
+enum PaymentMethod {
+  COD = "cod",
+  UPI = "upi",
+  Card = "card",
+}
 
 interface CheckoutModalProps {
   open: boolean;
   onClose: () => void;
   cartItems: (CartItem & { product?: Product })[];
   products: Product[];
-  onOrderPlaced: (orderId: bigint) => void;
+  onOrderPlaced: (orderId: string) => void;
 }
 
 export function CheckoutModal({
@@ -36,10 +42,9 @@ export function CheckoutModal({
   products,
   onOrderPlaced,
 }: CheckoutModalProps) {
-  const { actor } = useActor();
-  const [step, setStep] = useState<"info" | "confirm" | "done">("info");
+  const [step, setStep] = useState<"info" | "done">("info");
   const [loading, setLoading] = useState(false);
-  const [orderId, setOrderId] = useState<bigint | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -57,13 +62,12 @@ export function CheckoutModal({
     cartItems.find((i) => i.productId === productId)?.product ??
     products.find((p) => p.id === productId);
 
-  const formatPrice = (paise: bigint) =>
-    `₹${(Number(paise) / 100).toLocaleString("en-IN")}`;
+  const formatPrice = (amount: number) => `₹${amount.toLocaleString("en-IN")}`;
 
   const total = cartItems.reduce((sum, item) => {
     const p = resolveProduct(item.productId);
-    return sum + (p?.price ?? BigInt(0)) * item.quantity;
-  }, BigInt(0));
+    return sum + (p?.price ?? 0) * (item.qty ?? 1);
+  }, 0);
 
   const handleSubmit = async () => {
     if (!name || !phone || !email) {
@@ -78,49 +82,38 @@ export function CheckoutModal({
       toast.error("Please enter UPI ID");
       return;
     }
-    if (!actor) {
-      toast.error("Please login to place order");
-      return;
-    }
 
     if (paymentMethod === PaymentMethod.Card) {
-      setLoading(true);
-      try {
-        const items = cartItems.map((item) => {
-          const p = resolveProduct(item.productId);
-          return {
-            productName: p?.name ?? item.productId,
-            productDescription: p?.description ?? "",
-            quantity: item.quantity,
-            priceInCents: p?.price ?? BigInt(0),
-            currency: "inr",
-          };
-        });
-        const url = await actor.createCheckoutSession(
-          items,
-          window.location.href,
-          window.location.href,
-        );
-        window.location.href = url;
-      } catch {
-        toast.error("Card payment unavailable. Please try UPI or COD.");
-      } finally {
-        setLoading(false);
-      }
+      toast.info("Card payment: please pay via UPI or COD for now.");
       return;
     }
 
     setLoading(true);
     try {
-      const id = await actor.createOrder(
-        name,
-        phone,
-        email,
-        paymentMethod,
-        deliveryType,
-        deliveryType === DeliveryType.Delivery ? address : null,
-      );
-      setOrderId(id);
+      const newOrder: Order = {
+        id: `ORD-${Date.now()}`,
+        customerId: email,
+        customerName: name,
+        customerPhone: phone,
+        customerEmail: email,
+        items: cartItems.map((item) => ({
+          productId: item.productId,
+          productName: item.product?.name ?? item.productId,
+          price: item.product?.price ?? 0,
+          qty: item.qty ?? 1,
+        })),
+        totalAmount: total,
+        deliveryType:
+          deliveryType === DeliveryType.Delivery ? "delivery" : "pickup",
+        deliveryAddress:
+          deliveryType === DeliveryType.Delivery ? address : undefined,
+        paymentMethod: paymentMethod as "cod" | "upi" | "card" | "razorpay",
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      };
+      const existing = getOrders();
+      saveOrders([...existing, newOrder]);
+      setOrderId(newOrder.id);
       setStep("done");
       toast.success("Order placed successfully!");
     } catch {
@@ -158,7 +151,7 @@ export function CheckoutModal({
                 Thank you, {name}!
               </p>
               <p className="text-gray-400 text-sm">
-                Your order #{String(orderId)} has been placed.
+                Your order #{orderId} has been placed.
               </p>
               {paymentMethod === PaymentMethod.UPI && (
                 <p className="text-cyan-400 text-sm mt-2">
@@ -198,10 +191,10 @@ export function CheckoutModal({
                       className="flex justify-between text-sm"
                     >
                       <span className="text-gray-400">
-                        {p?.name ?? item.productId} × {Number(item.quantity)}
+                        {p?.name ?? item.productId} × {item.qty ?? 1}
                       </span>
                       <span className="text-white">
-                        {p ? formatPrice(p.price * item.quantity) : ""}
+                        {p ? formatPrice(p.price * (item.qty ?? 1)) : ""}
                       </span>
                     </div>
                   );
@@ -288,7 +281,7 @@ export function CheckoutModal({
               )}
               {paymentMethod === PaymentMethod.Card && (
                 <p className="text-xs text-gray-400 mt-2">
-                  You'll be redirected to Stripe secure checkout.
+                  Card payment coming soon. Please use UPI or COD.
                 </p>
               )}
             </div>

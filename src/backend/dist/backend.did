@@ -1,0 +1,116 @@
+type UserProfile = 
+ record {
+   email: text;
+   name: text;
+   phone: text;
+ };
+type StripeSessionStatus = 
+ variant {
+   Complete;
+   Expired;
+   Open;
+ };
+type StripeConfiguration = 
+ record {
+   publishableKey: text;
+   secretKey: text;
+ };
+type ShoppingItem = 
+ record {
+   amount: nat;
+   currency: text;
+   name: text;
+   quantity: nat;
+ };
+type Product = 
+ record {
+   category: Category;
+   description: text;
+   id: text;
+   imageUrl: text;
+   isAvailable: bool;
+   name: text;
+   price: nat;
+   stockQuantity: nat;
+ };
+type PaymentMethod = 
+ variant {
+   COD;
+   Card;
+   UPI;
+ };
+type OrderStatus = 
+ variant {
+   Cancelled;
+   Completed;
+   Pending;
+   Processing;
+ };
+type Order = 
+ record {
+   customerEmail: text;
+   customerId: principal;
+   customerName: text;
+   customerPhone: text;
+   deliveryAddress: opt text;
+   deliveryType: DeliveryType;
+   id: nat;
+   items: vec CartItem;
+   orderStatus: OrderStatus;
+   paymentMethod: PaymentMethod;
+   timestamp: int;
+   totalAmount: nat;
+ };
+type DeliveryType = 
+ variant {
+   Delivery;
+   Pickup;
+ };
+type Category = 
+ variant {
+   Electrical;
+   InternetCafe;
+   PhotoBinding;
+ };
+type CartItem = 
+ record {
+   productId: text;
+   quantity: nat;
+ };
+service : {
+  addProduct: (product: Product) -> ();
+  addToCart: (productId: text, quantity: nat) -> ();
+  clearCart: () -> ();
+  createCheckoutSession: (items: vec ShoppingItem, successUrl: text,
+   cancelUrl: text) -> (text);
+  createOrder: (customerName: text, customerPhone: text, customerEmail: 
+   text, paymentMethod: PaymentMethod, deliveryType: DeliveryType,
+   deliveryAddress: opt text) -> (nat);
+  deleteAdminSetting: (key: text) -> ();
+  getAdminSetting: (key: text) -> (opt text) query;
+  getAllAdminSettings: () -> (vec record {
+                                    text;
+                                    text;
+                                  }) query;
+  getAllOrders: () -> (vec Order) query;
+  getAllProducts: () -> (vec Product) query;
+  getCallerUserProfile: () -> (opt UserProfile) query;
+  getCart: () -> (vec CartItem) query;
+  getFounderPhotoHash: () -> (opt blob) query;
+  getOrder: (orderId: nat) -> (opt Order) query;
+  getOrdersByCustomer: (customerEmail: text) -> (vec Order) query;
+  getProductById: (productId: text) -> (opt Product) query;
+  getProductsByCategory: (category: Category) -> (vec Product) query;
+  getStripeSessionStatus: (sessionId: text) -> (StripeSessionStatus);
+  getUserProfile: (user: principal) -> (opt UserProfile) query;
+  isStripeConfigured: () -> (bool) query;
+  removeFounderPhoto: () -> ();
+  removeFromCart: (productId: text) -> ();
+  removeProduct: (productId: text) -> ();
+  saveCallerUserProfile: (profile: UserProfile) -> ();
+  setAdminSetting: (key: text, value: text) -> ();
+  setFounderPhoto: (hash: blob) -> ();
+  setStripeConfiguration: (config: StripeConfiguration) -> ();
+  updateOrderStatus: (orderId: nat, status: OrderStatus) -> ();
+  updateProduct: (product: Product) -> ();
+}

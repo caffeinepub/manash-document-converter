@@ -48,74 +48,26 @@ export interface Product {
   'price' : bigint,
 }
 export interface ShoppingItem {
-  'productName' : string,
+  'name' : string,
   'currency' : string,
   'quantity' : bigint,
-  'priceInCents' : bigint,
-  'productDescription' : string,
+  'amount' : bigint,
 }
 export interface StripeConfiguration {
-  'allowedCountries' : Array<string>,
   'secretKey' : string,
+  'publishableKey' : string,
 }
-export type StripeSessionStatus = {
-    'completed' : { 'userPrincipal' : [] | [string], 'response' : string }
-  } |
-  { 'failed' : { 'error' : string } };
-export interface TransformationInput {
-  'context' : Uint8Array,
-  'response' : http_request_result,
-}
-export interface TransformationOutput {
-  'status' : bigint,
-  'body' : Uint8Array,
-  'headers' : Array<http_header>,
-}
+export type StripeSessionStatus = { 'Open' : null } |
+  { 'Complete' : null } |
+  { 'Expired' : null };
 export interface UserProfile {
   'name' : string,
   'email' : string,
   'phone' : string,
 }
-export type UserRole = { 'admin' : null } |
-  { 'user' : null } |
-  { 'guest' : null };
-export interface _CaffeineStorageCreateCertificateResult {
-  'method' : string,
-  'blob_hash' : string,
-}
-export interface _CaffeineStorageRefillInformation {
-  'proposed_top_up_amount' : [] | [bigint],
-}
-export interface _CaffeineStorageRefillResult {
-  'success' : [] | [boolean],
-  'topped_up_amount' : [] | [bigint],
-}
-export interface http_header { 'value' : string, 'name' : string }
-export interface http_request_result {
-  'status' : bigint,
-  'body' : Uint8Array,
-  'headers' : Array<http_header>,
-}
 export interface _SERVICE {
-  '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
-  '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
-  '_caffeineStorageConfirmBlobDeletion' : ActorMethod<
-    [Array<Uint8Array>],
-    undefined
-  >,
-  '_caffeineStorageCreateCertificate' : ActorMethod<
-    [string],
-    _CaffeineStorageCreateCertificateResult
-  >,
-  '_caffeineStorageRefillCashier' : ActorMethod<
-    [[] | [_CaffeineStorageRefillInformation]],
-    _CaffeineStorageRefillResult
-  >,
-  '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
-  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addProduct' : ActorMethod<[Product], undefined>,
   'addToCart' : ActorMethod<[string, bigint], undefined>,
-  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'clearCart' : ActorMethod<[], undefined>,
   'createCheckoutSession' : ActorMethod<
     [Array<ShoppingItem>, string, string],
@@ -125,10 +77,12 @@ export interface _SERVICE {
     [string, string, string, PaymentMethod, DeliveryType, [] | [string]],
     bigint
   >,
+  'deleteAdminSetting' : ActorMethod<[string], undefined>,
+  'getAdminSetting' : ActorMethod<[string], [] | [string]>,
+  'getAllAdminSettings' : ActorMethod<[], Array<[string, string]>>,
   'getAllOrders' : ActorMethod<[], Array<Order>>,
   'getAllProducts' : ActorMethod<[], Array<Product>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
-  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getCart' : ActorMethod<[], Array<CartItem>>,
   'getFounderPhotoHash' : ActorMethod<[], [] | [Uint8Array]>,
   'getOrder' : ActorMethod<[bigint], [] | [Order]>,
@@ -137,15 +91,14 @@ export interface _SERVICE {
   'getProductsByCategory' : ActorMethod<[Category], Array<Product>>,
   'getStripeSessionStatus' : ActorMethod<[string], StripeSessionStatus>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
-  'isCallerAdmin' : ActorMethod<[], boolean>,
   'isStripeConfigured' : ActorMethod<[], boolean>,
   'removeFounderPhoto' : ActorMethod<[], undefined>,
   'removeFromCart' : ActorMethod<[string], undefined>,
   'removeProduct' : ActorMethod<[string], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'setAdminSetting' : ActorMethod<[string, string], undefined>,
   'setFounderPhoto' : ActorMethod<[Uint8Array], undefined>,
   'setStripeConfiguration' : ActorMethod<[StripeConfiguration], undefined>,
-  'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
   'updateOrderStatus' : ActorMethod<[bigint, OrderStatus], undefined>,
   'updateProduct' : ActorMethod<[Product], undefined>,
 }

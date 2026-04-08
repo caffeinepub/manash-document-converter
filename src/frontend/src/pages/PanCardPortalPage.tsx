@@ -234,12 +234,6 @@ function loadPanFaqs() {
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
-// Helper to add alpha transparency to oklch color strings
-function makeAlpha(color: string, alpha: number): string {
-  const base = color.endsWith(")") ? color.slice(0, -1) : color;
-  return `${base} / ${String(alpha)})`;
-}
-
 export function PanCardPortalPage() {
   // Read from localStorage with defaults
   const panHeroText = (() => {
@@ -361,7 +355,10 @@ export function PanCardPortalPage() {
   return (
     <main
       className="min-h-screen"
-      style={{ background: "oklch(0.12 0.03 250)" }}
+      style={{
+        background:
+          "linear-gradient(160deg, #FFF0F6 0%, #F0F8FF 50%, #FFF0F6 100%)",
+      }}
     >
       {/* ── Hero ── */}
       <section
@@ -384,17 +381,18 @@ export function PanCardPortalPage() {
           className="relative px-4 py-14 text-center"
           style={{
             background:
-              "linear-gradient(160deg, oklch(0.14 0.05 250) 0%, oklch(0.10 0.04 260) 60%, oklch(0.13 0.04 255) 100%)",
+              "linear-gradient(135deg, rgba(255,182,217,0.25) 0%, rgba(180,231,255,0.2) 100%)",
+            backdropFilter: "blur(20px)",
           }}
         >
-          {/* Decorative circles */}
+          {/* Decorative blobs */}
           <div
-            className="absolute top-6 left-8 w-32 h-32 rounded-full opacity-10 blur-2xl"
-            style={{ background: "#FF9933" }}
+            className="absolute top-6 left-8 w-48 h-48 rounded-full opacity-30 blur-3xl pointer-events-none"
+            style={{ background: "#FFB6D9" }}
           />
           <div
-            className="absolute bottom-4 right-8 w-40 h-40 rounded-full opacity-10 blur-2xl"
-            style={{ background: "#138808" }}
+            className="absolute bottom-4 right-8 w-56 h-56 rounded-full opacity-20 blur-3xl pointer-events-none"
+            style={{ background: "#B4E7FF" }}
           />
 
           <div className="relative max-w-4xl mx-auto">
@@ -402,15 +400,20 @@ export function PanCardPortalPage() {
             <div
               className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6 mx-auto animate-float"
               style={{
-                background: "oklch(0.20 0.06 250)",
-                border: "2px solid oklch(0.78 0.18 65 / 0.5)",
-                boxShadow: "0 0 24px oklch(0.78 0.18 65 / 0.2)",
+                background: "rgba(255,255,255,0.9)",
+                border: "2px solid rgba(255,182,217,0.6)",
+                boxShadow: "0 8px 32px rgba(255,182,217,0.3)",
+                backdropFilter: "blur(10px)",
               }}
               aria-hidden
             >
               <span
                 className="text-3xl font-bold"
-                style={{ color: "oklch(0.78 0.18 65)" }}
+                style={{
+                  background: "linear-gradient(135deg, #be185d, #7c3aed)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
               >
                 ☸
               </span>
@@ -418,21 +421,23 @@ export function PanCardPortalPage() {
 
             <div className="flex items-center justify-center gap-2 mb-3">
               <Badge
-                className="text-xs px-3 py-1"
+                className="text-xs px-3 py-1 rounded-full"
                 style={{
-                  background: "oklch(0.20 0.12 145 / 0.8)",
-                  color: "oklch(0.88 0.16 145)",
-                  border: "1px solid oklch(0.40 0.14 145 / 0.5)",
+                  background: "rgba(180,231,255,0.3)",
+                  color: "#0369a1",
+                  border: "1px solid rgba(180,231,255,0.6)",
+                  backdropFilter: "blur(10px)",
                 }}
               >
                 🇮🇳 Digital India Initiative
               </Badge>
               <Badge
-                className="text-xs px-3 py-1"
+                className="text-xs px-3 py-1 rounded-full"
                 style={{
-                  background: "oklch(0.20 0.08 65 / 0.8)",
-                  color: "oklch(0.88 0.18 65)",
-                  border: "1px solid oklch(0.78 0.18 65 / 0.4)",
+                  background: "rgba(255,182,217,0.25)",
+                  color: "#be185d",
+                  border: "1px solid rgba(255,182,217,0.5)",
+                  backdropFilter: "blur(10px)",
                 }}
               >
                 Income Tax Department
@@ -440,18 +445,21 @@ export function PanCardPortalPage() {
             </div>
 
             <h1
-              className="text-4xl md:text-5xl font-bold mb-3 gradient-text-gold"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-4xl md:text-5xl font-bold mb-3"
+              style={{
+                background:
+                  "linear-gradient(135deg, #be185d, #7c3aed, #0369a1)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                fontFamily: "'Playfair Display', serif",
+              }}
             >
               {panHeroText.title}
             </h1>
-            <p
-              className="text-lg mb-2"
-              style={{ color: "oklch(0.82 0.04 240)" }}
-            >
+            <p className="text-lg mb-2 text-slate-600">
               {panHeroText.subtitle}
             </p>
-            <p className="text-sm" style={{ color: "oklch(0.6 0.04 240)" }}>
+            <p className="text-sm text-slate-500">
               Apply, Update, Track, and Manage your PAN Card through official
               portals
             </p>
@@ -465,8 +473,13 @@ export function PanCardPortalPage() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center gap-2 text-sm"
-                  style={{ color: "oklch(0.75 0.04 240)" }}
+                  className="flex items-center gap-2 text-sm px-4 py-2 rounded-2xl"
+                  style={{
+                    background: "rgba(255,255,255,0.7)",
+                    border: "1px solid rgba(255,182,217,0.3)",
+                    color: "#64748b",
+                    backdropFilter: "blur(10px)",
+                  }}
                 >
                   <span>{item.icon}</span>
                   <span>{item.label}</span>
@@ -497,11 +510,15 @@ export function PanCardPortalPage() {
         <div className="text-center mb-10">
           <h2
             className="text-2xl md:text-3xl font-bold mb-2"
-            style={{ color: "oklch(0.78 0.18 65)" }}
+            style={{
+              background: "linear-gradient(135deg, #be185d, #7c3aed)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
           >
             Select a Service
           </h2>
-          <p style={{ color: "oklch(0.65 0.04 240)" }}>
+          <p className="text-slate-500">
             Click any service to view details and proceed
           </p>
         </div>
@@ -523,36 +540,34 @@ export function PanCardPortalPage() {
                 type="button"
                 data-ocid={`pan.service.${i + 1}.button`}
                 onClick={() => handleServiceClick(svc.id as ServiceId)}
-                className={`text-left rounded-xl p-5 transition-all duration-300 hover-lift focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 ${
-                  activeService === svc.id ? "ring-2" : ""
+                className={`text-left rounded-3xl p-5 transition-all duration-300 hover:scale-[1.03] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 ${
+                  activeService === svc.id ? "scale-[1.02]" : ""
                 }`}
                 style={{
                   background:
                     activeService === svc.id
-                      ? "oklch(0.20 0.08 65 / 0.25)"
-                      : "oklch(0.16 0.04 250)",
+                      ? "rgba(255,255,255,0.98)"
+                      : "rgba(255,255,255,0.88)",
                   border:
                     activeService === svc.id
-                      ? "1px solid oklch(0.78 0.18 65 / 0.6)"
-                      : "1px solid oklch(0.25 0.06 250)",
+                      ? "2px solid rgba(255,182,217,0.7)"
+                      : "1.5px solid rgba(255,182,217,0.25)",
                   boxShadow:
                     activeService === svc.id
-                      ? "0 0 20px oklch(0.78 0.18 65 / 0.15)"
-                      : "none",
+                      ? "0 8px 32px rgba(255,182,217,0.3)"
+                      : "0 2px 12px rgba(255,182,217,0.08)",
+                  backdropFilter: "blur(10px)",
                   animationDelay: `${i * 60}ms`,
                 }}
               >
                 <div
-                  className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
                   style={{
                     background:
                       activeService === svc.id
-                        ? "oklch(0.78 0.18 65 / 0.2)"
-                        : "oklch(0.20 0.06 250)",
-                    color:
-                      activeService === svc.id
-                        ? "oklch(0.88 0.18 65)"
-                        : "oklch(0.72 0.18 200)",
+                        ? "linear-gradient(135deg, #FFB6D9, #B4E7FF)"
+                        : "rgba(255,182,217,0.12)",
+                    color: activeService === svc.id ? "#7c3aed" : "#be185d",
                   }}
                 >
                   {getServiceIcon(svc.id)}
@@ -560,51 +575,44 @@ export function PanCardPortalPage() {
 
                 {svc.badge && (
                   <span
-                    className="inline-block text-xs px-2 py-0.5 rounded-full mb-2"
+                    className="inline-block text-xs px-2.5 py-0.5 rounded-full mb-2"
                     style={{
-                      background: "oklch(0.20 0.10 145 / 0.6)",
-                      color: "oklch(0.80 0.15 145)",
-                      border: "1px solid oklch(0.40 0.12 145 / 0.4)",
+                      background: "rgba(180,231,255,0.2)",
+                      color: "#0369a1",
+                      border: "1px solid rgba(180,231,255,0.5)",
                     }}
                   >
                     {svc.badge}
                   </span>
                 )}
 
-                <h3
-                  className="font-semibold text-sm mb-1 leading-tight"
-                  style={{ color: "oklch(0.94 0.02 240)" }}
-                >
+                <h3 className="font-semibold text-sm mb-1 leading-tight text-slate-800">
                   {svc.title}
                 </h3>
-                <p
-                  className="text-xs mb-3 leading-relaxed"
-                  style={{ color: "oklch(0.6 0.04 240)" }}
-                >
+                <p className="text-xs mb-3 leading-relaxed text-slate-500">
                   {svc.desc}
                 </p>
                 <div className="flex items-center justify-between">
                   <span
                     className="text-sm font-bold"
-                    style={{ color: "oklch(0.78 0.18 65)" }}
+                    style={{
+                      background: "linear-gradient(135deg, #be185d, #7c3aed)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}
                   >
                     {svc.fee}
                   </span>
                   <span
-                    className="flex items-center gap-1 text-xs"
+                    className="flex items-center gap-1 text-xs font-medium"
                     style={{
-                      color:
-                        activeService === svc.id
-                          ? "oklch(0.78 0.18 65)"
-                          : "oklch(0.55 0.04 240)",
+                      color: activeService === svc.id ? "#be185d" : "#94a3b8",
                     }}
                   >
                     {activeService === svc.id ? "Hide form" : "Proceed"}
                     <ArrowRight
                       size={12}
-                      className={`transition-transform duration-200 ${
-                        activeService === svc.id ? "rotate-90" : ""
-                      }`}
+                      className={`transition-transform duration-200 ${activeService === svc.id ? "rotate-90" : ""}`}
                     />
                   </span>
                 </div>
@@ -622,19 +630,21 @@ export function PanCardPortalPage() {
             data-ocid="pan.form.section"
           >
             <div
-              className="rounded-2xl p-6 md:p-8"
+              className="rounded-3xl p-6 md:p-8"
               style={{
-                background: "oklch(0.15 0.045 250)",
-                border: "1px solid oklch(0.28 0.08 65 / 0.4)",
-                boxShadow: "0 8px 32px oklch(0 0 0 / 0.4)",
+                background: "rgba(255,255,255,0.95)",
+                border: "1.5px solid rgba(255,182,217,0.4)",
+                backdropFilter: "blur(20px)",
+                boxShadow: "0 8px 40px rgba(255,182,217,0.2)",
               }}
             >
-              {/* Form header with tri-color accent */}
-              <div className="flex h-1 w-full rounded-full mb-6 overflow-hidden">
-                <div className="flex-1" style={{ background: "#FF9933" }} />
-                <div className="flex-1" style={{ background: "#FFFFFF" }} />
-                <div className="flex-1" style={{ background: "#138808" }} />
-              </div>
+              {/* Pink-Sky top accent */}
+              <div
+                className="h-1 w-full rounded-full mb-6"
+                style={{
+                  background: "linear-gradient(90deg, #FFB6D9, #B4E7FF)",
+                }}
+              />
 
               {activeService === "apply-49a" && <Form49A />}
               {activeService === "apply-49aa" && <Form49AA />}
@@ -662,39 +672,44 @@ export function PanCardPortalPage() {
         <div className="text-center mb-8">
           <h2
             className="text-2xl md:text-3xl font-bold mb-2"
-            style={{ color: "oklch(0.78 0.18 65)" }}
+            style={{
+              background: "linear-gradient(135deg, #be185d, #7c3aed)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
           >
             Fee Structure
           </h2>
-          <p style={{ color: "oklch(0.65 0.04 240)" }}>
+          <p className="text-slate-500">
             As prescribed by NSDL e-Gov / UTIITSL
           </p>
         </div>
 
         <div
-          className="rounded-xl overflow-hidden"
-          style={{ border: "1px solid oklch(0.25 0.06 250)" }}
+          className="rounded-3xl overflow-hidden"
+          style={{
+            border: "1.5px solid rgba(255,182,217,0.3)",
+            backdropFilter: "blur(10px)",
+            background: "rgba(255,255,255,0.9)",
+            boxShadow: "0 4px 20px rgba(255,182,217,0.1)",
+          }}
         >
           <Table>
             <TableHeader>
               <TableRow
                 style={{
-                  background: "oklch(0.18 0.05 250)",
-                  borderBottom: "1px solid oklch(0.28 0.07 250)",
+                  background: "linear-gradient(135deg, #FFB6D9, #B4E7FF)",
+                  borderBottom: "none",
                 }}
               >
-                <TableHead style={{ color: "oklch(0.78 0.18 65)" }}>
-                  Service
-                </TableHead>
-                <TableHead style={{ color: "oklch(0.78 0.18 65)" }}>
+                <TableHead className="text-white font-bold">Service</TableHead>
+                <TableHead className="text-white font-bold">
                   Indian Address
                 </TableHead>
-                <TableHead style={{ color: "oklch(0.78 0.18 65)" }}>
+                <TableHead className="text-white font-bold">
                   Foreign Address
                 </TableHead>
-                <TableHead style={{ color: "oklch(0.78 0.18 65)" }}>
-                  Notes
-                </TableHead>
+                <TableHead className="text-white font-bold">Notes</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -714,39 +729,26 @@ export function PanCardPortalPage() {
                     style={{
                       background:
                         i % 2 === 0
-                          ? "oklch(0.14 0.04 250)"
-                          : "oklch(0.16 0.04 250)",
-                      borderBottom: "1px solid oklch(0.22 0.05 250)",
+                          ? "rgba(255,255,255,0.8)"
+                          : "rgba(255,182,217,0.05)",
+                      borderBottom: "1px solid rgba(255,182,217,0.15)",
                     }}
                     data-ocid={`pan.fees.row.${i + 1}`}
                   >
-                    <TableCell
-                      style={{ color: "oklch(0.88 0.02 240)", fontWeight: 500 }}
-                    >
+                    <TableCell className="font-medium text-slate-700">
                       {row.service}
                     </TableCell>
                     <TableCell>
-                      <span
-                        className="font-semibold"
-                        style={{ color: "oklch(0.78 0.18 65)" }}
-                      >
+                      <span className="font-semibold text-pink-600">
                         {row.indian}
                       </span>
                     </TableCell>
                     <TableCell>
-                      <span
-                        className="font-semibold"
-                        style={{ color: "oklch(0.72 0.18 200)" }}
-                      >
+                      <span className="font-semibold text-sky-600">
                         {row.foreign}
                       </span>
                     </TableCell>
-                    <TableCell
-                      style={{
-                        color: "oklch(0.6 0.04 240)",
-                        fontSize: "0.8rem",
-                      }}
-                    >
+                    <TableCell className="text-slate-500 text-xs">
                       {row.notes}
                     </TableCell>
                   </TableRow>
@@ -770,11 +772,15 @@ export function PanCardPortalPage() {
         <div className="text-center mb-8">
           <h2
             className="text-2xl font-bold mb-2"
-            style={{ color: "oklch(0.78 0.18 65)" }}
+            style={{
+              background: "linear-gradient(135deg, #0369a1, #7c3aed)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
           >
             Official Government Links
           </h2>
-          <p style={{ color: "oklch(0.65 0.04 240)" }}>
+          <p className="text-slate-500">
             All actual applications are processed on official portals
           </p>
         </div>
@@ -790,52 +796,38 @@ export function PanCardPortalPage() {
                 color?: string;
               },
               i: number,
-            ) => {
-              const linkColor = link.color || "oklch(0.78 0.18 65)";
-              return (
-                <a
-                  key={link.id || link.title}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-ocid={`pan.link.${i + 1}`}
-                  className="group flex items-start gap-3 rounded-xl p-4 transition-all duration-300 hover-lift"
+            ) => (
+              <a
+                key={link.id || link.title}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-ocid={`pan.link.${i + 1}`}
+                className="group flex items-start gap-3 rounded-3xl p-4 transition-all duration-300 hover:scale-[1.03] hover:shadow-lg"
+                style={{
+                  background: "rgba(255,255,255,0.88)",
+                  border: "1.5px solid rgba(255,182,217,0.25)",
+                  backdropFilter: "blur(10px)",
+                }}
+              >
+                <div
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 mt-0.5 transition-transform group-hover:scale-110"
                   style={{
-                    background: "oklch(0.16 0.04 250)",
-                    border: "1px solid oklch(0.25 0.06 250)",
+                    background: "linear-gradient(135deg, #FFB6D9, #B4E7FF)",
                   }}
                 >
-                  <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-                    style={{
-                      background: makeAlpha(linkColor, 0.15),
-                      color: linkColor,
-                    }}
-                  >
-                    <ExternalLink size={20} />
+                  <ExternalLink size={18} className="text-white" />
+                </div>
+                <div className="min-w-0">
+                  <div className="font-semibold text-sm mb-0.5 text-slate-700 group-hover:text-pink-600 transition-colors">
+                    {link.title}
                   </div>
-                  <div className="min-w-0">
-                    <div
-                      className="font-semibold text-sm mb-0.5 group-hover:underline"
-                      style={{ color: "oklch(0.88 0.02 240)" }}
-                    >
-                      {link.title}
-                    </div>
-                    <div
-                      className="text-xs truncate"
-                      style={{ color: "oklch(0.55 0.04 240)" }}
-                    >
-                      {link.sub}
-                    </div>
+                  <div className="text-xs truncate text-slate-400">
+                    {link.sub}
                   </div>
-                  <ExternalLink
-                    size={14}
-                    className="flex-shrink-0 mt-1"
-                    style={{ color: "oklch(0.5 0.04 240)" }}
-                  />
-                </a>
-              );
-            },
+                </div>
+              </a>
+            ),
           )}
         </div>
       </section>
@@ -853,9 +845,13 @@ export function PanCardPortalPage() {
         <div className="text-center mb-8">
           <h2
             className="text-2xl font-bold mb-2 flex items-center justify-center gap-2"
-            style={{ color: "oklch(0.78 0.18 65)" }}
+            style={{
+              background: "linear-gradient(135deg, #be185d, #7c3aed)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
           >
-            <HelpCircle size={22} />
+            <HelpCircle size={22} className="text-pink-400" />
             Frequently Asked Questions
           </h2>
         </div>
@@ -865,28 +861,21 @@ export function PanCardPortalPage() {
       {/* ── Disclaimer ── */}
       <footer
         className="max-w-7xl mx-auto px-4 py-8 text-center"
-        style={{ borderTop: "1px solid oklch(0.22 0.05 250)" }}
+        style={{ borderTop: "1px solid rgba(255,182,217,0.2)" }}
       >
         <div className="flex items-start gap-2 justify-center max-w-3xl mx-auto">
           <AlertCircle
             size={16}
-            className="flex-shrink-0 mt-0.5"
-            style={{ color: "oklch(0.65 0.15 65)" }}
+            className="flex-shrink-0 mt-0.5 text-pink-400"
           />
-          <p
-            className="text-xs text-left"
-            style={{ color: "oklch(0.5 0.04 240)" }}
-          >
-            <strong style={{ color: "oklch(0.65 0.08 65)" }}>
-              Disclaimer:
-            </strong>{" "}
-            This portal provides guidance and assistance for PAN card services.
-            All actual applications are processed exclusively by NSDL e-Gov,
-            UTIITSL, and the Income Tax Department, Government of India. Manash
-            PC World 2.0 is not affiliated with, endorsed by, or representing
-            the Government of India or any of its departments. All fees and
-            details are subject to change; verify on the official portal before
-            applying.
+          <p className="text-xs text-left text-slate-400">
+            <strong className="text-slate-600">Disclaimer:</strong> This portal
+            provides guidance and assistance for PAN card services. All actual
+            applications are processed exclusively by NSDL e-Gov, UTIITSL, and
+            the Income Tax Department, Government of India. Manash PC World 2.0
+            is not affiliated with, endorsed by, or representing the Government
+            of India or any of its departments. All fees and details are subject
+            to change; verify on the official portal before applying.
           </p>
         </div>
       </footer>
@@ -906,28 +895,28 @@ function FormHeading({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <h2
           className="text-xl font-bold"
-          style={{ color: "oklch(0.78 0.18 65)" }}
+          style={{
+            background: "linear-gradient(135deg, #be185d, #7c3aed)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
         >
           {title}
         </h2>
         <span
           className="text-sm px-3 py-1 rounded-full font-semibold"
           style={{
-            background: "oklch(0.22 0.08 65 / 0.4)",
-            color: "oklch(0.85 0.18 65)",
-            border: "1px solid oklch(0.78 0.18 65 / 0.3)",
+            background: "rgba(255,182,217,0.15)",
+            color: "#be185d",
+            border: "1px solid rgba(255,182,217,0.4)",
           }}
         >
           Fee: {fee}
         </span>
       </div>
       {external && (
-        <p className="text-xs mt-2" style={{ color: "oklch(0.6 0.04 240)" }}>
-          <CheckCircle
-            size={12}
-            className="inline mr-1"
-            style={{ color: "oklch(0.65 0.16 145)" }}
-          />
+        <p className="text-xs mt-2 text-slate-500">
+          <CheckCircle size={12} className="inline mr-1 text-emerald-500" />
           Your application will be processed on the official government portal.
         </p>
       )}
@@ -948,11 +937,7 @@ function FormField({
 }: { label: string; id: string; children: React.ReactNode }) {
   return (
     <div>
-      <Label
-        htmlFor={id}
-        className="text-sm mb-1.5 block"
-        style={{ color: "oklch(0.78 0.04 240)" }}
-      >
+      <Label htmlFor={id} className="text-sm mb-1.5 block text-slate-600">
         {label}
       </Label>
       {children}
@@ -964,11 +949,11 @@ function StyledInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <Input
       {...props}
-      className="w-full"
+      className="w-full rounded-xl h-11"
       style={{
-        background: "oklch(0.12 0.03 250)",
-        border: "1px solid oklch(0.28 0.07 250)",
-        color: "oklch(0.92 0.02 240)",
+        background: "rgba(255,255,255,0.9)",
+        border: "1.5px solid rgba(255,182,217,0.4)",
+        color: "#1e293b",
       }}
     />
   );
@@ -980,11 +965,11 @@ function StyledTextarea(
   return (
     <Textarea
       {...props}
-      className="w-full"
+      className="w-full rounded-xl"
       style={{
-        background: "oklch(0.12 0.03 250)",
-        border: "1px solid oklch(0.28 0.07 250)",
-        color: "oklch(0.92 0.02 240)",
+        background: "rgba(255,255,255,0.9)",
+        border: "1.5px solid rgba(255,182,217,0.4)",
+        color: "#1e293b",
         minHeight: "80px",
       }}
     />
@@ -1008,26 +993,23 @@ function StyledSelect({
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger
         id={id}
+        className="rounded-xl h-11"
         style={{
-          background: "oklch(0.12 0.03 250)",
-          border: "1px solid oklch(0.28 0.07 250)",
-          color: value ? "oklch(0.92 0.02 240)" : "oklch(0.55 0.04 240)",
+          background: "rgba(255,255,255,0.9)",
+          border: "1.5px solid rgba(255,182,217,0.4)",
+          color: value ? "#1e293b" : "#94a3b8",
         }}
       >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent
         style={{
-          background: "oklch(0.16 0.04 250)",
-          border: "1px solid oklch(0.28 0.07 250)",
+          background: "rgba(255,255,255,0.98)",
+          border: "1px solid rgba(255,182,217,0.3)",
         }}
       >
         {options.map((o) => (
-          <SelectItem
-            key={o}
-            value={o}
-            style={{ color: "oklch(0.88 0.02 240)" }}
-          >
+          <SelectItem key={o} value={o} className="text-slate-700">
             {o}
           </SelectItem>
         ))}
@@ -1044,14 +1026,11 @@ function SubmitButton({
   return (
     <div
       className="mt-6 pt-4"
-      style={{ borderTop: "1px solid oklch(0.22 0.05 250)" }}
+      style={{ borderTop: "1px solid rgba(255,182,217,0.2)" }}
     >
       {note && (
-        <p
-          className="text-xs mb-3 flex items-center gap-1.5"
-          style={{ color: "oklch(0.65 0.04 240)" }}
-        >
-          <AlertCircle size={12} style={{ color: "oklch(0.78 0.18 65)" }} />
+        <p className="text-xs mb-3 flex items-center gap-1.5 text-slate-500">
+          <AlertCircle size={12} className="text-pink-400" />
           {note}
         </p>
       )}
@@ -1063,10 +1042,12 @@ function SubmitButton({
           data-ocid="pan.form.submit_button"
         >
           <Button
-            className="w-full md:w-auto font-semibold"
+            className="w-full md:w-auto font-semibold rounded-2xl transition-all hover:scale-105"
             style={{
-              background: "oklch(0.78 0.18 65)",
-              color: "oklch(0.12 0.03 250)",
+              background: "linear-gradient(135deg, #FFB6D9, #B4E7FF)",
+              color: "#7c3aed",
+              border: "none",
+              boxShadow: "0 4px 16px rgba(255,182,217,0.4)",
             }}
           >
             {label} <ExternalLink size={14} className="ml-2" />
@@ -1075,11 +1056,13 @@ function SubmitButton({
       ) : (
         <Button
           type="submit"
-          className="w-full md:w-auto font-semibold"
+          className="w-full md:w-auto font-semibold rounded-2xl transition-all hover:scale-105"
           data-ocid="pan.form.submit_button"
           style={{
-            background: "oklch(0.78 0.18 65)",
-            color: "oklch(0.12 0.03 250)",
+            background: "linear-gradient(135deg, #FFB6D9, #B4E7FF)",
+            color: "#7c3aed",
+            border: "none",
+            boxShadow: "0 4px 16px rgba(255,182,217,0.4)",
           }}
         >
           {label}
@@ -1136,8 +1119,7 @@ function Form49A() {
             {["Male", "Female", "Transgender"].map((g) => (
               <label
                 key={g}
-                className="flex items-center gap-1.5 cursor-pointer text-sm"
-                style={{ color: "oklch(0.80 0.04 240)" }}
+                className="flex items-center gap-1.5 cursor-pointer text-sm text-slate-600"
               >
                 <input
                   type="radio"
@@ -1145,7 +1127,7 @@ function Form49A() {
                   value={g}
                   checked={gender === g}
                   onChange={() => setGender(g)}
-                  className="accent-yellow-400"
+                  className="accent-pink-400"
                 />
                 {g}
               </label>
@@ -1393,10 +1375,7 @@ function FormCorrection() {
       </FieldRow>
 
       <div className="mb-4">
-        <Label
-          className="text-sm mb-2 block"
-          style={{ color: "oklch(0.78 0.04 240)" }}
-        >
+        <Label className="text-sm mb-2 block text-slate-600">
           Correction Required In (select all that apply) *
         </Label>
         <div className="flex flex-wrap gap-4 mt-1">
@@ -1411,14 +1390,13 @@ function FormCorrection() {
           ].map((item) => (
             <label
               key={item}
-              className="flex items-center gap-2 cursor-pointer text-sm"
-              style={{ color: "oklch(0.80 0.04 240)" }}
+              className="flex items-center gap-2 cursor-pointer text-sm text-slate-600"
             >
               <input
                 type="checkbox"
                 checked={corrections.includes(item)}
                 onChange={() => toggleCorrection(item)}
-                className="accent-yellow-400 w-4 h-4"
+                className="accent-pink-400 w-4 h-4"
               />
               {item}
             </label>
@@ -1558,10 +1536,12 @@ function FormKnowPan() {
         <Button
           type="submit"
           data-ocid="pan.know_pan.submit_button"
-          className="font-semibold"
+          className="font-semibold rounded-2xl transition-all hover:scale-105"
           style={{
-            background: "oklch(0.78 0.18 65)",
-            color: "oklch(0.12 0.03 250)",
+            background: "linear-gradient(135deg, #FFB6D9, #B4E7FF)",
+            color: "#7c3aed",
+            border: "none",
+            boxShadow: "0 4px 16px rgba(255,182,217,0.4)",
           }}
         >
           <Search size={14} className="mr-2" /> Search PAN
@@ -1569,33 +1549,26 @@ function FormKnowPan() {
       </div>
       {searched && (
         <div
-          className="mt-4 rounded-lg p-4 flex items-center gap-3 animate-scale-in"
+          className="mt-4 rounded-2xl p-4 flex items-center gap-3 animate-scale-in"
           style={{
-            background: "oklch(0.18 0.06 250)",
-            border: "1px solid oklch(0.28 0.08 250)",
+            background: "rgba(180,231,255,0.15)",
+            border: "1px solid rgba(180,231,255,0.4)",
           }}
           data-ocid="pan.know_pan.success_state"
         >
-          <AlertCircle size={18} style={{ color: "oklch(0.78 0.18 65)" }} />
+          <AlertCircle size={18} className="text-sky-500" />
           <div>
-            <p
-              className="text-sm font-medium"
-              style={{ color: "oklch(0.88 0.02 240)" }}
-            >
+            <p className="text-sm font-medium text-slate-700">
               Results will appear here
             </p>
-            <p
-              className="text-xs mt-0.5"
-              style={{ color: "oklch(0.6 0.04 240)" }}
-            >
+            <p className="text-xs mt-0.5 text-slate-500">
               This feature connects to the official Income Tax portal. For live
               results, visit{" "}
               <a
                 href="https://www.incometax.gov.in/iec/foportal/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline"
-                style={{ color: "oklch(0.72 0.18 200)" }}
+                className="underline text-sky-600"
               >
                 incometax.gov.in
               </a>
@@ -1649,10 +1622,12 @@ function FormTrack() {
         <Button
           type="submit"
           data-ocid="pan.track.submit_button"
-          className="font-semibold"
+          className="font-semibold rounded-2xl transition-all hover:scale-105"
           style={{
-            background: "oklch(0.78 0.18 65)",
-            color: "oklch(0.12 0.03 250)",
+            background: "linear-gradient(135deg, #FFB6D9, #B4E7FF)",
+            color: "#7c3aed",
+            border: "none",
+            boxShadow: "0 4px 16px rgba(255,182,217,0.4)",
           }}
         >
           <FileSearch size={14} className="mr-2" /> Track Status
@@ -1660,27 +1635,23 @@ function FormTrack() {
       </div>
       {tracked && (
         <div
-          className="mt-4 rounded-lg p-4 animate-scale-in"
+          className="mt-4 rounded-2xl p-4 animate-scale-in"
           style={{
-            background: "oklch(0.18 0.06 250)",
-            border: "1px solid oklch(0.28 0.08 250)",
+            background: "rgba(180,231,255,0.12)",
+            border: "1px solid rgba(180,231,255,0.4)",
           }}
           data-ocid="pan.track.success_state"
         >
-          <p
-            className="text-sm font-medium"
-            style={{ color: "oklch(0.88 0.02 240)" }}
-          >
+          <p className="text-sm font-medium text-slate-700">
             Tracking results will appear here
           </p>
-          <p className="text-xs mt-1" style={{ color: "oklch(0.6 0.04 240)" }}>
+          <p className="text-xs mt-1 text-slate-500">
             For live status, track directly on{" "}
             <a
               href="https://www.onlineservices.nsdl.com/paam/requestAndDownloadEPAN.html"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline"
-              style={{ color: "oklch(0.72 0.18 200)" }}
+              className="underline text-sky-600"
             >
               NSDL portal
             </a>{" "}
@@ -1689,8 +1660,7 @@ function FormTrack() {
               href="https://www.utiitsl.com/UTIITSL_SITE/pan/"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline"
-              style={{ color: "oklch(0.72 0.18 200)" }}
+              className="underline text-sky-600"
             >
               UTIITSL portal
             </a>
@@ -1716,18 +1686,14 @@ function FormLinkAadhaar() {
         external="incometax"
       />
       <div
-        className="mb-4 flex items-start gap-2 p-3 rounded-lg"
+        className="mb-4 flex items-start gap-2 p-3 rounded-2xl"
         style={{
-          background: "oklch(0.20 0.08 65 / 0.2)",
-          border: "1px solid oklch(0.78 0.18 65 / 0.3)",
+          background: "rgba(255,182,217,0.1)",
+          border: "1.5px solid rgba(255,182,217,0.4)",
         }}
       >
-        <AlertCircle
-          size={16}
-          className="flex-shrink-0 mt-0.5"
-          style={{ color: "oklch(0.78 0.18 65)" }}
-        />
-        <p className="text-xs" style={{ color: "oklch(0.80 0.04 240)" }}>
+        <AlertCircle size={16} className="flex-shrink-0 mt-0.5 text-pink-500" />
+        <p className="text-xs text-slate-600">
           <strong>Important:</strong> The deadline for free PAN-Aadhaar linking
           has passed. A late fee of ₹1,000 is applicable. Unlinked PANs have
           been rendered inoperative.
@@ -1839,14 +1805,19 @@ function FaqAccordion({ faqs }: { faqs: { q: string; a: string }[] }) {
       {faqs.map((faq, i) => (
         <div
           key={faq.q}
-          className="rounded-xl overflow-hidden transition-all duration-300"
+          className="rounded-3xl overflow-hidden transition-all duration-300"
           style={{
             border:
               open === i
-                ? "1px solid oklch(0.78 0.18 65 / 0.4)"
-                : "1px solid oklch(0.25 0.06 250)",
+                ? "1.5px solid rgba(255,182,217,0.6)"
+                : "1.5px solid rgba(255,182,217,0.25)",
             background:
-              open === i ? "oklch(0.17 0.05 250)" : "oklch(0.15 0.04 250)",
+              open === i ? "rgba(255,255,255,0.98)" : "rgba(255,255,255,0.88)",
+            backdropFilter: "blur(10px)",
+            boxShadow:
+              open === i
+                ? "0 4px 20px rgba(255,182,217,0.2)"
+                : "0 1px 6px rgba(255,182,217,0.06)",
           }}
           data-ocid={`pan.faq.item.${i + 1}`}
         >
@@ -1856,21 +1827,13 @@ function FaqAccordion({ faqs }: { faqs: { q: string; a: string }[] }) {
             onClick={() => setOpen(open === i ? null : i)}
             data-ocid={`pan.faq.toggle.${i + 1}`}
           >
-            <span
-              className="font-medium text-sm"
-              style={{ color: "oklch(0.90 0.02 240)" }}
-            >
-              {faq.q}
-            </span>
-            <span style={{ color: "oklch(0.78 0.18 65)", flexShrink: 0 }}>
+            <span className="font-medium text-sm text-slate-700">{faq.q}</span>
+            <span className="text-pink-400 flex-shrink-0">
               {open === i ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </span>
           </button>
           {open === i && (
-            <div
-              className="px-4 pb-4 text-sm leading-relaxed animate-slide-down"
-              style={{ color: "oklch(0.70 0.04 240)" }}
-            >
+            <div className="px-4 pb-4 text-sm leading-relaxed text-slate-600 animate-slide-down">
               {faq.a}
             </div>
           )}

@@ -27,20 +27,58 @@ const CATEGORIES = [
   "RTI",
 ];
 
-const CATEGORY_COLORS: Record<string, string> = {
-  "PAN Card": "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  Aadhaar: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  "Assam edistrict": "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  Passport: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
-  "Voter ID": "bg-rose-500/20 text-rose-300 border-rose-500/30",
-  "Driving Licence": "bg-orange-500/20 text-orange-300 border-orange-500/30",
-  "Income Tax": "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
-  "Ration Card": "bg-purple-500/20 text-purple-300 border-purple-500/30",
-  RTI: "bg-teal-500/20 text-teal-300 border-teal-500/30",
+const CATEGORY_COLORS: Record<
+  string,
+  { bg: string; text: string; border: string }
+> = {
+  "PAN Card": {
+    bg: "rgba(255,182,217,0.15)",
+    text: "#be185d",
+    border: "rgba(255,182,217,0.4)",
+  },
+  Aadhaar: {
+    bg: "rgba(180,231,255,0.2)",
+    text: "#0369a1",
+    border: "rgba(180,231,255,0.5)",
+  },
+  "Assam edistrict": {
+    bg: "rgba(110,231,183,0.15)",
+    text: "#065f46",
+    border: "rgba(110,231,183,0.4)",
+  },
+  Passport: {
+    bg: "rgba(167,139,250,0.15)",
+    text: "#6d28d9",
+    border: "rgba(167,139,250,0.4)",
+  },
+  "Voter ID": {
+    bg: "rgba(253,164,175,0.15)",
+    text: "#9f1239",
+    border: "rgba(253,164,175,0.4)",
+  },
+  "Driving Licence": {
+    bg: "rgba(253,186,116,0.15)",
+    text: "#9a3412",
+    border: "rgba(253,186,116,0.4)",
+  },
+  "Income Tax": {
+    bg: "rgba(103,232,249,0.15)",
+    text: "#155e75",
+    border: "rgba(103,232,249,0.4)",
+  },
+  "Ration Card": {
+    bg: "rgba(196,181,253,0.15)",
+    text: "#5b21b6",
+    border: "rgba(196,181,253,0.4)",
+  },
+  RTI: {
+    bg: "rgba(110,231,183,0.1)",
+    text: "#065f46",
+    border: "rgba(110,231,183,0.3)",
+  },
 };
 
 const defaultForms: GovForm[] = [
-  // ── PAN Card ──────────────────────────────────────────────────────────────
   {
     id: "pan-49a",
     title: "Form 49A – Application for PAN (Indian Citizens)",
@@ -84,7 +122,6 @@ const defaultForms: GovForm[] = [
       "https://www.incometax.gov.in/iec/foportal/sites/default/files/Form49A.pdf",
     fileSize: "~180 KB",
   },
-  // ── Aadhaar ───────────────────────────────────────────────────────────────
   {
     id: "aadhaar-enrolment",
     title: "Aadhaar Enrolment / Correction Form (v2.7)",
@@ -140,7 +177,6 @@ const defaultForms: GovForm[] = [
       "https://uidai.gov.in/images/enrollment_doc/aadhaar_data_update_request_form.pdf",
     fileSize: "~280 KB",
   },
-  // ── Assam edistrict – Income & Residence ─────────────────────────────────
   {
     id: "assam-income-cert",
     title: "Income Certificate Application Form",
@@ -181,7 +217,6 @@ const defaultForms: GovForm[] = [
     pdfUrl: "https://edistrict.assam.gov.in/forms/employment_certificate.pdf",
     fileSize: "~138 KB",
   },
-  // ── Assam edistrict – Caste Certificates ─────────────────────────────────
   {
     id: "assam-obc",
     title: "OBC Certificate Application Form",
@@ -232,7 +267,6 @@ const defaultForms: GovForm[] = [
     pdfUrl: "https://edistrict.assam.gov.in/forms/mobc_certificate.pdf",
     fileSize: "~149 KB",
   },
-  // ── Assam edistrict – Birth/Death ─────────────────────────────────────────
   {
     id: "assam-birth",
     title: "Birth Certificate Application Form",
@@ -263,7 +297,6 @@ const defaultForms: GovForm[] = [
     pdfUrl: "https://edistrict.assam.gov.in/forms/birth_correction.pdf",
     fileSize: "~130 KB",
   },
-  // ── Assam edistrict – Land Records ────────────────────────────────────────
   {
     id: "assam-land-holding",
     title: "Land Holding Certificate Form",
@@ -294,7 +327,6 @@ const defaultForms: GovForm[] = [
     pdfUrl: "https://edistrict.assam.gov.in/forms/encumbrance_certificate.pdf",
     fileSize: "~140 KB",
   },
-  // ── Assam edistrict – Marriage & Other ────────────────────────────────────
   {
     id: "assam-marriage",
     title: "Marriage Certificate Application Form",
@@ -335,7 +367,6 @@ const defaultForms: GovForm[] = [
     pdfUrl: "https://edistrict.assam.gov.in/forms/noc_form.pdf",
     fileSize: "~130 KB",
   },
-  // ── Passport ──────────────────────────────────────────────────────────────
   {
     id: "passport-sp-en",
     title: "Passport Application Form SP (Fresh / Renewal) – English",
@@ -380,7 +411,6 @@ const defaultForms: GovForm[] = [
       "https://www.passportindia.gov.in/AppOnlineProject/pdf/policeVerificationForm.pdf",
     fileSize: "~210 KB",
   },
-  // ── Voter ID ──────────────────────────────────────────────────────────────
   {
     id: "voter-form6",
     title: "Form 6 – New Voter Registration",
@@ -432,7 +462,6 @@ const defaultForms: GovForm[] = [
     pdfUrl: "https://www.eci.gov.in/files/file/8883-form-8a/",
     fileSize: "~168 KB",
   },
-  // ── Driving Licence ───────────────────────────────────────────────────────
   {
     id: "dl-form1",
     title: "Form 1 – Medical Certificate",
@@ -488,7 +517,6 @@ const defaultForms: GovForm[] = [
       "https://parivahan.gov.in/parivahan/sites/default/files/pdf/Form_9.pdf",
     fileSize: "~156 KB",
   },
-  // ── Income Tax ────────────────────────────────────────────────────────────
   {
     id: "it-itr1",
     title: "ITR-1 (SAHAJ) – Income Tax Return",
@@ -555,7 +583,6 @@ const defaultForms: GovForm[] = [
       "https://www.incometax.gov.in/iec/foportal/sites/default/files/Form15H.pdf",
     fileSize: "~174 KB",
   },
-  // ── Ration Card ───────────────────────────────────────────────────────────
   {
     id: "ration-new",
     title: "Ration Card New Application Form (Assam)",
@@ -586,7 +613,6 @@ const defaultForms: GovForm[] = [
     pdfUrl: "https://fcscaassam.gov.in/forms/ration_card_surrender.pdf",
     fileSize: "~135 KB",
   },
-  // ── RTI ───────────────────────────────────────────────────────────────────
   {
     id: "rti-application",
     title: "RTI Application Form",
@@ -632,6 +658,12 @@ function useInViewAnim(threshold = 0.1) {
 
 function FormCard({ form }: { form: GovForm }) {
   const { ref, visible } = useInViewAnim();
+  const catColors = CATEGORY_COLORS[form.category] ?? {
+    bg: "rgba(226,232,240,0.3)",
+    text: "#475569",
+    border: "rgba(226,232,240,0.6)",
+  };
+
   return (
     <div
       ref={ref}
@@ -640,60 +672,70 @@ function FormCard({ form }: { form: GovForm }) {
       }`}
     >
       <div
-        className="rounded-xl p-5 flex flex-col gap-3 h-full border transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
+        className="rounded-3xl p-5 flex flex-col gap-3 h-full transition-all duration-200 hover:scale-[1.02] hover:shadow-xl"
         style={{
-          background: "oklch(0.17 0.03 250)",
-          borderColor: "oklch(0.28 0.06 250)",
+          background: "rgba(255,255,255,0.92)",
+          border: "1.5px solid rgba(255,182,217,0.25)",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0 2px 12px rgba(255,182,217,0.08)",
         }}
       >
         <div className="flex items-start justify-between gap-2">
           <div
-            className="p-2 rounded-lg"
-            style={{ background: "oklch(0.22 0.05 250)" }}
+            className="p-2.5 rounded-2xl"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(255,182,217,0.2), rgba(180,231,255,0.2))",
+            }}
           >
-            <FileText size={18} className="text-amber-400" />
+            <FileText size={18} className="text-pink-500" />
           </div>
           <span
-            className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
-              CATEGORY_COLORS[form.category] ??
-              "bg-gray-500/20 text-gray-300 border-gray-500/30"
-            }`}
+            className="text-xs font-semibold px-2.5 py-1 rounded-full border"
+            style={{
+              background: catColors.bg,
+              color: catColors.text,
+              borderColor: catColors.border,
+            }}
           >
             {form.category}
           </span>
         </div>
 
         <div className="flex-1">
-          <h3 className="text-sm font-semibold text-white leading-snug mb-1">
+          <h3 className="text-sm font-semibold text-slate-800 leading-snug mb-1">
             {form.title}
           </h3>
-          <p className="text-xs text-blue-200/70 leading-relaxed line-clamp-3">
+          <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">
             {form.description}
           </p>
         </div>
 
         <div
-          className="flex items-center justify-between gap-2 mt-auto pt-2 border-t"
-          style={{ borderColor: "oklch(0.25 0.05 250)" }}
+          className="flex items-center justify-between gap-2 mt-auto pt-3"
+          style={{ borderTop: "1px solid rgba(255,182,217,0.2)" }}
         >
           <div className="flex items-center gap-2 flex-wrap">
             <span
               className="text-xs px-2 py-0.5 rounded-full"
-              style={{
-                background: "oklch(0.22 0.04 250)",
-                color: "oklch(0.75 0.08 240)",
-              }}
+              style={{ background: "rgba(180,231,255,0.2)", color: "#0369a1" }}
             >
               {form.language}
             </span>
             {form.fileSize && (
-              <span className="text-xs text-gray-400">{form.fileSize}</span>
+              <span className="text-xs text-slate-400">{form.fileSize}</span>
             )}
           </div>
-          <div className="flex gap-1.5 items-center flex-wrap">
+          <div className="flex gap-2 items-center flex-wrap">
             <Button
               size="sm"
-              className="text-xs font-semibold gap-1 shrink-0 bg-blue-600 hover:bg-blue-700 text-white border-0"
+              className="text-xs font-semibold gap-1 shrink-0 rounded-2xl transition-all hover:scale-105"
+              style={{
+                background: "linear-gradient(135deg, #FFB6D9, #f9a8d4)",
+                color: "#9d174d",
+                border: "none",
+                boxShadow: "0 2px 8px rgba(255,182,217,0.4)",
+              }}
               onClick={() => window.open(`/form-guide?id=${form.id}`, "_blank")}
               data-ocid="forms.more_info_button"
             >
@@ -708,12 +750,12 @@ function FormCard({ form }: { form: GovForm }) {
             >
               <Button
                 size="sm"
-                className="text-xs font-semibold gap-1.5 shrink-0"
+                className="text-xs font-semibold gap-1.5 shrink-0 rounded-2xl transition-all hover:scale-105"
                 style={{
-                  background:
-                    "linear-gradient(135deg, oklch(0.72 0.15 65), oklch(0.62 0.18 55))",
-                  color: "oklch(0.12 0.03 250)",
+                  background: "linear-gradient(135deg, #B4E7FF, #93c5fd)",
+                  color: "#0369a1",
                   border: "none",
+                  boxShadow: "0 2px 8px rgba(180,231,255,0.4)",
                 }}
               >
                 <Download size={13} />
@@ -727,15 +769,10 @@ function FormCard({ form }: { form: GovForm }) {
   );
 }
 
-export function AssamFormsPage({
-  navigate,
-}: {
-  navigate: (p: any) => void;
-}) {
+export function AssamFormsPage({ navigate }: { navigate: (p: any) => void }) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
-  // Merge admin-added forms from localStorage (admin forms appear on top)
   const adminForms: GovForm[] = (() => {
     try {
       return JSON.parse(localStorage.getItem("govFormsLibrary") || "[]");
@@ -762,15 +799,19 @@ export function AssamFormsPage({
   return (
     <main
       className="min-h-screen"
-      style={{ background: "oklch(0.12 0.03 250)" }}
+      style={{
+        background:
+          "linear-gradient(160deg, #FFF0F6 0%, #F0F8FF 50%, #FFF0F6 100%)",
+      }}
     >
       {/* Hero */}
       <section
         className="py-12 px-4 animate-fade-in-up"
         style={{
           background:
-            "linear-gradient(135deg, oklch(0.14 0.04 250) 0%, oklch(0.18 0.07 265) 100%)",
-          borderBottom: "1px solid oklch(0.25 0.06 250)",
+            "linear-gradient(135deg, rgba(255,182,217,0.2) 0%, rgba(180,231,255,0.2) 100%)",
+          borderBottom: "1.5px solid rgba(255,182,217,0.3)",
+          backdropFilter: "blur(20px)",
         }}
       >
         <div className="max-w-6xl mx-auto">
@@ -778,7 +819,7 @@ export function AssamFormsPage({
           <button
             type="button"
             onClick={() => navigate("gov-documents")}
-            className="flex items-center gap-2 text-sm text-blue-300 hover:text-amber-300 transition-colors mb-6"
+            className="flex items-center gap-2 text-sm text-pink-500 hover:text-pink-700 transition-colors mb-6 font-medium"
             data-ocid="forms.back_button"
           >
             <ArrowLeft size={16} />
@@ -792,7 +833,7 @@ export function AssamFormsPage({
                 className="text-3xl md:text-4xl font-bold tracking-tight"
                 style={{
                   background:
-                    "linear-gradient(90deg, oklch(0.85 0.15 80), oklch(0.75 0.18 65))",
+                    "linear-gradient(135deg, #be185d, #7c3aed, #0369a1)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                 }}
@@ -800,7 +841,7 @@ export function AssamFormsPage({
                 Government Forms Library
               </h1>
             </div>
-            <p className="text-blue-200 text-base max-w-2xl mx-auto mb-6">
+            <p className="text-slate-600 text-base max-w-2xl mx-auto mb-6">
               Download official government PDF forms — PAN Card, Aadhaar, Assam
               edistrict services, Passport, Voter ID, Driving Licence, Income
               Tax, and more. All forms sourced directly from official government
@@ -811,9 +852,9 @@ export function AssamFormsPage({
             <div
               className="inline-flex items-center gap-2 text-xs px-4 py-2 rounded-full mb-6"
               style={{
-                background: "oklch(0.22 0.06 80 / 0.3)",
-                border: "1px solid oklch(0.55 0.12 80 / 0.4)",
-                color: "oklch(0.82 0.12 75)",
+                background: "rgba(180,231,255,0.2)",
+                border: "1px solid rgba(180,231,255,0.5)",
+                color: "#0369a1",
               }}
             >
               <Info size={13} />
@@ -824,7 +865,7 @@ export function AssamFormsPage({
             {/* Search */}
             <div className="relative max-w-xl mx-auto">
               <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-400"
                 size={18}
               />
               <Input
@@ -832,7 +873,12 @@ export function AssamFormsPage({
                 placeholder="Search forms (e.g. PAN 49A, Income Certificate, ITR...)"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 bg-white text-gray-900 border-0 h-12 rounded-xl text-base"
+                className="pl-10 h-12 rounded-2xl text-base text-slate-800"
+                style={{
+                  background: "rgba(255,255,255,0.95)",
+                  border: "1.5px solid rgba(255,182,217,0.4)",
+                  boxShadow: "0 2px 12px rgba(255,182,217,0.15)",
+                }}
                 data-ocid="forms.search_input"
               />
             </div>
@@ -842,34 +888,39 @@ export function AssamFormsPage({
 
       {/* Category Tabs */}
       <div
-        className="sticky top-[88px] z-10 border-b"
+        className="sticky top-[88px] z-10"
         style={{
-          background: "oklch(0.15 0.04 250)",
-          borderColor: "oklch(0.25 0.06 250)",
+          background: "rgba(255,255,255,0.9)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(255,182,217,0.25)",
+          boxShadow: "0 2px 12px rgba(255,182,217,0.1)",
         }}
       >
         <div className="max-w-6xl mx-auto px-4 overflow-x-auto">
-          <div className="flex gap-1 py-3 min-w-max">
+          <div className="flex gap-2 py-3 min-w-max">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 type="button"
                 onClick={() => setActiveCategory(cat)}
                 data-ocid={`forms.${cat.toLowerCase().replace(/ /g, "_")}.tab`}
-                className="px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap"
-                style={
-                  activeCategory === cat
-                    ? {
-                        background:
-                          "linear-gradient(135deg, oklch(0.72 0.15 65), oklch(0.62 0.18 55))",
-                        color: "oklch(0.12 0.03 250)",
-                        fontWeight: 700,
-                      }
-                    : {
-                        background: "oklch(0.20 0.04 250)",
-                        color: "oklch(0.70 0.06 240)",
-                      }
-                }
+                className="px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap hover:scale-105"
+                style={{
+                  background:
+                    activeCategory === cat
+                      ? "linear-gradient(135deg, #FFB6D9, #B4E7FF)"
+                      : "rgba(255,240,246,0.8)",
+                  color: activeCategory === cat ? "#7c3aed" : "#64748b",
+                  border:
+                    activeCategory === cat
+                      ? "1.5px solid rgba(255,182,217,0.6)"
+                      : "1.5px solid rgba(226,232,240,0.8)",
+                  boxShadow:
+                    activeCategory === cat
+                      ? "0 2px 12px rgba(255,182,217,0.4)"
+                      : "none",
+                  fontWeight: activeCategory === cat ? 700 : 500,
+                }}
               >
                 {cat}
               </button>
@@ -880,9 +931,16 @@ export function AssamFormsPage({
 
       {/* Stats Bar */}
       <div className="max-w-6xl mx-auto px-4 pt-5 pb-2">
-        <p className="text-sm text-blue-300/70">
+        <p className="text-sm text-slate-500">
           Showing{" "}
-          <span className="text-amber-400 font-semibold">
+          <span
+            className="font-semibold"
+            style={{
+              background: "linear-gradient(135deg, #be185d, #0369a1)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
             {filtered.length}
           </span>{" "}
           form{filtered.length !== 1 ? "s" : ""}
@@ -890,14 +948,16 @@ export function AssamFormsPage({
             <>
               {" "}
               in{" "}
-              <span className="text-white font-medium">{activeCategory}</span>
+              <span className="font-medium text-slate-700">
+                {activeCategory}
+              </span>
             </>
           )}
           {search && (
             <>
               {" "}
               matching{" "}
-              <span className="text-white font-medium">"{search}"</span>
+              <span className="font-medium text-slate-700">"{search}"</span>
             </>
           )}
         </p>
@@ -907,7 +967,7 @@ export function AssamFormsPage({
       <div className="max-w-6xl mx-auto px-4 pb-16">
         {filtered.length === 0 ? (
           <div
-            className="text-center py-20 text-gray-400"
+            className="text-center py-20 text-slate-400"
             data-ocid="forms.empty_state"
           >
             <span className="text-5xl block mb-4">🔍</span>
@@ -929,10 +989,10 @@ export function AssamFormsPage({
 
       {/* Footer Note */}
       <div
-        className="border-t py-8 text-center"
-        style={{ borderColor: "oklch(0.22 0.05 250)" }}
+        className="py-8 text-center"
+        style={{ borderTop: "1px solid rgba(255,182,217,0.2)" }}
       >
-        <p className="text-xs text-blue-300/50 max-w-lg mx-auto">
+        <p className="text-xs text-slate-400 max-w-lg mx-auto">
           All PDF forms are sourced from official government portals
           (incometax.gov.in, uidai.gov.in, parivahan.gov.in,
           edistrict.assam.gov.in, etc.). Manash PC World 2.0 is not affiliated

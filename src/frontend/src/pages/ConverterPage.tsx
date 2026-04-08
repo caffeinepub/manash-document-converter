@@ -24,45 +24,45 @@ interface ConversionOption {
 const CONVERSIONS: ConversionOption[] = [
   {
     value: "jpg-to-pdf",
-    label: "JPG \u2192 PDF",
+    label: "JPG → PDF",
     from: "JPG",
     to: "PDF",
-    icon: "\uD83D\uDDBC\uFE0F",
+    icon: "🖼️",
   },
   {
     value: "png-to-pdf",
-    label: "PNG \u2192 PDF",
+    label: "PNG → PDF",
     from: "PNG",
     to: "PDF",
-    icon: "\uD83D\uDDBC\uFE0F",
+    icon: "🖼️",
   },
   {
     value: "pdf-to-jpg",
-    label: "PDF \u2192 JPG",
+    label: "PDF → JPG",
     from: "PDF",
     to: "JPG",
-    icon: "\uD83D\uDCC4",
+    icon: "📄",
   },
   {
     value: "pdf-to-png",
-    label: "PDF \u2192 PNG",
+    label: "PDF → PNG",
     from: "PDF",
     to: "PNG",
-    icon: "\uD83D\uDCC4",
+    icon: "📄",
   },
   {
     value: "jpg-to-png",
-    label: "JPG \u2192 PNG",
+    label: "JPG → PNG",
     from: "JPG",
     to: "PNG",
-    icon: "\uD83D\uDDBC\uFE0F",
+    icon: "🖼️",
   },
   {
     value: "png-to-jpg",
-    label: "PNG \u2192 JPG",
+    label: "PNG → JPG",
     from: "PNG",
     to: "JPG",
-    icon: "\uD83D\uDDBC\uFE0F",
+    icon: "🖼️",
   },
 ];
 
@@ -237,6 +237,11 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
+// iOS shared style tokens
+const pinkGrad = "linear-gradient(135deg, #FFB6D9 0%, #ff8fc6 100%)";
+const glassBg = "rgba(255,255,255,0.85)";
+const glassBorder = "1px solid rgba(255,182,217,0.3)";
+
 const MAX_BULK = 50;
 
 interface BulkImageItem {
@@ -245,7 +250,7 @@ interface BulkImageItem {
   previewUrl: string;
 }
 
-// ─── Bulk JPG→PDF Section ────────────────────────────────────────────────────
+// ─── Bulk Converter ──────────────────────────────────────────────────────────
 function BulkConverter() {
   const [items, setItems] = useState<BulkImageItem[]>([]);
   const [bulkDragging, setBulkDragging] = useState(false);
@@ -254,18 +259,14 @@ function BulkConverter() {
   const [progressLabel, setProgressLabel] = useState("");
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const bulkInputRef = useRef<HTMLInputElement>(null);
-
   const itemsRef = useRef<BulkImageItem[]>([]);
   const resultUrlRef = useRef<string | null>(null);
   itemsRef.current = items;
   resultUrlRef.current = resultUrl;
 
-  // Cleanup blob URLs on unmount
   useEffect(() => {
     return () => {
-      for (const i of itemsRef.current) {
-        URL.revokeObjectURL(i.previewUrl);
-      }
+      for (const i of itemsRef.current) URL.revokeObjectURL(i.previewUrl);
       if (resultUrlRef.current) URL.revokeObjectURL(resultUrlRef.current);
     };
   }, []);
@@ -288,11 +289,10 @@ function BulkConverter() {
         file: f,
         previewUrl: URL.createObjectURL(f),
       }));
-      if (arr.length > remaining) {
+      if (arr.length > remaining)
         toast.error(
           `Only ${remaining} more images can be added (max ${MAX_BULK}).`,
         );
-      }
       return [...prev, ...toAdd];
     });
     setResultUrl(null);
@@ -308,9 +308,7 @@ function BulkConverter() {
   };
 
   const clearAll = () => {
-    for (const i of items) {
-      URL.revokeObjectURL(i.previewUrl);
-    }
+    for (const i of items) URL.revokeObjectURL(i.previewUrl);
     setItems([]);
     setResultUrl(null);
   };
@@ -332,18 +330,15 @@ function BulkConverter() {
     try {
       await ensureJsPDF();
       const { jsPDF } = window.jspdf;
-
       let doc: ReturnType<typeof jsPDF.prototype.constructor> | null = null;
 
       for (let i = 0; i < items.length; i++) {
         setProgressLabel(`Processing ${i + 1} / ${items.length}...`);
         setProgress(Math.round((i / items.length) * 100));
-
         const dataUrl = await fileToDataUrl(items[i].file);
         const img = await loadImage(dataUrl);
         const orientation = img.width >= img.height ? "l" : "p";
         const fmt = items[i].file.type === "image/png" ? "PNG" : "JPEG";
-
         if (i === 0) {
           doc = new jsPDF({
             orientation,
@@ -351,19 +346,44 @@ function BulkConverter() {
             format: [img.width, img.height],
           });
         } else {
-          // addPage with same size as current image
-          (doc as any).addPage([img.width, img.height], orientation);
+          (
+            doc as unknown as {
+              addPage: (size: number[], orientation: string) => void;
+            }
+          ).addPage([img.width, img.height], orientation);
         }
-
-        const pw = (doc as any).internal.pageSize.getWidth();
-        const ph = (doc as any).internal.pageSize.getHeight();
-        (doc as any).addImage(dataUrl, fmt, 0, 0, pw, ph);
+        const pw = (
+          doc as unknown as {
+            internal: {
+              pageSize: { getWidth: () => number; getHeight: () => number };
+            };
+          }
+        ).internal.pageSize.getWidth();
+        const ph = (
+          doc as unknown as {
+            internal: {
+              pageSize: { getWidth: () => number; getHeight: () => number };
+            };
+          }
+        ).internal.pageSize.getHeight();
+        (
+          doc as unknown as {
+            addImage: (
+              url: string,
+              fmt: string,
+              x: number,
+              y: number,
+              w: number,
+              h: number,
+            ) => void;
+          }
+        ).addImage(dataUrl, fmt, 0, 0, pw, ph);
       }
-
       setProgress(100);
       setProgressLabel("Generating PDF...");
-
-      const pdfBytes = (doc as any).output("arraybuffer");
+      const pdfBytes = (
+        doc as unknown as { output: (type: string) => ArrayBuffer }
+      ).output("arraybuffer");
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       setResultUrl(url);
@@ -381,37 +401,41 @@ function BulkConverter() {
 
   return (
     <div className="space-y-5">
-      {/* Header info */}
-      <div className="bg-gradient-to-r from-[#0B2A4A] to-[#1E4A7A] rounded-2xl p-5 text-white">
+      {/* Header card */}
+      <div className="rounded-2xl p-5" style={{ background: pinkGrad }}>
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-            <Images size={20} />
+          <div className="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center">
+            <Images size={20} className="text-white" />
           </div>
           <div>
-            <h2 className="font-bold text-lg">Bulk JPG / PNG → PDF</h2>
-            <p className="text-blue-200 text-xs">
+            <h2 className="font-bold text-lg text-white">
+              Bulk JPG / PNG → PDF
+            </h2>
+            <p className="text-white/80 text-xs">
               Combine up to 50 images into one PDF file
             </p>
           </div>
         </div>
         <div className="flex items-center gap-4 mt-3 text-sm">
-          <span className="bg-white/15 rounded-lg px-3 py-1">
-            <span className="font-bold text-yellow-300">{items.length}</span>
-            <span className="text-blue-200"> / {MAX_BULK} images</span>
+          <span className="bg-white/25 rounded-full px-3 py-1">
+            <span className="font-bold text-white">{items.length}</span>
+            <span className="text-white/80"> / {MAX_BULK} images</span>
           </span>
-          <span className="text-blue-200 text-xs">
-            Images appear in the order you select them
+          <span className="text-white/70 text-xs">
+            Images appear in selection order
           </span>
         </div>
       </div>
 
       {/* Drop zone */}
       <div
-        className={`relative border-2 border-dashed rounded-2xl transition-all ${
-          bulkDragging
-            ? "border-[#1E88FF] bg-blue-50 scale-[1.01]"
-            : "border-gray-300 hover:border-[#1E88FF] bg-white"
-        }`}
+        className="relative border-2 border-dashed rounded-2xl transition-all"
+        style={{
+          borderColor: bulkDragging ? "#FFB6D9" : "rgba(255,182,217,0.4)",
+          background: bulkDragging
+            ? "rgba(255,182,217,0.1)"
+            : "rgba(255,255,255,0.6)",
+        }}
         onDragOver={(e) => {
           e.preventDefault();
           setBulkDragging(true);
@@ -438,15 +462,20 @@ function BulkConverter() {
           onClick={() => bulkInputRef.current?.click()}
           aria-label="Add images for bulk PDF conversion"
         >
-          <div className="w-16 h-16 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center mx-auto mb-4">
-            <Upload size={28} className="text-[#1E88FF]" />
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
+            style={{ background: pinkGrad }}
+          >
+            <Upload size={24} className="text-white" />
           </div>
           <p className="font-semibold text-gray-700 mb-1">
-            Drop images here or click to browse
+            Drop images here or tap to browse
           </p>
           <p className="text-xs text-gray-400">
             JPG and PNG files • Up to{" "}
-            <span className="font-bold text-[#1E88FF]">{MAX_BULK} images</span>
+            <span className="font-bold" style={{ color: "#FFB6D9" }}>
+              {MAX_BULK} images
+            </span>
           </p>
         </button>
       </div>
@@ -455,8 +484,8 @@ function BulkConverter() {
       {items.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-[#0B2A4A]">
-              Selected Images ({items.length}/{MAX_BULK})
+            <p className="text-sm font-semibold text-gray-700">
+              Selected ({items.length}/{MAX_BULK})
             </p>
             <button
               type="button"
@@ -470,7 +499,7 @@ function BulkConverter() {
             {items.map((item, idx) => (
               <div
                 key={item.id}
-                className="relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-50 aspect-square"
+                className="relative group rounded-2xl overflow-hidden border border-pink-100 bg-gray-50 aspect-square"
                 data-ocid={`converter.item.${idx + 1}`}
               >
                 <img
@@ -478,32 +507,35 @@ function BulkConverter() {
                   alt={item.file.name}
                   className="w-full h-full object-cover"
                 />
-                {/* Order badge */}
-                <div className="absolute top-1 left-1 w-5 h-5 bg-[#0B2A4A]/80 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                <div
+                  className="absolute top-1.5 left-1.5 w-5 h-5 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-sm"
+                  style={{ background: pinkGrad }}
+                >
                   {idx + 1}
                 </div>
-                {/* Remove button */}
                 <button
                   type="button"
                   onClick={() => removeItem(item.id)}
-                  className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                  className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow"
                   aria-label={`Remove ${item.file.name}`}
                   data-ocid={`converter.delete_button.${idx + 1}`}
                 >
                   <X size={12} />
                 </button>
-                {/* File name tooltip on hover */}
                 <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[9px] px-1 py-0.5 truncate opacity-0 group-hover:opacity-100 transition-opacity">
                   {item.file.name}
                 </div>
               </div>
             ))}
-            {/* Add more button if space */}
             {items.length < MAX_BULK && (
               <button
                 type="button"
                 onClick={() => bulkInputRef.current?.click()}
-                className="aspect-square rounded-xl border-2 border-dashed border-gray-300 hover:border-[#1E88FF] flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-[#1E88FF] transition-colors"
+                className="aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-colors"
+                style={{
+                  borderColor: "rgba(255,182,217,0.4)",
+                  color: "#FFB6D9",
+                }}
                 aria-label="Add more images"
               >
                 <Upload size={20} />
@@ -514,19 +546,25 @@ function BulkConverter() {
         </div>
       )}
 
-      {/* Progress bar while converting */}
+      {/* Progress */}
       {converting && (
         <div
-          className="bg-white border border-blue-200 rounded-2xl p-5"
+          className="rounded-2xl p-5"
+          style={{
+            background: glassBg,
+            border: glassBorder,
+            backdropFilter: "blur(10px)",
+          }}
           data-ocid="converter.loading_state"
         >
           <div className="flex items-center gap-2 mb-3">
             <svg
-              className="animate-spin h-5 w-5 text-[#1E88FF]"
+              className="animate-spin h-5 w-5"
               viewBox="0 0 24 24"
               fill="none"
               aria-label="Loading"
               role="img"
+              style={{ color: "#FFB6D9" }}
             >
               <circle
                 className="opacity-25"
@@ -542,11 +580,16 @@ function BulkConverter() {
                 d="M4 12a8 8 0 018-8v8H4z"
               />
             </svg>
-            <span className="text-sm font-semibold text-[#0B2A4A]">
+            <span className="text-sm font-semibold text-gray-700">
               {progressLabel || "Converting..."}
             </span>
           </div>
-          <Progress value={progress} className="h-2" />
+          <div className="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{ width: `${progress}%`, background: pinkGrad }}
+            />
+          </div>
           <p className="text-xs text-gray-400 mt-2 text-right">
             {progress}% complete
           </p>
@@ -554,14 +597,19 @@ function BulkConverter() {
       )}
 
       {/* Convert button */}
-      <Button
+      <button
+        type="button"
         onClick={handleConvertAll}
         disabled={items.length === 0 || converting}
         data-ocid="converter.primary_button"
-        className="w-full bg-[#0B2A4A] hover:bg-[#1E88FF] text-white py-4 rounded-xl font-semibold text-base disabled:opacity-50 transition-colors"
+        className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-semibold text-base text-white transition-all active:scale-[0.98] disabled:opacity-50 shadow-lg"
+        style={{
+          background: pinkGrad,
+          boxShadow: "0 8px 24px rgba(255,182,217,0.4)",
+        }}
       >
         {converting ? (
-          <span className="flex items-center justify-center gap-2">
+          <>
             <svg
               className="animate-spin h-5 w-5"
               viewBox="0 0 24 24"
@@ -584,29 +632,33 @@ function BulkConverter() {
               />
             </svg>
             {progressLabel || "Processing..."}
-          </span>
+          </>
         ) : (
-          <span className="flex items-center justify-center gap-2">
+          <>
             <FileText size={18} />
             Convert {items.length > 0 ? items.length : "All"} Image
             {items.length !== 1 ? "s" : ""} → Single PDF
-          </span>
+          </>
         )}
-      </Button>
+      </button>
 
-      {/* Success result */}
+      {/* Success */}
       {resultUrl && !converting && (
         <div
-          className="bg-white rounded-2xl border border-green-300 p-5 flex flex-col sm:flex-row items-center justify-between gap-4"
+          className="rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4"
+          style={{
+            background: "rgba(236,253,245,0.9)",
+            border: "1px solid rgba(134,239,172,0.4)",
+          }}
           data-ocid="converter.success_state"
         >
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
-              <span className="text-2xl">✅</span>
+            <div className="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center text-2xl">
+              ✅
             </div>
             <div>
-              <p className="font-bold text-[#0B2A4A]">PDF Ready!</p>
-              <p className="text-xs text-gray-500">
+              <p className="font-bold text-green-800">PDF Ready!</p>
+              <p className="text-xs text-green-600">
                 {items.length} page{items.length !== 1 ? "s" : ""} combined into
                 one PDF
               </p>
@@ -616,7 +668,8 @@ function BulkConverter() {
             href={resultUrl}
             download="combined-images.pdf"
             data-ocid="converter.secondary_button"
-            className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors"
+            className="flex items-center gap-2 text-white px-6 py-2.5 rounded-full font-semibold text-sm transition-colors shadow-sm"
+            style={{ background: "linear-gradient(135deg, #22c55e, #16a34a)" }}
           >
             <Download size={16} /> Download PDF
           </a>
@@ -691,27 +744,25 @@ export function ConverterPage() {
   return (
     <div
       className="min-h-screen px-4 py-10"
-      style={{ background: "oklch(0.12 0.03 250)" }}
+      style={{
+        background: "linear-gradient(160deg, #fff5fb 0%, #f0f9ff 100%)",
+      }}
     >
       <div className="max-w-3xl mx-auto">
-        {/* Page Header */}
-        <div className="text-center mb-8 animate-fade-in-up">
+        {/* Header */}
+        <div className="text-center mb-8">
           <div
-            className="inline-flex items-center gap-2 rounded-full px-4 py-1 text-xs font-semibold mb-4"
-            style={{
-              background: "oklch(0.78 0.18 65 / 0.15)",
-              border: "1px solid oklch(0.78 0.18 65 / 0.4)",
-              color: "oklch(0.78 0.18 65)",
-            }}
+            className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold mb-4 text-white"
+            style={{ background: pinkGrad }}
           >
-            <span>&#x1F512;</span> Manash Document Converter
+            <span>🔒</span> Manash Document Converter
           </div>
-          <h1 className="text-3xl font-extrabold mb-3 font-display gradient-text-gold">
+          <h1 className="text-3xl font-extrabold mb-3 text-gray-800">
             Document Converter
           </h1>
           <p className="text-gray-500 text-sm max-w-md mx-auto">
-            Convert documents between JPG, PNG, and PDF formats &#8212; entirely
-            in your browser.
+            Convert documents between JPG, PNG, and PDF formats — entirely in
+            your browser.
           </p>
           <div className="mt-3 flex items-center justify-center gap-2 text-green-600 text-xs font-medium">
             <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
@@ -723,16 +774,28 @@ export function ConverterPage() {
         <AdBanner slot="6033081600" />
 
         {/* Mode Toggle */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-2 mb-6 flex gap-2">
+        <div
+          className="rounded-2xl p-2 mb-6 flex gap-2"
+          style={{
+            background: glassBg,
+            border: glassBorder,
+            backdropFilter: "blur(10px)",
+          }}
+        >
           <button
             type="button"
             data-ocid="converter.tab"
             onClick={() => setMode("single")}
-            className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all"
+            style={
               mode === "single"
-                ? "bg-[#0B2A4A] text-white shadow"
-                : "text-gray-500 hover:text-[#0B2A4A] hover:bg-gray-50"
-            }`}
+                ? {
+                    background: pinkGrad,
+                    color: "white",
+                    boxShadow: "0 4px 12px rgba(255,182,217,0.4)",
+                  }
+                : { color: "#6b7280" }
+            }
           >
             <FileImage size={16} />
             Single File Convert
@@ -741,11 +804,16 @@ export function ConverterPage() {
             type="button"
             data-ocid="converter.tab"
             onClick={() => setMode("bulk")}
-            className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all"
+            style={
               mode === "bulk"
-                ? "bg-gradient-to-r from-[#0B2A4A] to-[#1E88FF] text-white shadow"
-                : "text-gray-500 hover:text-[#0B2A4A] hover:bg-gray-50"
-            }`}
+                ? {
+                    background: pinkGrad,
+                    color: "white",
+                    boxShadow: "0 4px 12px rgba(255,182,217,0.4)",
+                  }
+                : { color: "#6b7280" }
+            }
           >
             <Images size={16} />
             Bulk JPG → PDF (50 images)
@@ -757,7 +825,14 @@ export function ConverterPage() {
         ) : (
           <>
             {/* Conversion Type Selector */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
+            <div
+              className="rounded-2xl p-4 mb-6"
+              style={{
+                background: glassBg,
+                border: glassBorder,
+                backdropFilter: "blur(10px)",
+              }}
+            >
               <p className="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-3">
                 Select Conversion Type
               </p>
@@ -774,11 +849,20 @@ export function ConverterPage() {
                       setResultUrl(null);
                       setResultFilename("");
                     }}
-                    className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold border-2 transition-all ${
+                    className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold border-2 transition-all"
+                    style={
                       convType === c.value
-                        ? "bg-[#0B2A4A] border-[#0B2A4A] text-white"
-                        : "bg-white border-gray-200 text-gray-600 hover:border-[#0B2A4A] hover:text-[#0B2A4A]"
-                    }`}
+                        ? {
+                            background: pinkGrad,
+                            borderColor: "transparent",
+                            color: "white",
+                          }
+                        : {
+                            background: "white",
+                            borderColor: "rgba(255,182,217,0.3)",
+                            color: "#6b7280",
+                          }
+                    }
                   >
                     <span className="text-base">{c.icon}</span>
                     <span>{c.label}</span>
@@ -789,11 +873,14 @@ export function ConverterPage() {
 
             {/* Drop Zone */}
             <div
-              className={`relative bg-white rounded-2xl shadow-sm border-2 border-dashed transition-all mb-6 ${
-                dragging
-                  ? "border-[#1E88FF] bg-blue-50"
-                  : "border-gray-300 hover:border-[#1E88FF]"
-              }`}
+              className="relative rounded-2xl border-2 border-dashed transition-all mb-6"
+              style={{
+                borderColor: dragging ? "#FFB6D9" : "rgba(255,182,217,0.4)",
+                background: dragging
+                  ? "rgba(255,182,217,0.08)"
+                  : "rgba(255,255,255,0.7)",
+                backdropFilter: "blur(10px)",
+              }}
               onDragOver={(e) => {
                 e.preventDefault();
                 setDragging(true);
@@ -815,15 +902,18 @@ export function ConverterPage() {
               />
               {file ? (
                 <div className="p-8 flex items-center justify-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                    style={{ background: "rgba(255,182,217,0.15)" }}
+                  >
                     {selectedConv.from === "PDF" ? (
-                      <FileText size={24} className="text-[#1E88FF]" />
+                      <FileText size={24} style={{ color: "#FFB6D9" }} />
                     ) : (
-                      <FileImage size={24} className="text-[#1E88FF]" />
+                      <FileImage size={24} style={{ color: "#FFB6D9" }} />
                     )}
                   </div>
                   <div className="text-left">
-                    <p className="font-semibold text-[#0B2A4A] text-sm">
+                    <p className="font-semibold text-gray-800 text-sm">
                       {file.name}
                     </p>
                     <p className="text-xs text-gray-400">
@@ -837,7 +927,7 @@ export function ConverterPage() {
                       setFile(null);
                       clearResult();
                     }}
-                    className="ml-2 text-gray-400 hover:text-red-400"
+                    className="ml-2 text-gray-300 hover:text-red-400"
                     aria-label="Remove file"
                   >
                     <X size={18} />
@@ -850,16 +940,22 @@ export function ConverterPage() {
                   onClick={() => inputRef.current?.click()}
                   aria-label={`Upload ${selectedConv.from} file for conversion`}
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center mx-auto mb-4">
-                    <Upload size={28} className="text-gray-300" />
+                  <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
+                    style={{ background: pinkGrad }}
+                  >
+                    <Upload size={24} className="text-white" />
                   </div>
-                  <p className="font-semibold text-gray-600 mb-1">
+                  <p className="font-semibold text-gray-700 mb-1">
                     Drop your {selectedConv.from} file here
                   </p>
                   <p className="text-xs text-gray-400">
                     or{" "}
-                    <span className="text-[#1E88FF] font-semibold">
-                      click to browse
+                    <span
+                      className="font-semibold"
+                      style={{ color: "#FFB6D9" }}
+                    >
+                      tap to browse
                     </span>
                   </p>
                   <p className="text-xs text-gray-400 mt-2">
@@ -870,14 +966,19 @@ export function ConverterPage() {
             </div>
 
             {/* Convert Button */}
-            <Button
+            <button
+              type="button"
               onClick={handleConvert}
               disabled={!file || converting}
               data-ocid="converter.primary_button"
-              className="w-full bg-[#0B2A4A] hover:bg-[#1E88FF] text-white py-4 rounded-xl font-semibold text-base disabled:opacity-50 mb-6"
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-semibold text-base text-white transition-all active:scale-[0.98] disabled:opacity-50 mb-6 shadow-lg"
+              style={{
+                background: pinkGrad,
+                boxShadow: "0 8px 24px rgba(255,182,217,0.4)",
+              }}
             >
               {converting ? (
-                <span className="flex items-center justify-center gap-2">
+                <>
                   <svg
                     className="animate-spin h-5 w-5"
                     viewBox="0 0 24 24"
@@ -900,34 +1001,41 @@ export function ConverterPage() {
                     />
                   </svg>
                   Converting...
-                </span>
+                </>
               ) : (
-                `Convert ${selectedConv.from} \u2192 ${selectedConv.to}`
+                `Convert ${selectedConv.from} → ${selectedConv.to}`
               )}
-            </Button>
+            </button>
 
             {/* Result */}
             {resultUrl && (
               <div
-                className="bg-white rounded-2xl shadow-sm border border-green-200 p-6 flex flex-col sm:flex-row items-center justify-between gap-4"
+                className="rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 mb-6"
+                style={{
+                  background: "rgba(236,253,245,0.9)",
+                  border: "1px solid rgba(134,239,172,0.4)",
+                }}
                 data-ocid="converter.success_state"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
-                    <span className="text-2xl">&#x2705;</span>
+                  <div className="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center text-2xl">
+                    ✅
                   </div>
                   <div>
-                    <p className="font-bold text-[#0B2A4A] text-sm">
+                    <p className="font-bold text-green-800 text-sm">
                       File ready!
                     </p>
-                    <p className="text-xs text-gray-500">{resultFilename}</p>
+                    <p className="text-xs text-green-600">{resultFilename}</p>
                   </div>
                 </div>
                 <a
                   href={resultUrl}
                   download={resultFilename}
                   data-ocid="converter.secondary_button"
-                  className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors"
+                  className="flex items-center gap-2 text-white px-6 py-2.5 rounded-full font-semibold text-sm transition-colors shadow-sm"
+                  style={{
+                    background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                  }}
                 >
                   <Download size={16} /> Download {selectedConv.to}
                 </a>
@@ -937,8 +1045,15 @@ export function ConverterPage() {
         )}
 
         {/* How it works */}
-        <div className="mt-10 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h3 className="font-bold text-[#0B2A4A] mb-4">How it works</h3>
+        <div
+          className="mt-10 rounded-2xl p-6"
+          style={{
+            background: glassBg,
+            border: glassBorder,
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          <h3 className="font-bold text-gray-800 mb-4">How it works</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               {
@@ -947,15 +1062,15 @@ export function ConverterPage() {
                 desc:
                   mode === "bulk"
                     ? "Switch to Bulk mode"
-                    : "Select the conversion format you need",
+                    : "Select the conversion format",
               },
               {
                 step: "2",
                 title: "Upload File(s)",
                 desc:
                   mode === "bulk"
-                    ? "Drop or browse to pick up to 50 images"
-                    : "Drop or browse to pick your file",
+                    ? "Drop or browse up to 50 images"
+                    : "Drop or browse your file",
               },
               {
                 step: "3",
@@ -964,7 +1079,10 @@ export function ConverterPage() {
               },
             ].map((s) => (
               <div key={s.step} className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#0B2A4A] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <div
+                  className="w-8 h-8 rounded-full text-white flex items-center justify-center text-sm font-bold flex-shrink-0"
+                  style={{ background: pinkGrad }}
+                >
                   {s.step}
                 </div>
                 <div>
@@ -979,28 +1097,33 @@ export function ConverterPage() {
         </div>
 
         {/* Privacy note */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-2xl p-4 flex gap-3">
-          <span className="text-2xl">&#x1F512;</span>
+        <div
+          className="mt-6 rounded-2xl p-4 flex gap-3"
+          style={{
+            background: "rgba(180,231,255,0.15)",
+            border: "1px solid rgba(180,231,255,0.3)",
+          }}
+        >
+          <span className="text-2xl">🔒</span>
           <div>
-            <p className="font-semibold text-blue-800 text-sm">100% Private</p>
-            <p className="text-xs text-blue-600 mt-0.5">
+            <p className="font-semibold text-sky-800 text-sm">100% Private</p>
+            <p className="text-xs text-sky-600 mt-0.5">
               All conversions happen entirely in your browser using JavaScript.
-              Your files never leave your device and are never uploaded to any
-              server.
+              Your files never leave your device.
             </p>
           </div>
         </div>
 
         <AdBanner slot="6033081600" />
 
-        {/* Footer */}
         <div className="mt-10 text-center text-gray-400 text-xs">
-          &copy; {new Date().getFullYear()}. Built with love using{" "}
+          © {new Date().getFullYear()}. Built with love using{" "}
           <a
             href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#1E88FF] hover:underline"
+            style={{ color: "#FFB6D9" }}
+            className="hover:underline"
           >
             caffeine.ai
           </a>

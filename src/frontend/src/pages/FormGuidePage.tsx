@@ -12,28 +12,52 @@ import {
 import { useEffect, useState } from "react";
 import { type FormGuideline, formGuidelines } from "../data/formGuidelines";
 
+// iOS Pink+Sky design tokens
+const pinkGrad = "linear-gradient(135deg, #FFB6D9 0%, #ff8fc6 100%)";
+const skyGrad = "linear-gradient(135deg, #B4E7FF 0%, #7dd3fc 100%)";
+const glassBg = "rgba(255,255,255,0.90)";
+const glassBorder = "1px solid rgba(255,182,217,0.28)";
+
 function SectionCard({
   icon,
   title,
   children,
+  accent = "pink",
 }: {
   icon: React.ReactNode;
   title: string;
   children: React.ReactNode;
+  accent?: "pink" | "sky";
 }) {
   return (
     <div
-      className="rounded-xl border p-5"
+      className="rounded-2xl p-5"
       style={{
-        background: "oklch(0.17 0.03 250)",
-        borderColor: "oklch(0.28 0.06 250)",
+        background: glassBg,
+        border: glassBorder,
+        backdropFilter: "blur(10px)",
+        boxShadow: "0 2px 12px rgba(255,182,217,0.08)",
       }}
     >
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-amber-400">{icon}</span>
+      <div className="flex items-center gap-2.5 mb-3">
+        <span
+          className="w-8 h-8 rounded-xl flex items-center justify-center"
+          style={{
+            background: accent === "sky" ? skyGrad : pinkGrad,
+          }}
+        >
+          <span className="text-white scale-75">{icon}</span>
+        </span>
         <h2
-          className="text-base font-bold"
-          style={{ color: "oklch(0.85 0.15 75)" }}
+          className="text-sm font-bold"
+          style={{
+            background:
+              accent === "sky"
+                ? "linear-gradient(135deg, #0369a1, #0891b2)"
+                : "linear-gradient(135deg, #be185d, #db2777)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
         >
           {title}
         </h2>
@@ -53,34 +77,52 @@ export function FormGuidePage() {
     if (!id || !formGuidelines[id]) {
       setNotFound(true);
     } else {
-      let guide = { ...formGuidelines[id] };
+      let guideData = { ...formGuidelines[id] };
       try {
         const custom = JSON.parse(
           localStorage.getItem("customFormGuidelines") || "{}",
         );
-        if (custom[id]) guide = { ...guide, ...custom[id] };
-      } catch {}
-      setGuide(guide);
+        if (custom[id]) guideData = { ...guideData, ...custom[id] };
+      } catch {
+        /* ignore */
+      }
+      setGuide(guideData);
     }
   }, []);
 
   if (notFound) {
     return (
       <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "oklch(0.12 0.03 250)" }}
+        className="min-h-screen flex items-center justify-center px-4"
+        style={{
+          background: "linear-gradient(160deg, #fff5fb 0%, #f0f9ff 100%)",
+        }}
       >
-        <div className="text-center">
-          <FileText className="mx-auto mb-4 text-gray-500" size={48} />
-          <h1 className="text-xl font-bold text-white mb-2">Form Not Found</h1>
-          <p className="text-blue-200/70 text-sm mb-4">
+        <div
+          className="text-center rounded-2xl p-8 max-w-sm w-full"
+          style={{
+            background: glassBg,
+            border: glassBorder,
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            style={{ background: "rgba(255,182,217,0.15)" }}
+          >
+            <FileText size={28} style={{ color: "#FFB6D9" }} />
+          </div>
+          <h1 className="text-xl font-bold text-gray-800 mb-2">
+            Form Not Found
+          </h1>
+          <p className="text-gray-500 text-sm mb-6">
             No guidelines found for this form.
           </p>
           <button
             type="button"
             onClick={() => window.close()}
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
-            style={{ background: "oklch(0.45 0.15 250)" }}
+            className="px-6 py-2.5 rounded-full text-sm font-semibold text-white transition-all active:scale-95"
+            style={{ background: pinkGrad }}
           >
             Close Tab
           </button>
@@ -94,33 +136,39 @@ export function FormGuidePage() {
   return (
     <div
       className="min-h-screen"
-      style={{ background: "oklch(0.12 0.03 250)" }}
+      style={{
+        background: "linear-gradient(160deg, #fff5fb 0%, #f0f9ff 100%)",
+      }}
     >
-      {/* Header */}
+      {/* iOS-style sticky header */}
       <header
         className="sticky top-0 z-10 border-b"
         style={{
-          background: "oklch(0.14 0.04 250)",
-          borderColor: "oklch(0.25 0.06 250)",
+          background: "rgba(255,255,255,0.92)",
+          borderColor: "rgba(255,182,217,0.2)",
+          backdropFilter: "blur(20px)",
         }}
       >
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <FileText size={20} className="text-amber-400 shrink-0" />
-            <span
-              className="text-sm font-semibold truncate"
-              style={{ color: "oklch(0.85 0.15 75)" }}
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div
+              className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ background: pinkGrad }}
             >
+              <FileText size={14} className="text-white" />
+            </div>
+            <span className="text-sm font-semibold text-gray-700 truncate">
               Form Guide
             </span>
           </div>
           <button
             type="button"
             onClick={() => window.close()}
-            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg shrink-0 transition-colors hover:opacity-80"
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full shrink-0 transition-all active:scale-95"
             style={{
-              background: "oklch(0.22 0.04 250)",
-              color: "oklch(0.75 0.08 240)",
+              background: "rgba(255,182,217,0.12)",
+              border: "1px solid rgba(255,182,217,0.3)",
+              color: "#be185d",
             }}
           >
             <X size={13} />
@@ -129,70 +177,76 @@ export function FormGuidePage() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-5">
-        {/* Title section */}
+      <main className="max-w-3xl mx-auto px-4 py-8 space-y-4">
+        {/* Hero title card */}
         <div
-          className="rounded-xl border p-6"
+          className="rounded-2xl p-6"
           style={{
-            background:
-              "linear-gradient(135deg, oklch(0.15 0.05 250) 0%, oklch(0.18 0.07 265) 100%)",
-            borderColor: "oklch(0.3 0.08 260)",
+            background: "linear-gradient(135deg, #FFB6D9 0%, #B4E7FF 100%)",
+            boxShadow: "0 8px 32px rgba(255,182,217,0.3)",
           }}
         >
           <div className="flex items-start justify-between gap-3 mb-3">
             <span
-              className="text-xs font-semibold px-3 py-1 rounded-full border"
+              className="text-xs font-semibold px-3 py-1 rounded-full"
               style={{
-                background: "oklch(0.55 0.12 80 / 0.2)",
-                borderColor: "oklch(0.55 0.12 80 / 0.4)",
-                color: "oklch(0.82 0.12 75)",
+                background: "rgba(255,255,255,0.35)",
+                color: "white",
+                backdropFilter: "blur(4px)",
               }}
             >
               {guide.category}
             </span>
           </div>
           <h1
-            className="text-xl md:text-2xl font-bold leading-snug mb-2"
-            style={{
-              background:
-                "linear-gradient(90deg, oklch(0.85 0.15 80), oklch(0.75 0.18 65))",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
+            className="text-xl md:text-2xl font-bold leading-snug mb-2 text-white"
+            style={{ textShadow: "0 1px 8px rgba(190,24,93,0.2)" }}
           >
             {guide.title}
           </h1>
-          <p className="text-blue-200/80 text-sm leading-relaxed">
+          <p className="text-white/80 text-sm leading-relaxed">
             Use this guide to understand how to fill and submit this form
             correctly.
           </p>
         </div>
 
         {/* What is this form */}
-        <SectionCard icon={<HelpCircle size={18} />} title="What is this Form?">
-          <p className="text-blue-100/80 text-sm leading-relaxed">
+        <SectionCard
+          icon={<HelpCircle size={16} />}
+          title="What is this Form?"
+          accent="pink"
+        >
+          <p className="text-gray-600 text-sm leading-relaxed">
             {guide.whatIsThisForm}
           </p>
         </SectionCard>
 
         {/* Who can apply */}
-        <SectionCard icon={<User size={18} />} title="Who Can Apply?">
-          <p className="text-blue-100/80 text-sm leading-relaxed">
+        <SectionCard
+          icon={<User size={16} />}
+          title="Who Can Apply?"
+          accent="sky"
+        >
+          <p className="text-gray-600 text-sm leading-relaxed">
             {guide.whoCanApply}
           </p>
         </SectionCard>
 
         {/* Documents required */}
-        <SectionCard icon={<FileText size={18} />} title="Documents Required">
+        <SectionCard
+          icon={<FileText size={16} />}
+          title="Documents Required"
+          accent="pink"
+        >
           <ul className="space-y-2">
             {guide.documentsRequired.map((doc) => (
-              <li key={doc} className="flex items-start gap-2 text-sm">
+              <li key={doc} className="flex items-start gap-2.5 text-sm">
                 <CheckCircle
                   size={15}
                   className="shrink-0 mt-0.5"
-                  style={{ color: "oklch(0.65 0.18 145)" }}
+                  style={{ color: "#22c55e" }}
                 />
-                <span className="text-blue-100/80">{doc}</span>
+                <span className="text-gray-600">{doc}</span>
               </li>
             ))}
           </ul>
@@ -200,23 +254,20 @@ export function FormGuidePage() {
 
         {/* Step by step */}
         <SectionCard
-          icon={<ChevronRight size={18} />}
+          icon={<ChevronRight size={16} />}
           title="Step-by-Step Guide"
+          accent="sky"
         >
           <ol className="space-y-3">
             {guide.stepByStep.map((step, i) => (
               <li key={step.slice(0, 30)} className="flex items-start gap-3">
                 <span
-                  className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, oklch(0.72 0.15 65), oklch(0.62 0.18 55))",
-                    color: "oklch(0.12 0.03 250)",
-                  }}
+                  className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                  style={{ background: pinkGrad }}
                 >
                   {i + 1}
                 </span>
-                <span className="text-blue-100/80 text-sm leading-relaxed pt-0.5">
+                <span className="text-gray-600 text-sm leading-relaxed pt-0.5">
                   {step}
                 </span>
               </li>
@@ -225,44 +276,52 @@ export function FormGuidePage() {
         </SectionCard>
 
         {/* Where to submit */}
-        <SectionCard icon={<MapPin size={18} />} title="Where to Submit">
-          <p className="text-blue-100/80 text-sm leading-relaxed">
+        <SectionCard
+          icon={<MapPin size={16} />}
+          title="Where to Submit"
+          accent="pink"
+        >
+          <p className="text-gray-600 text-sm leading-relaxed">
             {guide.whereToSubmit}
           </p>
         </SectionCard>
 
         {/* Fee */}
-        <SectionCard icon={<DollarSign size={18} />} title="Fee Details">
+        <SectionCard
+          icon={<DollarSign size={16} />}
+          title="Fee Details"
+          accent="sky"
+        >
           <div
-            className="flex items-center gap-3 rounded-lg px-4 py-3"
-            style={{ background: "oklch(0.22 0.05 250)" }}
+            className="flex items-center gap-3 rounded-2xl px-4 py-3"
+            style={{
+              background: "rgba(180,231,255,0.15)",
+              border: "1px solid rgba(180,231,255,0.3)",
+            }}
           >
-            <span
-              className="text-2xl font-bold"
-              style={{ color: "oklch(0.72 0.18 145)" }}
-            >
+            <span className="text-2xl font-bold" style={{ color: "#0369a1" }}>
               {guide.fee.startsWith("Free") ? "Free" : guide.fee.split(" ")[0]}
             </span>
-            {!guide.fee.startsWith("Free") && (
-              <span className="text-blue-200/70 text-sm">{guide.fee}</span>
-            )}
-            {guide.fee.startsWith("Free") && (
-              <span className="text-blue-200/70 text-sm">{guide.fee}</span>
-            )}
+            <span className="text-gray-500 text-sm">{guide.fee}</span>
           </div>
         </SectionCard>
 
-        {/* Official link */}
+        {/* Official portal */}
         <div
-          className="rounded-xl border p-5"
+          className="rounded-2xl p-5"
           style={{
-            background: "oklch(0.17 0.03 250)",
-            borderColor: "oklch(0.28 0.06 250)",
+            background: glassBg,
+            border: glassBorder,
+            backdropFilter: "blur(10px)",
           }}
         >
           <h2
-            className="text-base font-bold mb-3"
-            style={{ color: "oklch(0.85 0.15 75)" }}
+            className="text-sm font-bold mb-3"
+            style={{
+              background: pinkGrad,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
           >
             Official Portal
           </h2>
@@ -270,10 +329,10 @@ export function FormGuidePage() {
             href={guide.officialLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all active:scale-95 shadow-md"
             style={{
-              background:
-                "linear-gradient(135deg, oklch(0.50 0.20 255), oklch(0.40 0.22 265))",
+              background: "linear-gradient(135deg, #B4E7FF, #7dd3fc)",
+              color: "#0c4a6e",
             }}
           >
             <ExternalLink size={14} />
@@ -281,10 +340,9 @@ export function FormGuidePage() {
           </a>
         </div>
 
-        {/* Footer note */}
-        <p className="text-center text-xs text-blue-200/50 pb-4">
+        <p className="text-center text-xs text-gray-400 pb-4">
           Information provided is for guidance only. Always verify with the
-          official government portal for the latest requirements.
+          official government portal.
         </p>
       </main>
     </div>

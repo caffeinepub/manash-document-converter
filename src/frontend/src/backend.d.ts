@@ -7,15 +7,19 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface UserProfile {
-    name: string;
-    email: string;
-    phone: string;
+export interface CartItem {
+    productId: string;
+    quantity: bigint;
 }
-export interface TransformationOutput {
-    status: bigint;
-    body: Uint8Array;
-    headers: Array<http_header>;
+export interface ShoppingItem {
+    name: string;
+    currency: string;
+    quantity: bigint;
+    amount: bigint;
+}
+export interface StripeConfiguration {
+    secretKey: string;
+    publishableKey: string;
 }
 export interface Order {
     id: bigint;
@@ -31,45 +35,10 @@ export interface Order {
     items: Array<CartItem>;
     customerEmail: string;
 }
-export interface http_header {
-    value: string;
+export interface UserProfile {
     name: string;
-}
-export interface http_request_result {
-    status: bigint;
-    body: Uint8Array;
-    headers: Array<http_header>;
-}
-export interface ShoppingItem {
-    productName: string;
-    currency: string;
-    quantity: bigint;
-    priceInCents: bigint;
-    productDescription: string;
-}
-export interface TransformationInput {
-    context: Uint8Array;
-    response: http_request_result;
-}
-export type StripeSessionStatus = {
-    __kind__: "completed";
-    completed: {
-        userPrincipal?: string;
-        response: string;
-    };
-} | {
-    __kind__: "failed";
-    failed: {
-        error: string;
-    };
-};
-export interface StripeConfiguration {
-    allowedCountries: Array<string>;
-    secretKey: string;
-}
-export interface CartItem {
-    productId: string;
-    quantity: bigint;
+    email: string;
+    phone: string;
 }
 export interface Product {
     id: string;
@@ -101,22 +70,23 @@ export enum PaymentMethod {
     UPI = "UPI",
     Card = "Card"
 }
-export enum UserRole {
-    admin = "admin",
-    user = "user",
-    guest = "guest"
+export enum StripeSessionStatus {
+    Open = "Open",
+    Complete = "Complete",
+    Expired = "Expired"
 }
 export interface backendInterface {
     addProduct(product: Product): Promise<void>;
     addToCart(productId: string, quantity: bigint): Promise<void>;
-    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     clearCart(): Promise<void>;
     createCheckoutSession(items: Array<ShoppingItem>, successUrl: string, cancelUrl: string): Promise<string>;
     createOrder(customerName: string, customerPhone: string, customerEmail: string, paymentMethod: PaymentMethod, deliveryType: DeliveryType, deliveryAddress: string | null): Promise<bigint>;
+    deleteAdminSetting(key: string): Promise<void>;
+    getAdminSetting(key: string): Promise<string | null>;
+    getAllAdminSettings(): Promise<Array<[string, string]>>;
     getAllOrders(): Promise<Array<Order>>;
     getAllProducts(): Promise<Array<Product>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
-    getCallerUserRole(): Promise<UserRole>;
     getCart(): Promise<Array<CartItem>>;
     getFounderPhotoHash(): Promise<Uint8Array | null>;
     getOrder(orderId: bigint): Promise<Order | null>;
@@ -125,15 +95,14 @@ export interface backendInterface {
     getProductsByCategory(category: Category): Promise<Array<Product>>;
     getStripeSessionStatus(sessionId: string): Promise<StripeSessionStatus>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
-    isCallerAdmin(): Promise<boolean>;
     isStripeConfigured(): Promise<boolean>;
     removeFounderPhoto(): Promise<void>;
     removeFromCart(productId: string): Promise<void>;
     removeProduct(productId: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    setAdminSetting(key: string, value: string): Promise<void>;
     setFounderPhoto(hash: Uint8Array): Promise<void>;
     setStripeConfiguration(config: StripeConfiguration): Promise<void>;
-    transform(input: TransformationInput): Promise<TransformationOutput>;
     updateOrderStatus(orderId: bigint, status: OrderStatus): Promise<void>;
     updateProduct(product: Product): Promise<void>;
 }

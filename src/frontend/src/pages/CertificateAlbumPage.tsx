@@ -2,11 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import { Award, Download, ImageIcon, Printer, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-// ─── Print Styles ─────────────────────────────────────────────────────────────
 const PRINT_STYLE = `
 @media print {
   body > * { display: none !important; }
@@ -15,7 +13,6 @@ const PRINT_STYLE = `
 }
 `;
 
-// ─── Border Styles ────────────────────────────────────────────────────────────
 type BorderStyle = "gold" | "blue" | "green" | "red";
 
 const BORDERS: Record<
@@ -52,7 +49,11 @@ const BORDERS: Record<
   },
 };
 
-// ─── Certificate Preview ──────────────────────────────────────────────────────
+// iOS style tokens
+const pinkGrad = "linear-gradient(135deg, #FFB6D9 0%, #ff8fc6 100%)";
+const glassBg = "rgba(255,255,255,0.88)";
+const glassBorder = "1px solid rgba(255,182,217,0.3)";
+
 function CertificatePreview({
   name,
   achievement,
@@ -85,7 +86,6 @@ function CertificatePreview({
         boxSizing: "border-box",
       }}
     >
-      {/* Corner ornaments */}
       {[
         "top-3 left-3",
         "top-3 right-3",
@@ -100,8 +100,6 @@ function CertificatePreview({
           ✦
         </div>
       ))}
-
-      {/* Header flourish */}
       <div
         style={{
           color: b.inner,
@@ -112,8 +110,6 @@ function CertificatePreview({
       >
         ✦ ✦ ✦
       </div>
-
-      {/* Logo / seal placeholder */}
       <div
         style={{
           width: "72px",
@@ -130,8 +126,6 @@ function CertificatePreview({
       >
         🏆
       </div>
-
-      {/* Organization */}
       <p
         style={{
           fontSize: "13px",
@@ -144,8 +138,6 @@ function CertificatePreview({
       >
         {issuedBy || "Organization Name"}
       </p>
-
-      {/* Title */}
       <h1
         style={{
           fontSize: "36px",
@@ -169,7 +161,6 @@ function CertificatePreview({
       >
         of {subtitle || "Achievement"}
       </div>
-
       <div
         style={{
           fontSize: "14px",
@@ -181,8 +172,6 @@ function CertificatePreview({
       >
         This certificate is proudly presented to
       </div>
-
-      {/* Name */}
       <div
         style={{
           fontSize: "44px",
@@ -198,7 +187,6 @@ function CertificatePreview({
       >
         {name || "Recipient Name"}
       </div>
-
       <div
         style={{
           fontSize: "14px",
@@ -212,8 +200,6 @@ function CertificatePreview({
       >
         for successfully completing and demonstrating excellence in
       </div>
-
-      {/* Achievement */}
       <div
         style={{
           fontSize: "22px",
@@ -225,8 +211,6 @@ function CertificatePreview({
       >
         {achievement || "Achievement / Course Title"}
       </div>
-
-      {/* Footer */}
       <div
         style={{
           display: "flex",
@@ -286,8 +270,6 @@ function CertificatePreview({
           </div>
         </div>
       </div>
-
-      {/* Footer flourish */}
       <div
         style={{
           color: b.inner,
@@ -302,7 +284,6 @@ function CertificatePreview({
   );
 }
 
-// ─── Certificate Tab ───────────────────────────────────────────────────────────
 function CertificateTab() {
   const [name, setName] = useState("");
   const [achievement, setAchievement] = useState("");
@@ -323,12 +304,9 @@ function CertificateTab() {
     if (!el) return;
     const win = window.open("", "_blank");
     if (!win) return;
-    win.document.write(`
-      <html><head><title>Certificate</title>
-      <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-      <style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f0f0f0;}@media print{body{background:white;}}</style>
-      </head><body>${el.outerHTML}<script>window.onload=()=>{window.print();window.close();}<\/script></body></html>
-    `);
+    win.document.write(
+      `<html><head><title>Certificate</title><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet"><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f0f0f0;}@media print{body{background:white;}}</style></head><body>${el.outerHTML}<script>window.onload=()=>{window.print();window.close();}<\/script></body></html>`,
+    );
     win.document.close();
   };
 
@@ -343,10 +321,8 @@ function CertificateTab() {
     if (!ctx) return;
     const b = BORDERS[border];
     ctx.scale(scale, scale);
-    // Background
     ctx.fillStyle = "#fffdf5";
     ctx.fillRect(0, 0, 794, 562);
-    // Outer border
     ctx.strokeStyle = b.outer;
     ctx.lineWidth = 12;
     ctx.strokeRect(6, 6, 782, 550);
@@ -356,27 +332,22 @@ function CertificateTab() {
     ctx.strokeStyle = b.accent;
     ctx.lineWidth = 1.5;
     ctx.strokeRect(26, 26, 742, 510);
-    // Organization
     ctx.fillStyle = b.inner;
     ctx.font = "bold 13px 'Arial'";
     ctx.textAlign = "center";
     ctx.fillText((issuedBy || "Organization Name").toUpperCase(), 397, 90);
-    // Title
     ctx.fillStyle = b.text;
     ctx.font = "bold 38px 'Georgia'";
     ctx.fillText("Certificate", 397, 145);
     ctx.fillStyle = b.inner;
     ctx.font = "13px 'Arial'";
     ctx.fillText(`of ${subtitle || "Achievement"}`.toUpperCase(), 397, 170);
-    // Presented to
     ctx.fillStyle = "#666";
     ctx.font = "italic 14px 'Georgia'";
     ctx.fillText("This certificate is proudly presented to", 397, 205);
-    // Name
     ctx.fillStyle = b.text;
     ctx.font = "bold 40px 'Georgia'";
     ctx.fillText(name || "Recipient Name", 397, 265);
-    // Line under name
     ctx.strokeStyle = b.accent;
     ctx.lineWidth = 2;
     const nameWidth = Math.min(
@@ -387,7 +358,6 @@ function CertificateTab() {
     ctx.moveTo(397 - nameWidth / 2, 278);
     ctx.lineTo(397 + nameWidth / 2, 278);
     ctx.stroke();
-    // For achievement
     ctx.fillStyle = "#555";
     ctx.font = "italic 13px 'Georgia'";
     ctx.fillText(
@@ -395,11 +365,9 @@ function CertificateTab() {
       397,
       308,
     );
-    // Achievement
     ctx.fillStyle = b.inner;
     ctx.font = "bold 20px 'Georgia'";
     ctx.fillText(achievement || "Achievement / Course Title", 397, 345);
-    // Signature lines
     ctx.strokeStyle = b.text;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
@@ -414,7 +382,6 @@ function CertificateTab() {
     ctx.font = "11px 'Arial'";
     ctx.fillText("Authorized Signature", 230, 496);
     ctx.fillText(date || "Date", 564, 496);
-    // Seal
     ctx.strokeStyle = b.outer;
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -423,7 +390,6 @@ function CertificateTab() {
     ctx.fillStyle = b.inner;
     ctx.font = "bold 9px 'Arial'";
     ctx.fillText("SEAL", 397, 474);
-    // Download
     const link = document.createElement("a");
     link.download = `certificate-${name || "recipient"}.png`;
     link.href = canvas.toDataURL();
@@ -434,62 +400,84 @@ function CertificateTab() {
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
       {/* Form */}
       <div className="space-y-4 no-print">
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <div
+          className="rounded-2xl p-6"
+          style={{
+            background: glassBg,
+            border: glassBorder,
+            backdropFilter: "blur(10px)",
+          }}
+        >
           <h3 className="font-bold text-gray-800 mb-4 text-lg flex items-center gap-2">
-            <Award size={20} className="text-yellow-600" /> Certificate Details
+            <Award size={20} style={{ color: "#FFB6D9" }} /> Certificate Details
           </h3>
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="cert-name">Recipient Name</Label>
-              <Input
-                id="cert-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Rahul Sharma"
-                className="mt-1"
-                data-ocid="certificate.input"
-              />
-            </div>
-            <div>
-              <Label htmlFor="cert-achievement">
-                Achievement / Course Title
-              </Label>
-              <Input
-                id="cert-achievement"
-                value={achievement}
-                onChange={(e) => setAchievement(e.target.value)}
-                placeholder="e.g. Computer Fundamentals"
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="cert-issued">Issued By (Organization)</Label>
-              <Input
-                id="cert-issued"
-                value={issuedBy}
-                onChange={(e) => setIssuedBy(e.target.value)}
-                placeholder="e.g. NextGen IT Hub"
-                className="mt-1"
-              />
-            </div>
+            {[
+              {
+                id: "cert-name",
+                label: "Recipient Name",
+                val: name,
+                set: setName,
+                ph: "e.g. Rahul Sharma",
+                ocid: "certificate.input",
+              },
+              {
+                id: "cert-achievement",
+                label: "Achievement / Course Title",
+                val: achievement,
+                set: setAchievement,
+                ph: "e.g. Computer Fundamentals",
+              },
+              {
+                id: "cert-issued",
+                label: "Issued By (Organization)",
+                val: issuedBy,
+                set: setIssuedBy,
+                ph: "e.g. NextGen IT Hub",
+              },
+            ].map((f) => (
+              <div key={f.id}>
+                <Label htmlFor={f.id} className="text-gray-700 font-semibold">
+                  {f.label}
+                </Label>
+                <Input
+                  id={f.id}
+                  value={f.val}
+                  onChange={(e) => f.set(e.target.value)}
+                  placeholder={f.ph}
+                  className="mt-1 rounded-xl"
+                  data-ocid={f.ocid}
+                />
+              </div>
+            ))}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="cert-subtitle">Subtitle</Label>
+                <Label
+                  htmlFor="cert-subtitle"
+                  className="text-gray-700 font-semibold"
+                >
+                  Subtitle
+                </Label>
                 <Input
                   id="cert-subtitle"
                   value={subtitle}
                   onChange={(e) => setSubtitle(e.target.value)}
                   placeholder="Achievement"
-                  className="mt-1"
+                  className="mt-1 rounded-xl"
                 />
               </div>
               <div>
-                <Label htmlFor="cert-date">Date</Label>
+                <Label
+                  htmlFor="cert-date"
+                  className="text-gray-700 font-semibold"
+                >
+                  Date
+                </Label>
                 <Input
                   id="cert-date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="mt-1"
+                  className="mt-1 rounded-xl"
                 />
               </div>
             </div>
@@ -497,7 +485,14 @@ function CertificateTab() {
         </div>
 
         {/* Border selector */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <div
+          className="rounded-2xl p-6"
+          style={{
+            background: glassBg,
+            border: glassBorder,
+            backdropFilter: "blur(10px)",
+          }}
+        >
           <h3 className="font-semibold text-gray-700 mb-3">Border Style</h3>
           <div className="grid grid-cols-2 gap-3">
             {(
@@ -511,15 +506,17 @@ function CertificateTab() {
                 type="button"
                 data-ocid={`certificate.${key}.toggle`}
                 onClick={() => setBorder(key)}
-                className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
-                  border === key
-                    ? "ring-2 ring-offset-1"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
+                className="p-3 rounded-xl border-2 text-sm font-medium transition-all"
                 style={{
-                  borderColor: val.outer,
-                  background: border === key ? `${val.accent}33` : undefined,
+                  borderColor:
+                    border === key ? val.outer : "rgba(255,182,217,0.2)",
+                  background:
+                    border === key
+                      ? `${val.accent}22`
+                      : "rgba(255,255,255,0.6)",
                   color: val.text,
+                  boxShadow:
+                    border === key ? `0 4px 12px ${val.accent}44` : "none",
                 }}
               >
                 {val.label}
@@ -530,21 +527,27 @@ function CertificateTab() {
 
         {/* Actions */}
         <div className="flex gap-3">
-          <Button
+          <button
+            type="button"
             onClick={handlePrint}
-            className="flex-1 bg-blue-700 hover:bg-blue-800"
             data-ocid="certificate.print.button"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-white font-semibold text-sm transition-all active:scale-95 shadow-md"
+            style={{
+              background: "linear-gradient(135deg, #B4E7FF, #7dd3fc)",
+              color: "#0c4a6e",
+            }}
           >
-            <Printer size={16} className="mr-2" /> Print Certificate
-          </Button>
-          <Button
+            <Printer size={16} /> Print Certificate
+          </button>
+          <button
+            type="button"
             onClick={handleDownload}
-            variant="outline"
-            className="flex-1"
             data-ocid="certificate.download.button"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl font-semibold text-sm transition-all active:scale-95 shadow-md text-white"
+            style={{ background: pinkGrad }}
           >
-            <Download size={16} className="mr-2" /> Download PNG
-          </Button>
+            <Download size={16} /> Download PNG
+          </button>
         </div>
       </div>
 
@@ -553,8 +556,8 @@ function CertificateTab() {
         <h3 className="font-semibold text-gray-700 mb-3">Live Preview</h3>
         <div
           ref={previewRef}
-          className="overflow-auto border rounded-xl shadow-md bg-gray-100 p-4"
-          style={{ maxWidth: "100%" }}
+          className="overflow-auto rounded-2xl p-4"
+          style={{ maxWidth: "100%", background: glassBg, border: glassBorder }}
         >
           <div
             style={{
@@ -579,7 +582,6 @@ function CertificateTab() {
   );
 }
 
-// ─── Album Sheet Tab ───────────────────────────────────────────────────────────
 type LayoutKey = "2x2" | "2x3" | "3x3";
 
 const LAYOUTS: Record<
@@ -636,11 +638,9 @@ function AlbumTab() {
         }),
     );
     Promise.all(promises).then(() => {
-      win.document.write(`
-        <html><head><title>Album Sheet</title>
-        <style>body{margin:16px;font-family:sans-serif;}@media print{body{margin:0;}}</style>
-        </head><body>${el.outerHTML}<script>window.onload=()=>{window.print();window.close();}<\/script></body></html>
-      `);
+      win.document.write(
+        `<html><head><title>Album Sheet</title><style>body{margin:16px;font-family:sans-serif;}@media print{body{margin:0;}}</style></head><body>${el.outerHTML}<script>window.onload=()=>{window.print();window.close();}<\/script></body></html>`,
+      );
       win.document.close();
     });
   };
@@ -648,21 +648,35 @@ function AlbumTab() {
   return (
     <div className="space-y-6">
       {/* Controls */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm no-print">
+      <div
+        className="rounded-2xl p-6 no-print"
+        style={{
+          background: glassBg,
+          border: glassBorder,
+          backdropFilter: "blur(10px)",
+        }}
+      >
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
           <div className="flex-1">
-            <Label htmlFor="album-title">Album Sheet Title</Label>
+            <Label
+              htmlFor="album-title"
+              className="text-gray-700 font-semibold"
+            >
+              Album Sheet Title
+            </Label>
             <Input
               id="album-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Graduation Day 2026"
-              className="mt-1"
+              className="mt-1 rounded-xl"
               data-ocid="album.input"
             />
           </div>
           <div>
-            <Label className="mb-1 block">Layout</Label>
+            <Label className="mb-1 block text-gray-700 font-semibold">
+              Layout
+            </Label>
             <div className="flex gap-2">
               {(
                 Object.entries(LAYOUTS) as [
@@ -675,11 +689,19 @@ function AlbumTab() {
                   type="button"
                   data-ocid={`album.${k}.toggle`}
                   onClick={() => setLayout(k)}
-                  className={`px-3 py-2 rounded-lg text-sm border-2 font-medium transition-all ${
+                  className="px-3 py-2 rounded-xl text-sm border-2 font-medium transition-all"
+                  style={
                     layout === k
-                      ? "border-blue-600 bg-blue-50 text-blue-700"
-                      : "border-gray-200 text-gray-600 hover:border-gray-300"
-                  }`}
+                      ? {
+                          borderColor: "#FFB6D9",
+                          background: "rgba(255,182,217,0.15)",
+                          color: "#be185d",
+                        }
+                      : {
+                          borderColor: "rgba(255,182,217,0.2)",
+                          color: "#6b7280",
+                        }
+                  }
                 >
                   {v.label}
                 </button>
@@ -690,7 +712,14 @@ function AlbumTab() {
       </div>
 
       {/* Preview Grid */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+      <div
+        className="rounded-2xl p-6"
+        style={{
+          background: glassBg,
+          border: glassBorder,
+          backdropFilter: "blur(10px)",
+        }}
+      >
         <div id="album-preview">
           {title && (
             <h2
@@ -702,7 +731,7 @@ function AlbumTab() {
                 color: "#1a1a2e",
                 marginBottom: "20px",
                 letterSpacing: "1px",
-                borderBottom: "2px solid #daa520",
+                borderBottom: "2px solid #FFB6D9",
                 paddingBottom: "12px",
               }}
             >
@@ -722,11 +751,16 @@ function AlbumTab() {
                 className="flex flex-col gap-1"
                 data-ocid={`album.item.${idx + 1}`}
               >
-                {/* Photo slot */}
                 <button
                   type="button"
-                  className="relative overflow-hidden rounded-lg border-2 border-gray-300 bg-gray-50 cursor-pointer group w-full"
-                  style={{ aspectRatio: "4/3" }}
+                  className="relative overflow-hidden rounded-2xl border-2 cursor-pointer group w-full transition-all"
+                  style={{
+                    aspectRatio: "4/3",
+                    borderColor: slot.url
+                      ? "rgba(255,182,217,0.3)"
+                      : "rgba(255,182,217,0.3)",
+                    background: "rgba(255,245,251,0.6)",
+                  }}
                   onClick={() => fileRefs.current[idx]?.click()}
                 >
                   {slot.url ? (
@@ -736,16 +770,14 @@ function AlbumTab() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 group-hover:text-blue-500 transition-colors">
-                      <ImageIcon size={32} className="mb-2" />
-                      <span className="text-sm font-medium">
-                        Click to upload
-                      </span>
+                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-300 group-hover:text-pink-300 transition-colors">
+                      <ImageIcon size={28} className="mb-2" />
+                      <span className="text-xs font-medium">Tap to upload</span>
                     </div>
                   )}
                   {slot.url && (
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Upload size={24} className="text-white" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
+                      <Upload size={22} className="text-white" />
                     </div>
                   )}
                   <input
@@ -762,37 +794,39 @@ function AlbumTab() {
                     }}
                   />
                 </button>
-                {/* Caption */}
                 <input
                   type="text"
                   value={slot.caption}
                   onChange={(e) => handleCaption(idx, e.target.value)}
                   placeholder="Caption (optional)"
-                  className="text-xs text-center border border-gray-200 rounded px-2 py-1 text-gray-600 focus:outline-none focus:border-blue-400"
+                  className="text-xs text-center rounded-xl px-2 py-1 text-gray-500 focus:outline-none transition-colors"
+                  style={{
+                    border: "1px solid rgba(255,182,217,0.3)",
+                    background: "rgba(255,255,255,0.7)",
+                  }}
                 />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Print button */}
         <div className="mt-6 flex justify-center no-print">
-          <Button
+          <button
+            type="button"
             onClick={handlePrint}
-            className="bg-blue-700 hover:bg-blue-800 px-8"
             data-ocid="album.print.button"
+            className="flex items-center gap-2 px-8 py-3 rounded-2xl text-white font-semibold transition-all active:scale-95 shadow-md"
+            style={{ background: pinkGrad }}
           >
-            <Printer size={16} className="mr-2" /> Print Album Sheet
-          </Button>
+            <Printer size={16} /> Print Album Sheet
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Main Page ─────────────────────────────────────────────────────────────────
 export function CertificateAlbumPage() {
-  // Inject print styles
   useEffect(() => {
     const style = document.createElement("style");
     style.textContent = PRINT_STYLE;
@@ -804,17 +838,29 @@ export function CertificateAlbumPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main
+      className="min-h-screen pb-16"
+      style={{
+        background: "linear-gradient(160deg, #fff5fb 0%, #f0f9ff 100%)",
+      }}
+    >
       {/* Hero */}
-      <div className="bg-[#0B2A4A] text-white py-10 px-4">
+      <div
+        className="py-10 px-4"
+        style={{
+          background: "linear-gradient(135deg, #FFB6D9 0%, #B4E7FF 100%)",
+        }}
+      >
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
-            <Award size={32} className="text-yellow-400" />
-            <h1 className="text-3xl font-bold tracking-wide">
+            <div className="w-10 h-10 rounded-2xl bg-white/30 flex items-center justify-center">
+              <Award size={22} className="text-white" />
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-wide">
               Certificate & Album Sheet
             </h1>
           </div>
-          <p className="text-blue-200 text-sm">
+          <p className="text-white/80 text-sm ml-13">
             Create and print professional certificates and photo album sheets
             instantly
           </p>
@@ -823,11 +869,28 @@ export function CertificateAlbumPage() {
 
       <div className="max-w-5xl mx-auto px-4 py-8">
         <Tabs defaultValue="certificate">
-          <TabsList className="mb-6 no-print">
-            <TabsTrigger value="certificate" data-ocid="certificate.tab">
+          <TabsList
+            className="mb-6 no-print rounded-2xl p-1.5 gap-1"
+            style={{
+              background: "rgba(255,255,255,0.85)",
+              border: glassBorder,
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <TabsTrigger
+              value="certificate"
+              data-ocid="certificate.tab"
+              className="rounded-xl data-[state=active]:text-white data-[state=active]:shadow-md"
+              style={{ fontWeight: 600 }}
+            >
               🏆 Certificate
             </TabsTrigger>
-            <TabsTrigger value="album" data-ocid="album.tab">
+            <TabsTrigger
+              value="album"
+              data-ocid="album.tab"
+              className="rounded-xl data-[state=active]:text-white data-[state=active]:shadow-md"
+              style={{ fontWeight: 600 }}
+            >
               📷 Album Sheet
             </TabsTrigger>
           </TabsList>
@@ -842,7 +905,6 @@ export function CertificateAlbumPage() {
         </Tabs>
       </div>
 
-      {/* Footer */}
       <footer className="text-center text-xs text-gray-400 py-6 no-print">
         © {new Date().getFullYear()}. Built with love using{" "}
         <a
@@ -850,6 +912,7 @@ export function CertificateAlbumPage() {
           target="_blank"
           rel="noopener noreferrer"
           className="underline hover:text-gray-600"
+          style={{ color: "#FFB6D9" }}
         >
           caffeine.ai
         </a>

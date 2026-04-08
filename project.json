@@ -1,0 +1,28 @@
+{
+  "overview": "NextGen IT Hub is a comprehensive all-in-one digital services platform for Manash PC World in Chamata, Assam. It combines an e-commerce store, government document services, job updates, entertainment with Assamese music, AI chatbot, image tools, and tourism showcase — all with an iOS-inspired Pink and Sky gradient design and a full admin panel for managing every section of the site.",
+  "features": [
+    "iOS-style Pink and Sky Blue gradient design with glassmorphism cards",
+    "Full e-commerce store with cart, checkout and order tracking",
+    "Assamese Music Library with YouTube embed, lyrics, singer/movie/category browse",
+    "Government Forms Library with 50+ downloadable PDFs and usage guides",
+    "Job Updates with CSC Bridge section and animated stats",
+    "Assam Tourism showcase with 10 pre-loaded famous places",
+    "Comprehensive admin panel managing all site content permanently",
+    "AI Chatbot (Manash 2.0) powered by Groq with streaming responses",
+    "Document converter and 8-tool image processing suite",
+    "PWA installable as NextGen IT Hub with offline support"
+  ],
+  "category": "business",
+  "tags": [
+    "e-commerce",
+    "assam",
+    "government-services",
+    "music-library",
+    "admin-panel",
+    "ios-design",
+    "pwa",
+    "ai-chatbot",
+    "tourism"
+  ],
+  "last_updated": "2026-04-08T19:24:54.484Z"
+}

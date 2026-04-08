@@ -21,6 +21,7 @@ import {
   RotateCw,
   Scissors,
   Sliders,
+  Sparkles,
   Type,
   Unlock,
   Upload,
@@ -46,56 +47,95 @@ const tools: {
   label: string;
   desc: string;
   icon: React.ReactNode;
+  accent: string;
+  isSky?: boolean;
 }[] = [
   {
     id: "compress",
     label: "Compress",
-    desc: "Reduce image file size",
-    icon: <Minimize2 size={28} />,
+    desc: "Reduce file size",
+    icon: <Minimize2 size={22} />,
+    accent: "pink",
   },
   {
     id: "resize",
     label: "Resize",
-    desc: "Change image dimensions",
-    icon: <Maximize2 size={28} />,
+    desc: "Change dimensions",
+    icon: <Maximize2 size={22} />,
+    accent: "sky",
+    isSky: true,
   },
   {
     id: "convert",
     label: "Convert",
-    desc: "Change image format",
-    icon: <RefreshCw size={28} />,
+    desc: "Change format",
+    icon: <RefreshCw size={22} />,
+    accent: "pink",
   },
   {
     id: "bg-remove",
-    label: "Background Remover",
-    desc: "Remove image background",
-    icon: <Eraser size={28} />,
+    label: "BG Remover",
+    desc: "AI background removal",
+    icon: <Eraser size={22} />,
+    accent: "sky",
+    isSky: true,
   },
   {
     id: "crop",
     label: "Crop",
-    desc: "Crop to specific area",
-    icon: <Scissors size={28} />,
+    desc: "Crop to area",
+    icon: <Scissors size={22} />,
+    accent: "pink",
   },
   {
     id: "rotate",
     label: "Rotate & Flip",
-    desc: "Rotate or mirror image",
-    icon: <RotateCw size={28} />,
+    desc: "Rotate or mirror",
+    icon: <RotateCw size={22} />,
+    accent: "sky",
+    isSky: true,
   },
   {
     id: "filter",
-    label: "Grayscale / B&W",
-    desc: "Apply color filters",
-    icon: <Sliders size={28} />,
+    label: "Grayscale",
+    desc: "Apply filters",
+    icon: <Sliders size={22} />,
+    accent: "pink",
   },
   {
     id: "text",
     label: "Add Text",
-    desc: "Overlay text on image",
-    icon: <Type size={28} />,
+    desc: "Overlay text",
+    icon: <Type size={22} />,
+    accent: "sky",
+    isSky: true,
   },
 ];
+
+// ── Shared iOS styles ────────────────────────────────────────────────────────
+const pinkGrad = "linear-gradient(135deg, #FFB6D9 0%, #ff8fc6 100%)";
+const skyGrad = "linear-gradient(135deg, #B4E7FF 0%, #7dd3fc 100%)";
+const glassBg = "rgba(255,255,255,0.82)";
+const glassBorder = "1px solid rgba(255,182,217,0.35)";
+
+function DownloadBtn({
+  onClick,
+  label = "Download",
+  dataOcid,
+}: { onClick: () => void; label?: string; dataOcid?: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      data-ocid={dataOcid}
+      className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all active:scale-95 shadow-sm"
+      style={{ background: pinkGrad }}
+    >
+      <Download size={15} />
+      {label}
+    </button>
+  );
+}
 
 function UploadZone({
   onFile,
@@ -125,15 +165,20 @@ function UploadZone({
       onDragLeave={() => setDrag(false)}
       onDrop={handleDrop}
       onClick={() => inputRef.current?.click()}
-      className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors ${
-        drag
-          ? "border-[#1E88FF] bg-blue-50"
-          : "border-gray-300 hover:border-[#1E88FF] hover:bg-blue-50"
-      }`}
+      className="w-full border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all"
+      style={{
+        borderColor: drag ? "#FFB6D9" : "rgba(255,182,217,0.5)",
+        background: drag ? "rgba(255,182,217,0.12)" : "rgba(255,255,255,0.6)",
+      }}
     >
-      <Upload className="mx-auto mb-2 text-gray-400" size={36} />
-      <p className="text-gray-600 font-medium">
-        Drop image here or click to upload
+      <div
+        className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
+        style={{ background: pinkGrad }}
+      >
+        <Upload size={24} className="text-white" />
+      </div>
+      <p className="font-semibold text-gray-700">
+        Drop image here or tap to upload
       </p>
       <p className="text-gray-400 text-sm mt-1">JPG, PNG, WebP supported</p>
       <input
@@ -234,24 +279,28 @@ function CompressTool() {
               <img
                 src={preview}
                 alt="preview"
-                className="w-32 h-32 object-cover rounded-xl border"
+                className="w-24 h-24 object-cover rounded-2xl border border-pink-100"
               />
             )}
-            <div className="flex-1">
-              <p className="font-medium text-[#0B2A4A]">{file.name}</p>
-              <p className="text-sm text-gray-500">
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-gray-800 truncate">
+                {file.name}
+              </p>
+              <p className="text-sm text-gray-400">
                 Original: {Math.round(file.size / 1024)} KB
               </p>
-              <p className="text-sm text-gray-500">
-                Estimated compressed: ~{estSize} KB
-              </p>
+              <p className="text-sm text-gray-400">Estimated: ~{estSize} KB</p>
             </div>
-            <button type="button" onClick={() => setFile(null)}>
-              <X size={18} className="text-gray-400 hover:text-red-500" />
+            <button
+              type="button"
+              onClick={() => setFile(null)}
+              className="text-gray-300 hover:text-red-400 transition-colors"
+            >
+              <X size={18} />
             </button>
           </div>
           <div>
-            <Label className="text-[#0B2A4A] font-semibold">
+            <Label className="text-gray-700 font-semibold">
               Quality: {quality}%
             </Label>
             <Slider
@@ -263,13 +312,11 @@ function CompressTool() {
               className="mt-2"
             />
           </div>
-          <Button
+          <DownloadBtn
             onClick={compress}
-            className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white rounded-xl"
-            data-ocid="imagetool.compress.primary_button"
-          >
-            <Download size={16} className="mr-2" /> Compress & Download
-          </Button>
+            label="Compress & Download"
+            dataOcid="imagetool.compress.primary_button"
+          />
         </div>
       )}
     </div>
@@ -336,12 +383,12 @@ function ResizeTool() {
               <img
                 src={preview}
                 alt="preview"
-                className="w-32 h-32 object-cover rounded-xl border"
+                className="w-24 h-24 object-cover rounded-2xl border border-sky-100"
               />
             )}
             <div>
-              <p className="font-medium text-[#0B2A4A]">{file.name}</p>
-              <p className="text-sm text-gray-500">
+              <p className="font-semibold text-gray-800">{file.name}</p>
+              <p className="text-sm text-gray-400">
                 Original: {origW} × {origH}px
               </p>
             </div>
@@ -351,30 +398,29 @@ function ResizeTool() {
                 setFile(null);
                 setPreview(null);
               }}
+              className="text-gray-300 hover:text-red-400 transition-colors ml-auto"
             >
-              <X size={18} className="text-gray-400 hover:text-red-500" />
+              <X size={18} />
             </button>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="text-[#0B2A4A] font-semibold">Width (px)</Label>
+              <Label className="text-gray-700 font-semibold">Width (px)</Label>
               <Input
                 type="number"
                 value={w}
                 onChange={(e) => handleW(Number(e.target.value))}
-                className="mt-1"
+                className="mt-1 rounded-xl"
                 data-ocid="imagetool.resize.input"
               />
             </div>
             <div>
-              <Label className="text-[#0B2A4A] font-semibold">
-                Height (px)
-              </Label>
+              <Label className="text-gray-700 font-semibold">Height (px)</Label>
               <Input
                 type="number"
                 value={h}
                 onChange={(e) => handleH(Number(e.target.value))}
-                className="mt-1"
+                className="mt-1 rounded-xl"
                 data-ocid="imagetool.resize.input"
               />
             </div>
@@ -383,21 +429,20 @@ function ResizeTool() {
             <button
               type="button"
               onClick={() => setLocked(!locked)}
-              className="text-[#1E88FF]"
+              className="transition-colors"
+              style={{ color: "#B4E7FF" }}
             >
               {locked ? <Lock size={16} /> : <Unlock size={16} />}
             </button>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-gray-500">
               {locked ? "Aspect ratio locked" : "Aspect ratio unlocked"}
             </span>
           </div>
-          <Button
+          <DownloadBtn
             onClick={resize}
-            className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white rounded-xl"
-            data-ocid="imagetool.resize.primary_button"
-          >
-            <Download size={16} className="mr-2" /> Resize & Download
-          </Button>
+            label="Resize & Download"
+            dataOcid="imagetool.resize.primary_button"
+          />
         </div>
       )}
     </div>
@@ -450,12 +495,12 @@ function ConvertTool() {
               <img
                 src={preview}
                 alt="preview"
-                className="w-32 h-32 object-cover rounded-xl border"
+                className="w-24 h-24 object-cover rounded-2xl border border-pink-100"
               />
             )}
             <div>
-              <p className="font-medium text-[#0B2A4A]">{file.name}</p>
-              <p className="text-sm text-gray-500">{file.type}</p>
+              <p className="font-semibold text-gray-800">{file.name}</p>
+              <p className="text-sm text-gray-400">{file.type}</p>
             </div>
             <button
               type="button"
@@ -463,18 +508,19 @@ function ConvertTool() {
                 setFile(null);
                 setPreview(null);
               }}
+              className="text-gray-300 hover:text-red-400 transition-colors ml-auto"
             >
-              <X size={18} className="text-gray-400 hover:text-red-500" />
+              <X size={18} />
             </button>
           </div>
           <div>
-            <Label className="text-[#0B2A4A] font-semibold">Convert to</Label>
+            <Label className="text-gray-700 font-semibold">Convert to</Label>
             <Select
               value={format}
               onValueChange={(v) => setFormat(v as typeof format)}
             >
               <SelectTrigger
-                className="mt-1"
+                className="mt-1 rounded-xl"
                 data-ocid="imagetool.convert.select"
               >
                 <SelectValue />
@@ -486,13 +532,11 @@ function ConvertTool() {
               </SelectContent>
             </Select>
           </div>
-          <Button
+          <DownloadBtn
             onClick={convert}
-            className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white rounded-xl"
-            data-ocid="imagetool.convert.primary_button"
-          >
-            <Download size={16} className="mr-2" /> Convert & Download
-          </Button>
+            label="Convert & Download"
+            dataOcid="imagetool.convert.primary_button"
+          />
         </div>
       )}
     </div>
@@ -528,20 +572,15 @@ function BgRemoveTool() {
       const formData = new FormData();
       formData.append("image_file", file);
       formData.append("size", "auto");
-
       const response = await fetch("https://api.remove.bg/v1.0/removebg", {
         method: "POST",
-        headers: {
-          "X-Api-Key": "UputND68rsXjraZifg5jTM7d",
-        },
+        headers: { "X-Api-Key": "UputND68rsXjraZifg5jTM7d" },
         body: formData,
       });
-
       if (!response.ok) {
         const errText = await response.text();
         throw new Error(`API error: ${response.status} - ${errText}`);
       }
-
       setProgress("Processing complete!");
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
@@ -568,11 +607,22 @@ function BgRemoveTool() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-blue-700">
-        <Info size={16} className="mt-0.5 shrink-0" />
+      <div
+        className="flex items-start gap-2 rounded-2xl p-3 text-sm"
+        style={{
+          background: "rgba(180,231,255,0.18)",
+          border: "1px solid rgba(180,231,255,0.5)",
+          color: "#0369a1",
+        }}
+      >
+        <Info
+          size={16}
+          className="mt-0.5 shrink-0"
+          style={{ color: "#B4E7FF" }}
+        />
         <span>
-          Powered by remove.bg API — professional AI background removal. Upload
-          your image and get a clean transparent PNG in seconds.
+          Powered by <strong>remove.bg API</strong> — professional AI background
+          removal. Get a clean transparent PNG instantly.
         </span>
       </div>
       {!file ? (
@@ -581,31 +631,31 @@ function BgRemoveTool() {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm font-semibold text-gray-600 mb-1">
+              <p className="text-sm font-semibold text-gray-500 mb-1">
                 Original
               </p>
               {preview && (
                 <img
                   src={preview}
                   alt="original"
-                  className="w-full h-40 object-contain rounded-xl border bg-[#ccc] bg-[url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Crect width='5' height='5' fill='%23ccc'/%3E%3Crect x='5' y='5' width='5' height='5' fill='%23ccc'/%3E%3Crect x='5' width='5' height='5' fill='%23eee'/%3E%3Crect y='5' width='5' height='5' fill='%23eee'/%3E%3C/svg%3E&quot;)]"
+                  className="w-full h-40 object-contain rounded-2xl border border-pink-100 bg-gray-50"
                 />
               )}
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-600 mb-1">Result</p>
+              <p className="text-sm font-semibold text-gray-500 mb-1">Result</p>
               {resultUrl ? (
                 <img
                   src={resultUrl}
                   alt="result"
-                  className="w-full h-40 object-contain rounded-xl border"
+                  className="w-full h-40 object-contain rounded-2xl border border-sky-100"
                   style={{
                     background:
-                      "repeating-conic-gradient(#ccc 0% 25%, #eee 0% 50%) 0 0/16px 16px",
+                      "repeating-conic-gradient(#ddd 0% 25%, #fff 0% 50%) 0 0/16px 16px",
                   }}
                 />
               ) : (
-                <div className="w-full h-40 rounded-xl border flex items-center justify-center bg-gray-50 text-gray-400 text-sm">
+                <div className="w-full h-40 rounded-2xl border border-dashed border-sky-200 flex items-center justify-center text-gray-400 text-sm bg-sky-50/30">
                   Result appears here
                 </div>
               )}
@@ -613,42 +663,43 @@ function BgRemoveTool() {
           </div>
           {loading && (
             <p
-              className="text-sm text-[#1E88FF] font-medium animate-pulse"
+              className="text-sm font-medium animate-pulse"
+              style={{ color: "#B4E7FF" }}
               data-ocid="imagetool.bgremove.loading_state"
             >
               {progress}
             </p>
           )}
-          <div className="flex gap-3">
-            <Button
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
               onClick={removeBackground}
               disabled={loading}
-              className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white rounded-xl"
               data-ocid="imagetool.bgremove.primary_button"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all active:scale-95 shadow-sm disabled:opacity-50"
+              style={{ background: skyGrad, color: "#0f172a" }}
             >
+              <Sparkles size={15} />
               {loading ? "Processing..." : "Remove Background"}
-            </Button>
+            </button>
             {resultUrl && (
-              <Button
+              <DownloadBtn
                 onClick={download}
-                variant="outline"
-                className="rounded-xl"
-                data-ocid="imagetool.bgremove.secondary_button"
-              >
-                <Download size={16} className="mr-2" /> Download PNG
-              </Button>
+                label="Download PNG"
+                dataOcid="imagetool.bgremove.secondary_button"
+              />
             )}
-            <Button
-              variant="ghost"
+            <button
+              type="button"
               onClick={() => {
                 setFile(null);
                 setPreview(null);
                 setResultUrl(null);
               }}
-              className="rounded-xl"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm text-gray-500 hover:text-gray-700 transition-colors border border-gray-200"
             >
-              <X size={16} className="mr-1" /> Clear
-            </Button>
+              <X size={14} /> Clear
+            </button>
           </div>
         </div>
       )}
@@ -708,12 +759,12 @@ function CropTool() {
               <img
                 src={preview}
                 alt="preview"
-                className="w-32 h-32 object-cover rounded-xl border"
+                className="w-24 h-24 object-cover rounded-2xl border border-pink-100"
               />
             )}
             <div>
-              <p className="font-medium text-[#0B2A4A]">{file.name}</p>
-              <p className="text-sm text-gray-500">
+              <p className="font-semibold text-gray-800">{file.name}</p>
+              <p className="text-sm text-gray-400">
                 Original: {origW} × {origH}px
               </p>
             </div>
@@ -723,8 +774,9 @@ function CropTool() {
                 setFile(null);
                 setPreview(null);
               }}
+              className="text-gray-300 hover:text-red-400 transition-colors ml-auto"
             >
-              <X size={18} className="text-gray-400 hover:text-red-500" />
+              <X size={18} />
             </button>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -735,24 +787,22 @@ function CropTool() {
               { label: "Height (px)", val: ch, set: setCh },
             ].map(({ label, val, set }) => (
               <div key={label}>
-                <Label className="text-[#0B2A4A] font-semibold">{label}</Label>
+                <Label className="text-gray-700 font-semibold">{label}</Label>
                 <Input
                   type="number"
                   value={val}
                   onChange={(e) => set(Number(e.target.value))}
-                  className="mt-1"
+                  className="mt-1 rounded-xl"
                   data-ocid="imagetool.crop.input"
                 />
               </div>
             ))}
           </div>
-          <Button
+          <DownloadBtn
             onClick={crop}
-            className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white rounded-xl"
-            data-ocid="imagetool.crop.primary_button"
-          >
-            <Scissors size={16} className="mr-2" /> Crop & Download
-          </Button>
+            label="Crop & Download"
+            dataOcid="imagetool.crop.primary_button"
+          />
         </div>
       )}
     </div>
@@ -780,7 +830,6 @@ function RotateTool() {
       const sh = sourceCanvas.height;
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d")!;
-
       if (mode === "cw" || mode === "ccw") {
         canvas.width = sh;
         canvas.height = sw;
@@ -806,7 +855,6 @@ function RotateTool() {
         ctx.scale(1, -1);
         ctx.drawImage(sourceCanvas, 0, 0);
       }
-
       resultBlobRef.current = canvas;
       if (resultUrl) URL.revokeObjectURL(resultUrl);
       canvas.toBlob((blob) => {
@@ -842,7 +890,7 @@ function RotateTool() {
             <img
               src={resultUrl}
               alt="result"
-              className="max-h-48 mx-auto rounded-xl border object-contain"
+              className="max-h-48 mx-auto rounded-2xl border border-sky-100 object-contain"
             />
           )}
           <div className="flex flex-wrap gap-2">
@@ -853,38 +901,40 @@ function RotateTool() {
               { label: "↔ Flip H", mode: "flipH" },
               { label: "↕ Flip V", mode: "flipV" },
             ].map(({ label, mode }) => (
-              <Button
+              <button
                 key={mode}
-                variant="outline"
+                type="button"
                 onClick={() => applyTransform(mode)}
-                className="rounded-xl"
                 data-ocid="imagetool.rotate.button"
+                className="px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all active:scale-95"
+                style={{
+                  borderColor: "rgba(180,231,255,0.5)",
+                  color: "#0369a1",
+                  background: "rgba(180,231,255,0.1)",
+                }}
               >
                 {label}
-              </Button>
+              </button>
             ))}
           </div>
           <div className="flex gap-3">
             {resultUrl && (
-              <Button
+              <DownloadBtn
                 onClick={download}
-                className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white rounded-xl"
-                data-ocid="imagetool.rotate.primary_button"
-              >
-                <Download size={16} className="mr-2" /> Download
-              </Button>
+                dataOcid="imagetool.rotate.primary_button"
+              />
             )}
-            <Button
-              variant="ghost"
+            <button
+              type="button"
               onClick={() => {
                 setFile(null);
                 resultBlobRef.current = null;
                 setResultUrl(null);
               }}
-              className="rounded-xl"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm text-gray-500 hover:text-gray-700 border border-gray-200 transition-colors"
             >
-              <X size={16} className="mr-1" /> Clear
-            </Button>
+              <X size={14} /> Clear
+            </button>
           </div>
         </div>
       )}
@@ -947,69 +997,64 @@ function FilterTool() {
           <div className="grid grid-cols-2 gap-4">
             {preview && (
               <div>
-                <p className="text-sm font-semibold text-gray-600 mb-1">
+                <p className="text-sm font-semibold text-gray-500 mb-1">
                   Original
                 </p>
                 <img
                   src={preview}
                   alt="original"
-                  className="w-full h-40 object-contain rounded-xl border"
+                  className="w-full h-40 object-contain rounded-2xl border border-pink-100"
                 />
               </div>
             )}
             <div>
-              <p className="text-sm font-semibold text-gray-600 mb-1">Result</p>
+              <p className="text-sm font-semibold text-gray-500 mb-1">Result</p>
               {resultUrl ? (
                 <img
                   src={resultUrl}
                   alt="result"
-                  className="w-full h-40 object-contain rounded-xl border"
+                  className="w-full h-40 object-contain rounded-2xl border border-sky-100"
                 />
               ) : (
-                <div className="w-full h-40 rounded-xl border flex items-center justify-center bg-gray-50 text-gray-400 text-sm">
+                <div className="w-full h-40 rounded-2xl border border-dashed border-pink-200 flex items-center justify-center text-gray-400 text-sm">
                   Click a filter
                 </div>
               )}
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Button
-              variant="outline"
-              onClick={() => apply("gray")}
-              className="rounded-xl"
-              data-ocid="imagetool.filter.button"
-            >
-              Grayscale
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => apply("bw")}
-              className="rounded-xl"
-              data-ocid="imagetool.filter.button"
-            >
-              Black & White
-            </Button>
-            {resultUrl && (
-              <Button
-                onClick={download}
-                className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white rounded-xl"
-                data-ocid="imagetool.filter.primary_button"
+            {["Grayscale", "Black & White"].map((label, i) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => apply(i === 0 ? "gray" : "bw")}
+                data-ocid="imagetool.filter.button"
+                className="px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all active:scale-95"
+                style={{
+                  borderColor: "rgba(255,182,217,0.5)",
+                  color: "#be185d",
+                  background: "rgba(255,182,217,0.1)",
+                }}
               >
-                <Download size={16} className="mr-2" />
-                Download
-              </Button>
+                {label}
+              </button>
+            ))}
+            {resultUrl && (
+              <DownloadBtn
+                onClick={download}
+                dataOcid="imagetool.filter.primary_button"
+              />
             )}
-            <Button
-              variant="ghost"
+            <button
+              type="button"
               onClick={() => {
                 setFile(null);
                 setResultUrl(null);
               }}
-              className="rounded-xl"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm text-gray-500 border border-gray-200 transition-colors"
             >
-              <X size={16} className="mr-1" />
-              Clear
-            </Button>
+              <X size={14} /> Clear
+            </button>
           </div>
         </div>
       )}
@@ -1080,22 +1125,22 @@ function AddTextTool() {
             <img
               src={resultUrl || preview || ""}
               alt="preview"
-              className="max-h-48 mx-auto rounded-xl border object-contain"
+              className="max-h-48 mx-auto rounded-2xl border border-pink-100 object-contain"
             />
           )}
           <div className="grid grid-cols-1 gap-3">
             <div>
-              <Label className="text-[#0B2A4A] font-semibold">Text</Label>
+              <Label className="text-gray-700 font-semibold">Text</Label>
               <Input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                className="mt-1"
+                className="mt-1 rounded-xl"
                 data-ocid="imagetool.text.input"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-[#0B2A4A] font-semibold">
+                <Label className="text-gray-700 font-semibold">
                   Font Size: {fontSize}px
                 </Label>
                 <Slider
@@ -1108,19 +1153,19 @@ function AddTextTool() {
                 />
               </div>
               <div>
-                <Label className="text-[#0B2A4A] font-semibold">Color</Label>
+                <Label className="text-gray-700 font-semibold">Color</Label>
                 <input
                   type="color"
                   value={color}
                   onChange={(e) => setColor(e.target.value)}
-                  className="mt-1 h-9 w-full rounded border cursor-pointer"
+                  className="mt-1 h-9 w-full rounded-xl border cursor-pointer"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-[#0B2A4A] font-semibold">
-                  X Position: {xPct}%
+                <Label className="text-gray-700 font-semibold">
+                  X: {xPct}%
                 </Label>
                 <Slider
                   min={0}
@@ -1132,8 +1177,8 @@ function AddTextTool() {
                 />
               </div>
               <div>
-                <Label className="text-[#0B2A4A] font-semibold">
-                  Y Position: {yPct}%
+                <Label className="text-gray-700 font-semibold">
+                  Y: {yPct}%
                 </Label>
                 <Slider
                   min={0}
@@ -1176,36 +1221,32 @@ function AddTextTool() {
               </div>
             </div>
           </div>
-          <div className="flex gap-3">
-            <Button
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
               onClick={apply}
-              className="bg-[#0B2A4A] hover:bg-[#1E88FF] text-white rounded-xl"
               data-ocid="imagetool.text.primary_button"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all active:scale-95 shadow-sm"
+              style={{ background: pinkGrad }}
             >
               Apply Text
-            </Button>
+            </button>
             {resultUrl && (
-              <Button
+              <DownloadBtn
                 onClick={download}
-                variant="outline"
-                className="rounded-xl"
-                data-ocid="imagetool.text.secondary_button"
-              >
-                <Download size={16} className="mr-2" />
-                Download
-              </Button>
+                dataOcid="imagetool.text.secondary_button"
+              />
             )}
-            <Button
-              variant="ghost"
+            <button
+              type="button"
               onClick={() => {
                 setFile(null);
                 setResultUrl(null);
               }}
-              className="rounded-xl"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm text-gray-500 border border-gray-200 transition-colors"
             >
-              <X size={16} className="mr-1" />
-              Clear
-            </Button>
+              <X size={14} /> Clear
+            </button>
           </div>
         </div>
       )}
@@ -1233,80 +1274,125 @@ export function ImageToolsPage({
   return (
     <main
       className="min-h-screen pb-16"
-      style={{ background: "oklch(0.12 0.03 250)" }}
+      style={{
+        background: "linear-gradient(160deg, #fff5fb 0%, #f0f9ff 100%)",
+      }}
     >
       {/* Hero */}
       <div
-        className="py-10 px-4 animate-fade-in-up"
+        className="py-10 px-4"
         style={{
-          background:
-            "linear-gradient(135deg, oklch(0.14 0.04 250) 0%, oklch(0.18 0.06 260) 100%)",
-          borderBottom: "1px solid oklch(0.25 0.06 250)",
+          background: "linear-gradient(135deg, #FFB6D9 0%, #B4E7FF 100%)",
         }}
       >
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2 font-display gradient-text-gold">
+          <div className="inline-flex items-center gap-2 bg-white/30 backdrop-blur-sm rounded-full px-4 py-1.5 text-xs font-semibold text-white/90 mb-4">
+            <Sparkles size={13} />
+            100% In-Browser Processing
+          </div>
+          <h1
+            className="text-3xl md:text-4xl font-bold mb-2 text-white"
+            style={{ textShadow: "0 2px 12px rgba(255,182,217,0.5)" }}
+          >
             Image Tools
           </h1>
-          <p className="text-blue-200 text-sm md:text-base">
-            All tools work 100% in your browser — your images never leave your
-            device
+          <p className="text-white/80 text-sm md:text-base">
+            Professional image editing — your photos never leave your device
           </p>
         </div>
       </div>
 
       <AdBanner slot="8914192550" className="max-w-5xl mx-auto px-4" />
+
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Tool Grid */}
         <div
           className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8"
           data-ocid="imagetool.panel"
         >
-          {tools.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setActiveTool(t.id === activeTool ? null : t.id)}
-              data-ocid={`imagetool.${t.id}.button`}
-              className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all text-center ${
-                activeTool === t.id
-                  ? "text-white border-transparent shadow-lg"
-                  : "border-transparent hover-lift"
-              }`}
-            >
-              <span
-                className={
-                  activeTool === t.id ? "text-white" : "text-[#1E88FF]"
-                }
+          {tools.map((t) => {
+            const isActive = activeTool === t.id;
+            const isSky = t.isSky;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setActiveTool(t.id === activeTool ? null : t.id)}
+                data-ocid={`imagetool.${t.id}.button`}
+                className="flex flex-col items-center gap-2 p-4 rounded-2xl transition-all text-center active:scale-95"
+                style={{
+                  background: isActive ? (isSky ? skyGrad : pinkGrad) : glassBg,
+                  border: isActive ? "none" : glassBorder,
+                  boxShadow: isActive
+                    ? `0 8px 24px ${isSky ? "rgba(180,231,255,0.4)" : "rgba(255,182,217,0.4)"}`
+                    : "0 2px 12px rgba(255,182,217,0.1)",
+                  backdropFilter: "blur(10px)",
+                }}
               >
-                {t.icon}
-              </span>
-              <span className="font-semibold text-sm leading-tight">
-                {t.label}
-              </span>
-              <span
-                className={`text-xs leading-tight ${activeTool === t.id ? "text-blue-200" : "text-gray-400"}`}
-              >
-                {t.desc}
-              </span>
-            </button>
-          ))}
+                <span
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{
+                    background: isActive
+                      ? "rgba(255,255,255,0.3)"
+                      : isSky
+                        ? "linear-gradient(135deg, rgba(180,231,255,0.3), rgba(180,231,255,0.1))"
+                        : "linear-gradient(135deg, rgba(255,182,217,0.3), rgba(255,182,217,0.1))",
+                    color: isActive ? "white" : isSky ? "#0369a1" : "#be185d",
+                  }}
+                >
+                  {t.icon}
+                </span>
+                <span
+                  className={`font-semibold text-sm leading-tight ${isActive ? "text-white" : "text-gray-700"}`}
+                >
+                  {t.label}
+                </span>
+                <span
+                  className={`text-xs leading-tight ${isActive ? "text-white/80" : "text-gray-400"}`}
+                >
+                  {t.desc}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Active Tool Panel */}
         {activeTool && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div
+            className="rounded-2xl p-6 mb-6"
+            style={{
+              background: glassBg,
+              border: glassBorder,
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 8px 32px rgba(255,182,217,0.15)",
+            }}
+          >
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-bold text-[#0B2A4A]">
-                {tools.find((t) => t.id === activeTool)?.label}
-              </h2>
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-sm"
+                  style={{
+                    background: tools.find((t) => t.id === activeTool)?.isSky
+                      ? skyGrad
+                      : pinkGrad,
+                  }}
+                >
+                  <span className="text-white">
+                    {tools.find((t) => t.id === activeTool)?.icon}
+                  </span>
+                </div>
+                <h2 className="text-xl font-bold text-gray-800">
+                  {tools.find((t) => t.id === activeTool)?.label}
+                </h2>
+              </div>
               <button
                 type="button"
                 onClick={() => setActiveTool(null)}
-                className="text-gray-400 hover:text-red-500"
+                className="text-gray-300 hover:text-red-400 transition-colors w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-50"
                 data-ocid="imagetool.close_button"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
             {toolComponents[activeTool]}
@@ -1315,17 +1401,35 @@ export function ImageToolsPage({
 
         {!activeTool && (
           <div
-            className="text-center py-12 text-gray-400"
+            className="text-center py-16 rounded-2xl"
             data-ocid="imagetool.empty_state"
+            style={{
+              background: glassBg,
+              border: glassBorder,
+              backdropFilter: "blur(10px)",
+            }}
           >
-            <p className="text-lg">Select a tool above to get started</p>
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(255,182,217,0.2), rgba(180,231,255,0.2))",
+              }}
+            >
+              <Sparkles size={28} style={{ color: "#FFB6D9" }} />
+            </div>
+            <p className="text-lg font-semibold text-gray-600">
+              Select a tool above to get started
+            </p>
+            <p className="text-sm text-gray-400 mt-1">
+              8 professional image tools, all free
+            </p>
           </div>
         )}
       </div>
 
       <AdBanner slot="8914192550" className="max-w-5xl mx-auto px-4" />
 
-      {/* Footer */}
       <footer className="text-center text-xs text-gray-400 mt-8">
         © {new Date().getFullYear()}. Built with love using{" "}
         <a

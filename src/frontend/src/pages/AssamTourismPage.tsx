@@ -11,8 +11,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { Page } from "../App";
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
 import { useInView } from "../hooks/useInView";
 
 interface Props {
@@ -210,19 +208,16 @@ const CATEGORIES = [
   "Nature & Hill Station",
 ];
 
-function getCategoryColor(category: string): string {
-  const map: Record<string, string> = {
-    Wildlife: "bg-green-100 text-green-800 border-green-200",
-    "Culture & Heritage": "bg-blue-100 text-blue-800 border-blue-200",
-    Spiritual: "bg-orange-100 text-orange-800 border-orange-200",
-    Nature: "bg-teal-100 text-teal-800 border-teal-200",
-    "History & Heritage": "bg-amber-100 text-amber-800 border-amber-200",
-    "Festival & Culture": "bg-pink-100 text-pink-800 border-pink-200",
-    "Tea & Culture": "bg-lime-100 text-lime-800 border-lime-200",
-    "Nature & Hill Station": "bg-cyan-100 text-cyan-800 border-cyan-200",
-  };
-  return map[category] || "bg-gray-100 text-gray-800 border-gray-200";
-}
+const CATEGORY_EMOJIS: Record<string, string> = {
+  Wildlife: "🦏",
+  "Culture & Heritage": "🏛️",
+  Spiritual: "🙏",
+  Nature: "🌊",
+  "History & Heritage": "⚔️",
+  "Festival & Culture": "🎉",
+  "Tea & Culture": "🍵",
+  "Nature & Hill Station": "⛰️",
+};
 
 function PlaceCard({ place, index }: { place: TourismPlace; index: number }) {
   const [expanded, setExpanded] = useState(false);
@@ -231,12 +226,17 @@ function PlaceCard({ place, index }: { place: TourismPlace; index: number }) {
   return (
     <div
       ref={ref as React.RefObject<HTMLDivElement>}
-      className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 flex flex-col group ${
+      className={`rounded-2xl overflow-hidden flex flex-col group transition-all duration-500 ${
         inView ? "animate-fade-up" : "opacity-0"
       }`}
       style={{
-        animationDelay: inView ? `${(index % 3) * 0.12}s` : "0s",
-        border: "1px solid oklch(0.92 0.02 240)",
+        animationDelay: inView ? `${(index % 3) * 0.1}s` : "0s",
+        background: "rgba(255,255,255,0.82)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        border: "1px solid rgba(255,182,217,0.35)",
+        boxShadow:
+          "0 4px 24px rgba(255,182,217,0.18), 0 1px 4px rgba(0,0,0,0.06)",
       }}
       data-ocid={`assam-tourism.item.${index + 1}`}
     >
@@ -245,152 +245,114 @@ function PlaceCard({ place, index }: { place: TourismPlace; index: number }) {
         <img
           src={place.image}
           alt={place.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
           onError={(e) => {
             (e.target as HTMLImageElement).src =
-              `https://placehold.co/800x500/0a1628/gold?text=${encodeURIComponent(place.name)}`;
+              `https://placehold.co/800x500/FFB6D9/5a2d6e?text=${encodeURIComponent(place.name)}`;
           }}
         />
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to top, oklch(0.10 0.04 240 / 0.7), transparent 60%)",
+              "linear-gradient(to top, rgba(90,30,110,0.55) 0%, transparent 55%)",
           }}
         />
         {place.isCustom && (
           <span
             className="absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full"
             style={{
-              background: "oklch(0.78 0.18 65)",
-              color: "oklch(0.10 0.03 250)",
+              background: "linear-gradient(135deg,#FFB6D9,#B4E7FF)",
+              color: "#5a2d6e",
             }}
           >
             ✨ Local Gem
           </span>
         )}
         <span
-          className={`absolute top-3 right-3 text-xs font-semibold px-2.5 py-1 rounded-full border ${getCategoryColor(
-            place.category,
-          )}`}
+          className="absolute top-3 right-3 text-xs font-semibold px-2.5 py-1 rounded-full"
+          style={{
+            background: "rgba(255,255,255,0.88)",
+            backdropFilter: "blur(8px)",
+            color: "#5a2d6e",
+            border: "1px solid rgba(255,182,217,0.5)",
+          }}
         >
-          {place.category}
+          {CATEGORY_EMOJIS[place.category] ?? "📍"} {place.category}
         </span>
       </div>
 
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
         <h3
-          className="font-bold text-lg mb-1 leading-tight"
-          style={{ color: "oklch(0.15 0.04 250)" }}
+          className="font-bold text-lg mb-0.5 leading-tight"
+          style={{ color: "#3d1a5c" }}
         >
           {place.name}
         </h3>
-        <p
-          className="text-sm italic mb-3"
-          style={{ color: "oklch(0.58 0.12 65)" }}
-        >
+        <p className="text-sm italic mb-3" style={{ color: "#c05c9e" }}>
           {place.tagline}
         </p>
         <p
           className={`text-sm leading-relaxed mb-4 ${
             expanded ? "" : "line-clamp-2"
           }`}
-          style={{ color: "oklch(0.40 0.03 240)" }}
+          style={{ color: "#5a3a6e" }}
         >
           {place.description}
         </p>
 
-        {/* Expanded details */}
         {expanded && (
           <div
             className="space-y-3 mb-4 border-t pt-4"
-            style={{ borderColor: "oklch(0.92 0.02 240)" }}
+            style={{ borderColor: "rgba(255,182,217,0.35)" }}
           >
-            <div className="flex gap-3">
-              <Calendar
-                size={16}
-                className="mt-0.5 flex-shrink-0"
-                style={{ color: "oklch(0.55 0.15 160)" }}
-              />
-              <div>
+            {[
+              {
+                icon: <Calendar size={15} />,
+                label: "Best Time to Visit",
+                value: place.bestTime,
+                color: "#d44d8a",
+              },
+              {
+                icon: <Navigation size={15} />,
+                label: "How to Reach",
+                value: place.howToReach,
+                color: "#3a8fd4",
+              },
+              {
+                icon: <Utensils size={15} />,
+                label: "Local Food",
+                value: place.localFood,
+                color: "#d4873a",
+              },
+              {
+                icon: <Info size={15} />,
+                label: "Cultural Insight",
+                value: place.culturalInfo,
+                color: "#7a3ad4",
+              },
+            ].map((item) => (
+              <div key={item.label} className="flex gap-3">
                 <span
-                  className="text-xs font-bold uppercase tracking-wide block"
-                  style={{ color: "oklch(0.40 0.04 240)" }}
+                  className="mt-0.5 flex-shrink-0"
+                  style={{ color: item.color }}
                 >
-                  Best Time to Visit
+                  {item.icon}
                 </span>
-                <span
-                  className="text-sm"
-                  style={{ color: "oklch(0.35 0.03 240)" }}
-                >
-                  {place.bestTime}
-                </span>
+                <div>
+                  <span
+                    className="text-xs font-bold uppercase tracking-wide block"
+                    style={{ color: "#8a6a9a" }}
+                  >
+                    {item.label}
+                  </span>
+                  <span className="text-sm" style={{ color: "#5a3a6e" }}>
+                    {item.value}
+                  </span>
+                </div>
               </div>
-            </div>
-            <div className="flex gap-3">
-              <Navigation
-                size={16}
-                className="mt-0.5 flex-shrink-0"
-                style={{ color: "oklch(0.55 0.18 240)" }}
-              />
-              <div>
-                <span
-                  className="text-xs font-bold uppercase tracking-wide block"
-                  style={{ color: "oklch(0.40 0.04 240)" }}
-                >
-                  How to Reach
-                </span>
-                <span
-                  className="text-sm"
-                  style={{ color: "oklch(0.35 0.03 240)" }}
-                >
-                  {place.howToReach}
-                </span>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Utensils
-                size={16}
-                className="mt-0.5 flex-shrink-0"
-                style={{ color: "oklch(0.60 0.18 65)" }}
-              />
-              <div>
-                <span
-                  className="text-xs font-bold uppercase tracking-wide block"
-                  style={{ color: "oklch(0.40 0.04 240)" }}
-                >
-                  Local Food
-                </span>
-                <span
-                  className="text-sm"
-                  style={{ color: "oklch(0.35 0.03 240)" }}
-                >
-                  {place.localFood}
-                </span>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Info
-                size={16}
-                className="mt-0.5 flex-shrink-0"
-                style={{ color: "oklch(0.55 0.15 290)" }}
-              />
-              <div>
-                <span
-                  className="text-xs font-bold uppercase tracking-wide block"
-                  style={{ color: "oklch(0.40 0.04 240)" }}
-                >
-                  Cultural Insight
-                </span>
-                <span
-                  className="text-sm"
-                  style={{ color: "oklch(0.35 0.03 240)" }}
-                >
-                  {place.culturalInfo}
-                </span>
-              </div>
-            </div>
+            ))}
           </div>
         )}
 
@@ -398,7 +360,7 @@ function PlaceCard({ place, index }: { place: TourismPlace; index: number }) {
           type="button"
           onClick={() => setExpanded(!expanded)}
           className="mt-auto flex items-center gap-1.5 text-sm font-semibold transition-colors self-start"
-          style={{ color: "oklch(0.50 0.18 240)" }}
+          style={{ color: "#c05c9e" }}
           data-ocid={`assam-tourism.item.${index + 1}.toggle`}
         >
           {expanded ? (
@@ -431,6 +393,7 @@ export function AssamTourismPage({ navigate: _navigate }: Props) {
     }
   })();
 
+  // Admin places merge ON TOP — built-in defaults always preserved
   const allPlaces: TourismPlace[] = [
     ...customPlaces.map((p) => ({ ...p, isCustom: true })),
     ...BUILT_IN_PLACES,
@@ -444,33 +407,29 @@ export function AssamTourismPage({ navigate: _navigate }: Props) {
   return (
     <div
       className="min-h-screen"
-      style={{ background: "oklch(0.97 0.005 240)" }}
+      style={{
+        background:
+          "linear-gradient(160deg, #fff5fb 0%, #f0f8ff 50%, #fdf0f8 100%)",
+      }}
     >
-      {/* Hero Section */}
+      {/* Hero Section — Pink→Sky gradient */}
       <section
         ref={heroRef as React.RefObject<HTMLElement>}
         className="relative overflow-hidden"
         style={{
-          background: "oklch(0.10 0.04 250)",
-          minHeight: "420px",
+          background:
+            "linear-gradient(135deg, #FFB6D9 0%, #d4a8f5 40%, #B4E7FF 100%)",
+          minHeight: "400px",
         }}
       >
-        {/* Decorative background pattern */}
+        {/* Decorative bokeh orbs */}
         <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "radial-gradient(ellipse at 20% 50%, oklch(0.28 0.12 250 / 0.3) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, oklch(0.35 0.15 65 / 0.15) 0%, transparent 50%)",
-          }}
+          className="absolute top-0 left-0 w-80 h-80 rounded-full blur-3xl pointer-events-none opacity-40"
+          style={{ background: "#fff" }}
         />
-        {/* Grid pattern */}
         <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage:
-              "linear-gradient(oklch(0.78 0.18 65 / 0.3) 1px, transparent 1px), linear-gradient(90deg, oklch(0.78 0.18 65 / 0.3) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
+          className="absolute bottom-0 right-0 w-64 h-64 rounded-full blur-3xl pointer-events-none opacity-30"
+          style={{ background: "#e0f4ff" }}
         />
 
         <div
@@ -479,59 +438,58 @@ export function AssamTourismPage({ navigate: _navigate }: Props) {
           }`}
         >
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Mountain size={20} style={{ color: "oklch(0.78 0.18 65)" }} />
+            <Mountain size={20} style={{ color: "rgba(90,30,110,0.7)" }} />
             <span
-              className="text-sm font-semibold uppercase tracking-[0.2em]"
-              style={{ color: "oklch(0.78 0.18 65)" }}
+              className="text-sm font-bold uppercase tracking-[0.18em]"
+              style={{ color: "rgba(90,30,110,0.75)" }}
             >
               Discover Incredible Assam
             </span>
-            <Mountain size={20} style={{ color: "oklch(0.78 0.18 65)" }} />
+            <Mountain size={20} style={{ color: "rgba(90,30,110,0.7)" }} />
           </div>
           <h1
             className="text-5xl sm:text-6xl font-bold mb-5 leading-tight"
-            style={{
-              background:
-                "linear-gradient(135deg, oklch(0.95 0.02 60), oklch(0.78 0.18 65), oklch(0.90 0.10 85))",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              textShadow: "none",
-            }}
+            style={{ color: "#3d1a5c", letterSpacing: "-0.02em" }}
           >
             Incredible Assam
           </h1>
           <p
             className="text-xl max-w-2xl mx-auto mb-8 leading-relaxed"
-            style={{ color: "oklch(0.72 0.05 240)" }}
+            style={{ color: "rgba(90,30,110,0.72)" }}
           >
-            Discover the Land of the Red River and Blue Hills — a land of
-            unparalleled natural beauty, ancient heritage, and living culture
+            The Land of the Red River and Blue Hills — unparalleled natural
+            beauty, ancient heritage, and living culture
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <a
-              href="https://assamtourism.gov.in"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all hover:scale-105"
-              style={{
-                background: "oklch(0.78 0.18 65)",
-                color: "oklch(0.10 0.03 250)",
-                boxShadow: "0 4px 20px oklch(0.78 0.18 65 / 0.4)",
-              }}
-              data-ocid="assam-tourism.primary_button"
-            >
-              <ExternalLink size={16} />
-              Official Assam Tourism
-            </a>
-          </div>
+          <a
+            href="https://assamtourism.gov.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-bold text-sm transition-all hover:scale-105 hover:shadow-xl"
+            style={{
+              background: "rgba(255,255,255,0.88)",
+              color: "#c05c9e",
+              backdropFilter: "blur(8px)",
+              boxShadow: "0 4px 20px rgba(255,182,217,0.5)",
+              border: "1.5px solid rgba(255,255,255,0.9)",
+            }}
+            data-ocid="assam-tourism.primary_button"
+          >
+            <ExternalLink size={16} />
+            Official Assam Tourism
+          </a>
         </div>
       </section>
 
-      {/* Stats Bar */}
+      {/* Stats Bar — glassmorphism strip */}
       <section
         ref={statsRef as React.RefObject<HTMLElement>}
-        className="py-6 px-4"
-        style={{ background: "oklch(0.13 0.04 250)" }}
+        className="py-5 px-4"
+        style={{
+          background: "rgba(255,255,255,0.75)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid rgba(255,182,217,0.25)",
+          boxShadow: "0 2px 16px rgba(255,182,217,0.15)",
+        }}
       >
         <div
           className={`max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-8 text-center ${
@@ -539,21 +497,19 @@ export function AssamTourismPage({ navigate: _navigate }: Props) {
           }`}
         >
           {[
-            { label: "Famous Places", value: "10+" },
-            { label: "UNESCO Heritage Sites", value: "2" },
-            { label: "National Parks", value: "5+" },
-            { label: "Unique Cultures", value: "30+" },
+            { label: "Famous Places", value: "10+", emoji: "📍" },
+            { label: "UNESCO Sites", value: "2", emoji: "🏆" },
+            { label: "National Parks", value: "5+", emoji: "🦏" },
+            { label: "Unique Cultures", value: "30+", emoji: "🎭" },
           ].map((stat) => (
             <div key={stat.label} className="flex flex-col items-center">
-              <span
-                className="text-3xl font-bold"
-                style={{ color: "oklch(0.78 0.18 65)" }}
-              >
+              <span className="text-xl mb-0.5">{stat.emoji}</span>
+              <span className="text-2xl font-bold" style={{ color: "#c05c9e" }}>
                 {stat.value}
               </span>
               <span
                 className="text-xs font-medium uppercase tracking-wider mt-0.5"
-                style={{ color: "oklch(0.60 0.05 240)" }}
+                style={{ color: "#8a6a9a" }}
               >
                 {stat.label}
               </span>
@@ -562,43 +518,45 @@ export function AssamTourismPage({ navigate: _navigate }: Props) {
         </div>
       </section>
 
-      {/* Category Filter */}
+      {/* iOS-style Category Segmented Control */}
       <section
         className="sticky top-16 z-30 py-3 px-4 overflow-x-auto"
         style={{
-          background: "oklch(0.98 0.003 240 / 0.95)",
-          backdropFilter: "blur(12px)",
-          borderBottom: "1px solid oklch(0.90 0.02 240)",
-          boxShadow: "0 2px 12px oklch(0 0 0 / 0.08)",
+          background: "rgba(255,255,255,0.88)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderBottom: "1px solid rgba(255,182,217,0.2)",
+          boxShadow: "0 2px 12px rgba(255,182,217,0.12)",
         }}
       >
         <div className="max-w-7xl mx-auto flex gap-2 min-w-max">
-          {CATEGORIES.map((cat) => (
-            <button
-              type="button"
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className="px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap"
-              style={{
-                background:
-                  activeCategory === cat
-                    ? "oklch(0.78 0.18 65)"
-                    : "oklch(0.93 0.02 240)",
-                color:
-                  activeCategory === cat
-                    ? "oklch(0.10 0.03 250)"
-                    : "oklch(0.40 0.04 240)",
-                fontWeight: activeCategory === cat ? "700" : "500",
-                boxShadow:
-                  activeCategory === cat
-                    ? "0 2px 10px oklch(0.78 0.18 65 / 0.35)"
+          {CATEGORIES.map((cat) => {
+            const active = activeCategory === cat;
+            return (
+              <button
+                type="button"
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className="px-4 py-1.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap"
+                style={{
+                  background: active
+                    ? "linear-gradient(135deg,#FFB6D9,#d4a8f5)"
+                    : "rgba(255,182,217,0.1)",
+                  color: active ? "#3d1a5c" : "#8a6a9a",
+                  border: active
+                    ? "1.5px solid rgba(255,182,217,0.6)"
+                    : "1.5px solid rgba(255,182,217,0.2)",
+                  boxShadow: active
+                    ? "0 2px 12px rgba(255,182,217,0.4)"
                     : "none",
-              }}
-              data-ocid={`assam-tourism.${cat.toLowerCase().replace(/[^a-z0-9]/g, "-")}.tab`}
-            >
-              {cat}
-            </button>
-          ))}
+                }}
+                data-ocid={`assam-tourism.${cat.toLowerCase().replace(/[^a-z0-9]/g, "-")}.tab`}
+              >
+                {CATEGORY_EMOJIS[cat] ? `${CATEGORY_EMOJIS[cat]} ` : ""}
+                {cat}
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -613,14 +571,11 @@ export function AssamTourismPage({ navigate: _navigate }: Props) {
               gridInView ? "animate-fade-up" : "opacity-0"
             }`}
           >
-            <h2
-              className="text-xl font-bold"
-              style={{ color: "oklch(0.15 0.04 250)" }}
-            >
+            <h2 className="text-xl font-bold" style={{ color: "#3d1a5c" }}>
               {activeCategory === "All" ? "All Places" : activeCategory}
               <span
                 className="ml-2 text-sm font-normal"
-                style={{ color: "oklch(0.55 0.04 240)" }}
+                style={{ color: "#8a6a9a" }}
               >
                 ({filtered.length} destinations)
               </span>
@@ -629,15 +584,20 @@ export function AssamTourismPage({ navigate: _navigate }: Props) {
 
           {filtered.length === 0 ? (
             <div
-              className="text-center py-20"
+              className="text-center py-20 rounded-2xl"
+              style={{
+                background: "rgba(255,255,255,0.7)",
+                backdropFilter: "blur(12px)",
+                border: "1px solid rgba(255,182,217,0.2)",
+              }}
               data-ocid="assam-tourism.empty_state"
             >
               <MapPin
                 size={40}
                 className="mx-auto mb-3"
-                style={{ color: "oklch(0.70 0.05 240)" }}
+                style={{ color: "#c05c9e" }}
               />
-              <p style={{ color: "oklch(0.50 0.04 240)" }}>
+              <p style={{ color: "#8a6a9a" }}>
                 No places in this category yet.
               </p>
             </div>
@@ -651,26 +611,21 @@ export function AssamTourismPage({ navigate: _navigate }: Props) {
         </div>
       </section>
 
-      {/* Footer CTA */}
+      {/* Footer CTA — Pink→Sky gradient */}
       <section
         className="py-16 px-6 text-center"
-        style={{ background: "oklch(0.10 0.04 250)" }}
+        style={{
+          background:
+            "linear-gradient(135deg, #FFB6D9 0%, #d4a8f5 50%, #B4E7FF 100%)",
+        }}
       >
         <div className="max-w-2xl mx-auto">
-          <h2
-            className="text-3xl font-bold mb-3"
-            style={{
-              background:
-                "linear-gradient(90deg, oklch(0.78 0.18 65), oklch(0.90 0.10 85))",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
+          <h2 className="text-3xl font-bold mb-3" style={{ color: "#3d1a5c" }}>
             Plan Your Visit to Assam
           </h2>
           <p
             className="text-base mb-8"
-            style={{ color: "oklch(0.65 0.05 240)" }}
+            style={{ color: "rgba(90,30,110,0.72)" }}
           >
             Experience the magic of Assam — its wildlife, culture, cuisine, and
             the warmth of its people. Your adventure awaits!
@@ -681,10 +636,11 @@ export function AssamTourismPage({ navigate: _navigate }: Props) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-base transition-all hover:scale-105 hover:shadow-2xl"
             style={{
-              background:
-                "linear-gradient(135deg, oklch(0.78 0.18 65), oklch(0.68 0.22 55))",
-              color: "oklch(0.10 0.03 250)",
-              boxShadow: "0 8px 30px oklch(0.78 0.18 65 / 0.4)",
+              background: "rgba(255,255,255,0.9)",
+              color: "#c05c9e",
+              boxShadow: "0 8px 30px rgba(255,182,217,0.45)",
+              border: "1.5px solid rgba(255,255,255,0.95)",
+              backdropFilter: "blur(8px)",
             }}
             data-ocid="assam-tourism.footer.primary_button"
           >

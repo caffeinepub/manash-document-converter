@@ -1,75 +1,112 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @font-face {
-  font-family: "Plus Jakarta Sans";
-  src: url("/assets/fonts/PlusJakartaSans.woff2") format("woff2");
+  font-family: "DM Sans";
+  src: url("/assets/fonts/DMSans.woff2") format("woff2");
   font-weight: 300 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("/assets/fonts/Fraunces.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/assets/fonts/GeistMono.woff2") format("woff2");
+  font-weight: 400 700;
   font-display: swap;
 }
 
 @layer base {
   :root {
-    --radius: 0.75rem;
-    /* Premium dark navy/gold theme */
-    --background: 0.12 0.03 250;
-    --foreground: 0.95 0.02 240;
-    --card: 0.16 0.04 250;
-    --card-foreground: 0.95 0.02 240;
-    --popover: 0.16 0.04 250;
-    --popover-foreground: 0.95 0.02 240;
-    --primary: 0.78 0.18 65;
-    --primary-foreground: 0.12 0.03 250;
-    --secondary: 0.35 0.12 240;
-    --secondary-foreground: 0.95 0.02 240;
-    --muted: 0.18 0.04 250;
-    --muted-foreground: 0.6 0.04 240;
-    --accent: 0.72 0.18 200;
-    --accent-foreground: 0.12 0.03 250;
-    --destructive: 0.577 0.245 27.325;
-    --destructive-foreground: 0.985 0 0;
-    --border: 0.25 0.06 250;
-    --input: 0.25 0.06 250;
-    --ring: 0.78 0.18 65;
-    --chart-1: 0.78 0.18 65;
-    --chart-2: 0.72 0.18 200;
-    --chart-3: 0.55 0.15 280;
-    --chart-4: 0.65 0.16 145;
-    --chart-5: 0.6 0.2 30;
+    --radius: 1rem;
+    /* iOS soft pastel pink + sky blue theme */
+    --background: 0.98 0.02 15;
+    --foreground: 0.25 0.02 250;
+    --card: 0.97 0.015 20;
+    --card-foreground: 0.25 0.02 250;
+    --popover: 0.97 0.015 20;
+    --popover-foreground: 0.25 0.02 250;
+    --primary: 0.81 0.1 20;
+    --primary-foreground: 0.98 0.02 15;
+    --secondary: 0.85 0.12 220;
+    --secondary-foreground: 0.98 0.02 15;
+    --muted: 0.93 0.01 0;
+    --muted-foreground: 0.55 0.01 250;
+    --accent: 0.85 0.12 220;
+    --accent-foreground: 0.98 0.02 15;
+    --destructive: 0.65 0.18 25;
+    --destructive-foreground: 0.98 0.02 15;
+    --border: 0.9 0.02 0;
+    --input: 0.9 0.02 0;
+    --ring: 0.81 0.1 20;
+    --chart-1: 0.81 0.1 20;
+    --chart-2: 0.85 0.12 220;
+    --chart-3: 0.7 0.12 40;
+    --chart-4: 0.75 0.1 200;
+    --chart-5: 0.6 0.12 300;
     --navy-deep: 0.12 0.03 250;
     --navy-mid: 0.16 0.04 250;
-    --sidebar: 0.14 0.035 250;
-    --sidebar-foreground: 0.95 0.02 240;
-    --sidebar-primary: 0.78 0.18 65;
-    --sidebar-primary-foreground: 0.12 0.03 250;
-    --sidebar-accent: 0.2 0.05 250;
-    --sidebar-accent-foreground: 0.95 0.02 240;
-    --sidebar-border: 0.25 0.06 250;
-    --sidebar-ring: 0.78 0.18 65;
+    --pink-light: 0.9 0.05 15;
+    --sky-light: 0.92 0.05 220;
+    --sidebar: 0.95 0.01 20;
+    --sidebar-foreground: 0.25 0.02 250;
+    --sidebar-primary: 0.81 0.1 20;
+    --sidebar-primary-foreground: 0.98 0.02 15;
+    --sidebar-accent: 0.85 0.12 220;
+    --sidebar-accent-foreground: 0.98 0.02 15;
+    --sidebar-border: 0.9 0.02 0;
+    --sidebar-ring: 0.81 0.1 20;
   }
 
-  /* ── LIGHT THEME OVERRIDES ── */
+  /* ── iOS LIGHT THEME (DEFAULT) ── */
   .light {
-    --background: 0.97 0.01 250;
-    --foreground: 0.15 0.04 250;
-    --card: 0.93 0.01 250;
-    --card-foreground: 0.15 0.04 250;
-    --popover: 0.93 0.01 250;
-    --popover-foreground: 0.15 0.04 250;
-    --primary: 0.65 0.18 65;
-    --primary-foreground: 0.97 0.01 250;
-    --secondary: 0.88 0.03 250;
-    --secondary-foreground: 0.15 0.04 250;
-    --muted: 0.92 0.02 250;
-    --muted-foreground: 0.45 0.04 240;
-    --accent: 0.88 0.03 250;
-    --accent-foreground: 0.15 0.04 250;
-    --border: 0.82 0.02 250;
-    --input: 0.82 0.02 250;
-    --ring: 0.65 0.18 65;
+    --background: 0.98 0.02 15;
+    --foreground: 0.25 0.02 250;
+    --card: 0.97 0.015 20;
+    --card-foreground: 0.25 0.02 250;
+    --popover: 0.97 0.015 20;
+    --popover-foreground: 0.25 0.02 250;
+    --primary: 0.81 0.1 20;
+    --primary-foreground: 0.98 0.02 15;
+    --secondary: 0.85 0.12 220;
+    --secondary-foreground: 0.98 0.02 15;
+    --muted: 0.93 0.01 0;
+    --muted-foreground: 0.55 0.01 250;
+    --accent: 0.85 0.12 220;
+    --accent-foreground: 0.98 0.02 15;
+    --border: 0.9 0.02 0;
+    --input: 0.9 0.02 0;
+    --ring: 0.81 0.1 20;
+  }
+
+  /* ── iOS DARK THEME ── Deep rose/purple base ── */
+  .dark {
+    --background: 0.14 0.03 340;
+    --foreground: 0.94 0.01 20;
+    --card: 0.18 0.03 340;
+    --card-foreground: 0.94 0.01 20;
+    --popover: 0.18 0.03 340;
+    --popover-foreground: 0.94 0.01 20;
+    --primary: 0.81 0.1 20;
+    --primary-foreground: 0.1 0.02 340;
+    --secondary: 0.65 0.1 220;
+    --secondary-foreground: 0.1 0.02 340;
+    --muted: 0.22 0.03 340;
+    --muted-foreground: 0.65 0.04 340;
+    --accent: 0.65 0.1 220;
+    --accent-foreground: 0.94 0.01 20;
+    --destructive: 0.55 0.2 25;
+    --destructive-foreground: 0.94 0.01 20;
+    --border: 0.28 0.04 340;
+    --input: 0.28 0.04 340;
+    --ring: 0.81 0.1 20;
   }
 
   * {
@@ -77,30 +114,32 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
-    background-color: oklch(0.12 0.03 250);
-    color: oklch(0.95 0.02 240);
+    background-color: oklch(0.98 0.02 15);
+    color: oklch(0.25 0.02 250);
+    font-family: -apple-system, BlinkMacSystemFont, "DM Sans", system-ui,
+      sans-serif;
   }
 
   .light body {
-    background-color: oklch(0.97 0.01 250);
-    color: oklch(0.15 0.04 250);
+    background-color: oklch(0.98 0.02 15);
+    color: oklch(0.25 0.02 250);
+  }
+
+  .dark body {
+    background-color: oklch(0.14 0.03 340);
+    color: oklch(0.94 0.01 20);
   }
 }
 
-/* ── LIGHT MODE COMPONENT OVERRIDES ── */
-.light body {
-  background-color: oklch(0.97 0.01 250);
-  color: oklch(0.15 0.04 250);
+/* ── iOS GLASSMORPHISM ── */
+.glass-card {
+  background: oklch(1 0 0 / 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid oklch(1 0 0 / 0.2);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px oklch(0 0 0 / 0.08);
 }
-
-.light .glass-card {
-  background: oklch(0.93 0.01 250 / 0.9);
-  border: 1px solid oklch(0.82 0.02 250 / 0.8);
-}
-
-/* ============================================================
-   ANIMATION KEYFRAMES
-   ============================================================ */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -167,21 +206,21 @@
 @keyframes glowPulse {
   0%,
   100% {
-    box-shadow: 0 0 20px oklch(0.78 0.18 65 / 0.3);
+    box-shadow: 0 0 12px oklch(0.81 0.1 20 / 0.15);
   }
   50% {
-    box-shadow: 0 0 40px oklch(0.78 0.18 65 / 0.6), 0 0 80px
-      oklch(0.78 0.18 65 / 0.2);
+    box-shadow: 0 0 24px oklch(0.81 0.1 20 / 0.25), 0 0 48px
+      oklch(0.85 0.12 220 / 0.1);
   }
 }
 
 @keyframes pulseGlow {
   0%,
   100% {
-    box-shadow: 0 0 8px 2px oklch(0.72 0.18 200 / 0.4);
+    box-shadow: 0 0 4px 1px oklch(0.85 0.12 220 / 0.2);
   }
   50% {
-    box-shadow: 0 0 24px 8px oklch(0.72 0.18 200 / 0.7);
+    box-shadow: 0 0 12px 4px oklch(0.85 0.12 220 / 0.35);
   }
 }
 
@@ -222,10 +261,50 @@
 }
 
 /* ============================================================
-   ANIMATION UTILITY CLASSES
+   ANIMATION KEYFRAMES
    ============================================================ */
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease both;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 .animate-fade-in-left {
   animation: fadeInLeft 0.6s ease both;
@@ -323,18 +402,19 @@
 
 /* Hover effects */
 .hover-lift {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow
+    0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px oklch(0.78 0.18 65 / 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px oklch(0 0 0 / 0.1);
 }
 
 .hover-scale {
-  transition: transform 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .hover-scale:hover {
-  transform: scale(1.03);
+  transform: scale(1.02);
 }
 
 /* Nav underline slide */
@@ -348,8 +428,8 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: oklch(0.78 0.18 65);
-  transition: width 0.2s ease;
+  background: oklch(0.81 0.1 20);
+  transition: width 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   border-radius: 2px;
 }
 .nav-underline:hover::after {
@@ -360,58 +440,58 @@
 }
 
 /* ============================================================
-   DESIGN TOKENS
+   DESIGN TOKENS & UTILITIES
    ============================================================ */
 .hero-gradient {
   background: linear-gradient(
-    160deg,
-    oklch(0.12 0.03 250) 0%,
-    oklch(0.18 0.06 250) 50%,
-    oklch(0.14 0.04 270) 100%
+    135deg,
+    oklch(0.81 0.1 20 / 0.1) 0%,
+    oklch(0.85 0.12 220 / 0.1) 100%
   );
 }
 
-.wave-bottom {
-  position: relative;
-}
-.wave-bottom::after {
-  content: "";
-  display: block;
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: oklch(0.12 0.03 250);
-  clip-path: ellipse(55% 100% at 50% 100%);
+.gradient-text-pink {
+  background: linear-gradient(135deg, oklch(0.81 0.1 20), oklch(0.75 0.08 15));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.nav-link-dark {
-  color: oklch(0.78 0.03 220);
-  transition: color 0.15s ease;
+.gradient-text-sky {
+  background: linear-gradient(135deg, oklch(0.85 0.12 220), oklch(0.78 0.1 210));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-.nav-link-dark:hover {
-  color: oklch(0.95 0.02 240);
+
+.nav-link-light {
+  color: oklch(0.55 0.02 250);
+  transition: color 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nav-link-light:hover {
+  color: oklch(0.25 0.02 250);
 }
 
 .footer-link {
-  color: oklch(0.65 0.03 220);
-  transition: color 0.15s ease;
+  color: oklch(0.6 0.02 250);
+  transition: color 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .footer-link:hover {
-  color: oklch(0.95 0.02 240);
+  color: oklch(0.25 0.02 250);
 }
 
 .footer-muted {
-  color: oklch(0.55 0.025 220);
+  color: oklch(0.7 0.01 250);
 }
 
 .social-icon-btn {
-  background: oklch(0.2 0.05 250);
-  transition: background 0.15s ease;
+  background: oklch(0.9 0.015 20);
+  border: 1px solid oklch(0.85 0.01 20);
+  transition: background 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .social-icon-btn:hover {
-  background: oklch(0.28 0.07 250);
+  background: oklch(0.85 0.01 20);
+  border-color: oklch(0.81 0.1 20);
 }
 
 /* prefers-reduced-motion */
@@ -422,4 +502,21 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ── Utility: hide scrollbar ── */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── iOS gradient text helpers ── */
+.gradient-text-ios {
+  background: linear-gradient(135deg, #e85d8a 0%, #4fa8e0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

@@ -123,11 +123,12 @@ function AuthorisedCarousel() {
         {logos.map((logo, i) => (
           <div
             key={`${logo.alt}-${i}`}
-            className="flex-shrink-0 w-[160px] md:w-[200px] rounded-xl shadow-md flex items-center justify-center p-4"
+            className="flex-shrink-0 w-[160px] md:w-[200px] rounded-2xl shadow-sm flex items-center justify-center p-4"
             style={{
               height: "90px",
-              background: "oklch(0.16 0.04 250)",
-              border: "1px solid oklch(0.25 0.06 250)",
+              background: "rgba(255,255,255,0.9)",
+              border: "1.5px solid rgba(255,182,217,0.25)",
+              backdropFilter: "blur(10px)",
             }}
           >
             <img
@@ -161,28 +162,24 @@ function OtherWebsitesSection() {
         <div
           className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-4 uppercase tracking-wider"
           style={{
-            background: "oklch(0.78 0.18 65 / 0.15)",
-            border: "1px solid oklch(0.78 0.18 65 / 0.4)",
-            color: "oklch(0.78 0.18 65)",
+            background: "rgba(255,182,217,0.15)",
+            border: "1px solid rgba(255,182,217,0.4)",
+            color: "#be185d",
           }}
         >
           <Globe size={12} /> Partner Websites
         </div>
         <h2
-          className="text-2xl md:text-3xl font-extrabold mb-2 font-display"
+          className="text-2xl md:text-3xl font-extrabold mb-2"
           style={{
-            background:
-              "linear-gradient(135deg, oklch(0.78 0.18 65), oklch(0.92 0.10 80))",
+            background: "linear-gradient(135deg, #be185d, #7c3aed, #0369a1)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
           }}
         >
           Our Partner Websites
         </h2>
-        <p
-          className="text-sm max-w-md mx-auto"
-          style={{ color: "oklch(0.6 0.04 240)" }}
-        >
+        <p className="text-sm text-slate-500 max-w-md mx-auto">
           Trusted government portals and digital services we work with
         </p>
       </div>
@@ -192,26 +189,13 @@ function OtherWebsitesSection() {
         {websites.map((site, idx) => (
           <div
             key={site.id}
-            className="group rounded-2xl overflow-hidden transition-all duration-300"
+            className="group rounded-3xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
             style={{
-              background: "oklch(0.14 0.04 250)",
-              border: "1px solid oklch(0.25 0.06 250)",
+              background: "rgba(255,255,255,0.92)",
+              border: "1.5px solid rgba(255,182,217,0.3)",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 2px 12px rgba(255,182,217,0.1)",
               transitionDelay: `${idx * 80}ms`,
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLDivElement).style.border =
-                "1px solid oklch(0.78 0.18 65)";
-              (e.currentTarget as HTMLDivElement).style.boxShadow =
-                "0 0 24px oklch(0.78 0.18 65 / 0.25)";
-              (e.currentTarget as HTMLDivElement).style.transform =
-                "translateY(-4px)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLDivElement).style.border =
-                "1px solid oklch(0.25 0.06 250)";
-              (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
-              (e.currentTarget as HTMLDivElement).style.transform =
-                "translateY(0)";
             }}
           >
             {/* Preview area */}
@@ -230,94 +214,80 @@ function OtherWebsitesSection() {
                   className="w-full h-full flex items-center justify-center"
                   style={{
                     background:
-                      "linear-gradient(135deg, oklch(0.18 0.06 250), oklch(0.22 0.08 260))",
+                      "linear-gradient(135deg, rgba(255,182,217,0.2), rgba(180,231,255,0.2))",
                   }}
                 >
                   {site.logoUrl ? (
                     <img
                       src={site.logoUrl}
                       alt={site.name}
-                      className="w-16 h-16 object-contain rounded-xl"
+                      className="w-16 h-16 object-contain rounded-2xl"
                       style={{
-                        filter:
-                          "drop-shadow(0 0 12px oklch(0.78 0.18 65 / 0.5))",
+                        filter: "drop-shadow(0 0 12px rgba(255,182,217,0.6))",
                       }}
                     />
                   ) : (
-                    <Globe
-                      size={48}
-                      style={{ color: "oklch(0.78 0.18 65 / 0.6)" }}
-                    />
+                    <Globe size={48} className="text-pink-300" />
                   )}
-                  {/* Decorative glow orb */}
+                  {/* Decorative glow */}
                   <div
                     className="absolute inset-0 opacity-20"
                     style={{
                       background:
-                        "radial-gradient(circle at 50% 50%, oklch(0.78 0.18 65), transparent 65%)",
+                        "radial-gradient(circle at 50% 50%, #FFB6D9, transparent 65%)",
                     }}
                   />
                 </div>
               )}
-              {/* Shimmer overlay on hover */}
+              {/* Hover shimmer */}
               <div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 style={{
                   background:
-                    "linear-gradient(135deg, oklch(0.78 0.18 65 / 0.05), transparent)",
+                    "linear-gradient(135deg, rgba(255,182,217,0.07), transparent)",
                 }}
               />
             </div>
 
             {/* Card body */}
             <div className="p-4 space-y-3">
-              {/* Logo + name row */}
               <div className="flex items-center gap-3">
                 {site.logoUrl ? (
                   <img
                     src={site.logoUrl}
                     alt={site.name}
-                    className="w-8 h-8 rounded-lg object-contain flex-shrink-0"
+                    className="w-8 h-8 rounded-xl object-contain flex-shrink-0"
                     style={{
-                      background: "oklch(0.20 0.05 250)",
+                      background: "rgba(255,182,217,0.1)",
                       padding: "2px",
                     }}
                   />
                 ) : (
                   <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: "oklch(0.20 0.05 250)" }}
+                    className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: "rgba(255,182,217,0.15)" }}
                   >
-                    <Globe size={16} style={{ color: "oklch(0.78 0.18 65)" }} />
+                    <Globe size={16} className="text-pink-500" />
                   </div>
                 )}
-                <h3
-                  className="font-bold text-sm leading-tight"
-                  style={{ color: "oklch(0.78 0.18 65)" }}
-                >
+                <h3 className="font-bold text-sm leading-tight text-pink-600">
                   {site.name}
                 </h3>
               </div>
 
-              {/* Description */}
-              <p
-                className="text-xs leading-relaxed line-clamp-2"
-                style={{ color: "oklch(0.65 0.04 240)" }}
-              >
+              <p className="text-xs leading-relaxed line-clamp-2 text-slate-500">
                 {site.description}
               </p>
 
-              {/* Visit button */}
               <a
                 href={site.url}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-xs font-semibold transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-95"
+                className="flex items-center justify-center gap-2 w-full py-2 rounded-2xl text-xs font-semibold transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-95"
                 style={{
-                  background:
-                    "linear-gradient(135deg, oklch(0.72 0.18 60), oklch(0.82 0.16 70))",
-                  color: "oklch(0.12 0.03 250)",
-                  boxShadow: "0 2px 8px oklch(0.78 0.18 65 / 0.3)",
+                  background: "linear-gradient(135deg, #FFB6D9, #B4E7FF)",
+                  color: "#7c3aed",
+                  boxShadow: "0 2px 8px rgba(255,182,217,0.4)",
                 }}
                 data-ocid="contact.link"
               >
@@ -341,9 +311,10 @@ export function ContactUsPage() {
 
   useEffect(() => {
     if (actor) {
-      actor
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (actor as any)
         .getFounderPhotoHash()
-        .then((hash) => {
+        .then((hash: Uint8Array<ArrayBuffer>) => {
           if (hash && hash.length > 0) {
             const blob = ExternalBlob.fromBytes(
               hash as Uint8Array<ArrayBuffer>,
@@ -384,12 +355,15 @@ export function ContactUsPage() {
   return (
     <div
       className="min-h-screen"
-      style={{ background: "oklch(0.12 0.03 250)" }}
+      style={{
+        background:
+          "linear-gradient(160deg, #FFF0F6 0%, #F0F8FF 50%, #FFF0F6 100%)",
+      }}
     >
       {/* Hero Banner */}
       <div
         ref={heroRef as React.RefObject<HTMLDivElement>}
-        className={`relative w-full h-48 md:h-64 bg-cover bg-center flex items-center justify-center transition-all duration-700 ${
+        className={`relative w-full h-48 md:h-64 bg-cover bg-center flex items-center justify-center transition-all duration-700 rounded-b-3xl overflow-hidden ${
           heroInView ? "opacity-100 scale-100" : "opacity-0 scale-95"
         }`}
         style={{
@@ -399,9 +373,12 @@ export function ContactUsPage() {
       >
         <div
           className="absolute inset-0"
-          style={{ background: "oklch(0 0 0 / 0.6)" }}
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,182,217,0.4) 0%, rgba(0,0,0,0.55) 100%)",
+          }}
         />
-        <h1 className="relative text-3xl md:text-4xl font-bold text-white tracking-wide font-display">
+        <h1 className="relative text-3xl md:text-4xl font-bold text-white tracking-wide drop-shadow-lg">
           Contact Us
         </h1>
       </div>
@@ -411,44 +388,44 @@ export function ContactUsPage() {
           {/* Left — Info */}
           <div
             ref={infoRef as React.RefObject<HTMLDivElement>}
-            className={`space-y-8 transition-all duration-700 ${
+            className={`space-y-6 transition-all duration-700 ${
               infoInView
                 ? "opacity-100 translate-x-0"
                 : "opacity-0 -translate-x-8"
             }`}
           >
+            {/* Owner Card with Pink gradient border */}
             <div
-              className="rounded-xl p-6 flex gap-6"
+              className="rounded-3xl p-6 flex gap-6"
               style={{
-                background: "oklch(0.16 0.04 250)",
-                border: "1px solid oklch(0.25 0.06 250)",
+                background: "rgba(255,255,255,0.92)",
+                backdropFilter: "blur(20px)",
+                border: "2px solid transparent",
+                backgroundClip: "padding-box",
+                boxShadow:
+                  "0 0 0 2px rgba(255,182,217,0.5), 0 8px 32px rgba(255,182,217,0.15)",
               }}
             >
               <div className="flex-1 space-y-4">
                 <div>
                   <h2
                     className="text-xl font-bold mb-2"
-                    style={{ color: "oklch(0.72 0.18 200)" }}
+                    style={{
+                      background: "linear-gradient(135deg, #be185d, #7c3aed)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}
                   >
                     Address
                   </h2>
-                  <p
-                    className="text-sm"
-                    style={{ color: "oklch(0.8 0.03 240)" }}
-                  >
+                  <p className="text-sm text-slate-700">
                     <span className="font-medium">Name : </span>
                     <strong>{contactInfo.ownerName}</strong>
                   </p>
-                  <p
-                    className="text-xs italic ml-12"
-                    style={{ color: "oklch(0.6 0.04 240)" }}
-                  >
+                  <p className="text-xs italic ml-12 text-slate-500">
                     ( {contactInfo.ownerTitle} )
                   </p>
-                  <p
-                    className="text-sm mt-1"
-                    style={{ color: "oklch(0.8 0.03 240)" }}
-                  >
+                  <p className="text-sm mt-1 text-slate-700">
                     <span className="font-medium">Address : </span>
                     <strong>
                       {contactInfo.address} Pin code - {contactInfo.pincode}
@@ -459,43 +436,34 @@ export function ContactUsPage() {
                 <div>
                   <h2
                     className="text-xl font-bold mb-2"
-                    style={{ color: "oklch(0.72 0.18 200)" }}
+                    style={{
+                      background: "linear-gradient(135deg, #0369a1, #7c3aed)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}
                   >
                     Information
                   </h2>
-                  <div
-                    className="flex items-center gap-2 text-sm"
-                    style={{ color: "oklch(0.8 0.03 240)" }}
-                  >
-                    <Phone size={14} style={{ color: "oklch(0.78 0.18 65)" }} />
+                  <div className="flex items-center gap-2 text-sm text-slate-700">
+                    <Phone size={14} className="text-pink-500" />
                     <span>
                       Phone Number: <strong>{contactInfo.phone}</strong>
                     </span>
                   </div>
-                  <div
-                    className="flex items-center gap-2 text-sm mt-1"
-                    style={{ color: "oklch(0.8 0.03 240)" }}
-                  >
-                    <Mail size={14} style={{ color: "oklch(0.78 0.18 65)" }} />
+                  <div className="flex items-center gap-2 text-sm mt-1 text-slate-700">
+                    <Mail size={14} className="text-sky-500" />
                     <span>
-                      Email us :{" "}
+                      Email us:{" "}
                       <a
                         href={`mailto:${contactInfo.email}`}
-                        className="hover:underline"
-                        style={{ color: "oklch(0.72 0.18 200)" }}
+                        className="hover:underline text-sky-600 font-medium"
                       >
                         manashpcworld@zohomail.in
                       </a>
                     </span>
                   </div>
-                  <div
-                    className="flex items-center gap-2 text-sm mt-1"
-                    style={{ color: "oklch(0.8 0.03 240)" }}
-                  >
-                    <MapPin
-                      size={14}
-                      style={{ color: "oklch(0.78 0.18 65)" }}
-                    />
+                  <div className="flex items-center gap-2 text-sm mt-1 text-slate-600">
+                    <MapPin size={14} className="text-pink-400" />
                     <span>
                       {contactInfo.address} - {contactInfo.pincode}
                     </span>
@@ -503,45 +471,52 @@ export function ContactUsPage() {
                 </div>
               </div>
 
+              {/* Founder photo with Pink gradient ring */}
               <div className="flex-shrink-0 flex flex-col items-center gap-2">
                 <div
                   className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center"
                   style={{
-                    border: "3px solid oklch(0.78 0.18 65)",
-                    background: "oklch(0.12 0.03 250)",
-                    boxShadow: "0 0 16px oklch(0.78 0.18 65 / 0.3)",
+                    background: "linear-gradient(135deg, #FFB6D9, #B4E7FF)",
+                    padding: "3px",
+                    boxShadow: "0 4px 20px rgba(255,182,217,0.5)",
                   }}
                 >
-                  {ownerPhoto ? (
-                    <img
-                      src={ownerPhoto}
-                      alt="Owner Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User size={40} style={{ color: "oklch(0.78 0.18 65)" }} />
-                  )}
+                  <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
+                    {ownerPhoto ? (
+                      <img
+                        src={ownerPhoto}
+                        alt="Owner Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User size={40} className="text-pink-400" />
+                    )}
+                  </div>
                 </div>
                 <span
-                  className="text-xs font-medium text-center"
-                  style={{ color: "oklch(0.78 0.18 65)" }}
+                  className="text-xs font-semibold"
+                  style={{
+                    background: "linear-gradient(135deg, #be185d, #7c3aed)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
                 >
                   Owner
                 </span>
               </div>
             </div>
 
+            {/* Social Links */}
             <div
-              className="rounded-xl p-6"
+              className="rounded-3xl p-6"
               style={{
-                background: "oklch(0.14 0.04 250)",
-                border: "1px solid oklch(0.25 0.06 250)",
+                background: "rgba(255,255,255,0.88)",
+                border: "1.5px solid rgba(180,231,255,0.4)",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 4px 20px rgba(180,231,255,0.1)",
               }}
             >
-              <h2
-                className="text-lg font-bold mb-4"
-                style={{ color: "oklch(0.95 0.02 240)" }}
-              >
+              <h2 className="text-lg font-bold mb-4 text-slate-700">
                 Follow Us
               </h2>
               <div className="grid grid-cols-2 gap-3">
@@ -549,8 +524,11 @@ export function ContactUsPage() {
                   href={contactInfo.youtubeUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 text-white px-4 py-2 rounded-lg hover:opacity-80 transition text-sm font-medium"
-                  style={{ background: "#c4302b" }}
+                  className="flex items-center gap-2 text-white px-4 py-2.5 rounded-2xl hover:scale-105 transition-all text-sm font-semibold shadow-md"
+                  style={{
+                    background: "#c4302b",
+                    boxShadow: "0 3px 12px rgba(196,48,43,0.4)",
+                  }}
                 >
                   <Youtube size={18} /> YouTube
                 </a>
@@ -558,8 +536,11 @@ export function ContactUsPage() {
                   href={`https://wa.me/${contactInfo.whatsappNumber}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 text-white px-4 py-2 rounded-lg hover:opacity-80 transition text-sm font-medium"
-                  style={{ background: "#25d366" }}
+                  className="flex items-center gap-2 text-white px-4 py-2.5 rounded-2xl hover:scale-105 transition-all text-sm font-semibold shadow-md"
+                  style={{
+                    background: "#25d366",
+                    boxShadow: "0 3px 12px rgba(37,211,102,0.4)",
+                  }}
                 >
                   <MessageCircle size={18} /> WhatsApp
                 </a>
@@ -567,10 +548,11 @@ export function ContactUsPage() {
                   href={contactInfo.instagramUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 text-white px-4 py-2 rounded-lg hover:opacity-90 transition text-sm font-medium"
+                  className="flex items-center gap-2 text-white px-4 py-2.5 rounded-2xl hover:scale-105 transition-all text-sm font-semibold shadow-md"
                   style={{
                     background:
                       "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)",
+                    boxShadow: "0 3px 12px rgba(131,58,180,0.4)",
                   }}
                 >
                   <Instagram size={18} /> Instagram
@@ -579,8 +561,11 @@ export function ContactUsPage() {
                   href={contactInfo.facebookUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 text-white px-4 py-2 rounded-lg hover:opacity-80 transition text-sm font-medium"
-                  style={{ background: "#1877f2" }}
+                  className="flex items-center gap-2 text-white px-4 py-2.5 rounded-2xl hover:scale-105 transition-all text-sm font-semibold shadow-md"
+                  style={{
+                    background: "#1877f2",
+                    boxShadow: "0 3px 12px rgba(24,119,242,0.4)",
+                  }}
                 >
                   <Facebook size={18} /> Facebook
                 </a>
@@ -591,36 +576,38 @@ export function ContactUsPage() {
           {/* Right — Contact Form */}
           <div
             ref={formRef as React.RefObject<HTMLDivElement>}
-            className={`rounded-xl p-6 transition-all duration-700 ${
+            className={`rounded-3xl p-6 transition-all duration-700 ${
               formInView
                 ? "opacity-100 translate-x-0"
                 : "opacity-0 translate-x-8"
             }`}
             style={{
-              background: "oklch(0.16 0.04 250)",
-              border: "1px solid oklch(0.25 0.06 250)",
+              background: "rgba(255,255,255,0.92)",
+              border: "1.5px solid rgba(255,182,217,0.3)",
+              backdropFilter: "blur(20px)",
+              boxShadow: "0 8px 32px rgba(255,182,217,0.15)",
             }}
           >
-            <h2
-              className="text-xl font-bold mb-1 font-display"
-              style={{ color: "oklch(0.95 0.02 240)" }}
-            >
+            {/* Pink-Sky top accent */}
+            <div
+              className="h-1 w-full rounded-full mb-5"
+              style={{ background: "linear-gradient(90deg, #FFB6D9, #B4E7FF)" }}
+            />
+
+            <h2 className="text-xl font-bold mb-1 text-slate-800">
               Send a Message
             </h2>
-            <p
-              className="text-xs mb-5"
-              style={{ color: "oklch(0.55 0.04 240)" }}
-            >
+            <p className="text-xs mb-5 text-slate-400">
               Note: Please fill out the fields marked with an asterisk.
             </p>
 
             {sent && (
               <div
-                className="mb-4 text-sm rounded-lg px-4 py-3"
+                className="mb-4 text-sm rounded-2xl px-4 py-3"
                 style={{
-                  background: "oklch(0.20 0.08 145 / 0.3)",
-                  border: "1px solid oklch(0.55 0.15 145 / 0.5)",
-                  color: "oklch(0.75 0.15 145)",
+                  background: "rgba(180,231,255,0.2)",
+                  border: "1px solid rgba(180,231,255,0.5)",
+                  color: "#0369a1",
                 }}
               >
                 Message sent successfully! We'll get back to you soon.
@@ -631,10 +618,9 @@ export function ContactUsPage() {
               <div>
                 <label
                   htmlFor="cf-name"
-                  className="block text-sm font-medium mb-1"
-                  style={{ color: "oklch(0.8 0.03 240)" }}
+                  className="block text-sm font-medium mb-1 text-slate-600"
                 >
-                  Name <span style={{ color: "oklch(0.65 0.2 25)" }}>*</span>
+                  Name <span className="text-pink-500">*</span>
                 </label>
                 <input
                   id="cf-name"
@@ -642,11 +628,11 @@ export function ContactUsPage() {
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+                  className="w-full rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all"
                   style={{
-                    background: "oklch(0.20 0.05 250)",
-                    border: "1px solid oklch(0.25 0.06 250)",
-                    color: "oklch(0.95 0.02 240)",
+                    background: "rgba(255,240,246,0.6)",
+                    border: "1.5px solid rgba(255,182,217,0.4)",
+                    color: "#1e293b",
                   }}
                   placeholder="Your full name"
                   data-ocid="contact.input"
@@ -656,10 +642,9 @@ export function ContactUsPage() {
               <div>
                 <label
                   htmlFor="cf-email"
-                  className="block text-sm font-medium mb-1"
-                  style={{ color: "oklch(0.8 0.03 240)" }}
+                  className="block text-sm font-medium mb-1 text-slate-600"
                 >
-                  Email <span style={{ color: "oklch(0.65 0.2 25)" }}>*</span>
+                  Email <span className="text-pink-500">*</span>
                 </label>
                 <input
                   id="cf-email"
@@ -667,11 +652,11 @@ export function ContactUsPage() {
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+                  className="w-full rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all"
                   style={{
-                    background: "oklch(0.20 0.05 250)",
-                    border: "1px solid oklch(0.25 0.06 250)",
-                    color: "oklch(0.95 0.02 240)",
+                    background: "rgba(240,248,255,0.6)",
+                    border: "1.5px solid rgba(180,231,255,0.5)",
+                    color: "#1e293b",
                   }}
                   placeholder="your@email.com"
                   data-ocid="contact.input"
@@ -681,10 +666,9 @@ export function ContactUsPage() {
               <div>
                 <label
                   htmlFor="cf-message"
-                  className="block text-sm font-medium mb-1"
-                  style={{ color: "oklch(0.8 0.03 240)" }}
+                  className="block text-sm font-medium mb-1 text-slate-600"
                 >
-                  Message <span style={{ color: "oklch(0.65 0.2 25)" }}>*</span>
+                  Message <span className="text-pink-500">*</span>
                 </label>
                 <textarea
                   id="cf-message"
@@ -694,11 +678,11 @@ export function ContactUsPage() {
                   onChange={(e) =>
                     setForm({ ...form, message: e.target.value })
                   }
-                  className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none resize-none"
+                  className="w-full rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all resize-none"
                   style={{
-                    background: "oklch(0.20 0.05 250)",
-                    border: "1px solid oklch(0.25 0.06 250)",
-                    color: "oklch(0.95 0.02 240)",
+                    background: "rgba(255,240,246,0.4)",
+                    border: "1.5px solid rgba(255,182,217,0.35)",
+                    color: "#1e293b",
                   }}
                   placeholder="Write your message here..."
                   data-ocid="contact.textarea"
@@ -707,10 +691,11 @@ export function ContactUsPage() {
 
               <button
                 type="submit"
-                className="flex items-center gap-2 text-white px-6 py-2 rounded-lg text-sm font-semibold transition-all hover-lift"
+                className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold transition-all hover:scale-105 hover:shadow-xl"
                 style={{
-                  background: "oklch(0.78 0.18 65)",
-                  color: "oklch(0.12 0.03 250)",
+                  background: "linear-gradient(135deg, #FFB6D9, #B4E7FF)",
+                  color: "#7c3aed",
+                  boxShadow: "0 4px 16px rgba(255,182,217,0.4)",
                 }}
                 data-ocid="contact.submit_button"
               >
@@ -731,64 +716,61 @@ export function ContactUsPage() {
         }`}
         style={{
           background:
-            "linear-gradient(180deg, oklch(0.12 0.03 250) 0%, oklch(0.15 0.05 260) 100%)",
-          borderTop: "1px solid oklch(0.25 0.06 250)",
+            "linear-gradient(135deg, rgba(255,182,217,0.1) 0%, rgba(180,231,255,0.1) 100%)",
+          borderTop: "1px solid rgba(255,182,217,0.2)",
+          borderBottom: "1px solid rgba(180,231,255,0.2)",
         }}
       >
         <div className="max-w-5xl mx-auto">
-          {/* Headline */}
           <div className="text-center mb-10">
             <div
               className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-4 uppercase tracking-wider"
               style={{
-                background: "oklch(0.78 0.18 65 / 0.15)",
-                border: "1px solid oklch(0.78 0.18 65 / 0.4)",
-                color: "oklch(0.78 0.18 65)",
+                background: "rgba(255,182,217,0.15)",
+                border: "1px solid rgba(255,182,217,0.4)",
+                color: "#be185d",
               }}
             >
               ✅ Officially Recognised
             </div>
-            <h2 className="text-3xl md:text-4xl font-extrabold mb-3 font-display gradient-text-gold">
+            <h2
+              className="text-3xl md:text-4xl font-extrabold mb-3"
+              style={{
+                background:
+                  "linear-gradient(135deg, #be185d, #7c3aed, #0369a1)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
               We Are Authorised
             </h2>
             <div className="flex items-center justify-center gap-3">
               <div
                 className="h-px w-16"
                 style={{
-                  background:
-                    "linear-gradient(to right, transparent, oklch(0.78 0.18 65))",
+                  background: "linear-gradient(to right, transparent, #FFB6D9)",
                 }}
               />
               <span className="text-2xl">🏅</span>
               <div
                 className="h-px w-16"
                 style={{
-                  background:
-                    "linear-gradient(to left, transparent, oklch(0.78 0.18 65))",
+                  background: "linear-gradient(to left, transparent, #FFB6D9)",
                 }}
               />
             </div>
-            <p
-              className="text-sm mt-3 max-w-lg mx-auto"
-              style={{ color: "oklch(0.6 0.04 240)" }}
-            >
+            <p className="text-sm mt-3 max-w-lg mx-auto text-slate-500">
               NextGen IT Hub is an authorised service provider for these
               government and banking institutions
             </p>
           </div>
 
-          {/* Carousel */}
           <AuthorisedCarousel />
         </div>
       </div>
 
       {/* Partner Websites Section */}
-      <div
-        style={{
-          borderTop: "1px solid oklch(0.20 0.05 250)",
-          paddingTop: "3rem",
-        }}
-      >
+      <div className="pt-12">
         <OtherWebsitesSection />
       </div>
 
@@ -800,23 +782,22 @@ export function ContactUsPage() {
         }`}
       >
         <div
-          className="rounded-xl overflow-hidden"
-          style={{ border: "1px solid oklch(0.25 0.06 250)" }}
+          className="rounded-3xl overflow-hidden"
+          style={{
+            border: "1.5px solid rgba(180,231,255,0.4)",
+            boxShadow: "0 4px 20px rgba(180,231,255,0.15)",
+          }}
         >
           <div
             className="px-6 py-4 flex items-center gap-2"
             style={{
-              borderBottom: "1px solid oklch(0.25 0.06 250)",
-              background: "oklch(0.16 0.04 250)",
+              borderBottom: "1px solid rgba(255,182,217,0.2)",
+              background:
+                "linear-gradient(135deg, rgba(255,182,217,0.1), rgba(180,231,255,0.1))",
             }}
           >
-            <MapPin size={20} style={{ color: "oklch(0.78 0.18 65)" }} />
-            <h2
-              className="text-lg font-bold"
-              style={{ color: "oklch(0.95 0.02 240)" }}
-            >
-              Our Location
-            </h2>
+            <MapPin size={20} className="text-pink-500" />
+            <h2 className="text-lg font-bold text-slate-700">Our Location</h2>
           </div>
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3580.7!2d91.4398!3d26.4456!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x375a67c9b0b0b0b0%3A0x0!2sChamata%2C+Nalbari%2C+Assam+781306!5e0!3m2!1sen!2sin!4v1"

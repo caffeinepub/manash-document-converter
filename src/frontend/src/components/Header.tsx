@@ -15,7 +15,7 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Page } from "../App";
 import { type ThemePreference, useTheme } from "../hooks/useTheme";
 import { getCustomerSession } from "../types";
@@ -27,274 +27,508 @@ interface Props {
 }
 
 const themeIcons: Record<ThemePreference, React.ReactNode> = {
-  light: <Sun size={18} />,
-  dark: <Moon size={18} />,
-  auto: <Monitor size={18} />,
+  light: <Sun size={15} />,
+  dark: <Moon size={15} />,
+  auto: <Monitor size={15} />,
+};
+
+const themeLabels: Record<ThemePreference, string> = {
+  auto: "Auto",
+  light: "Light",
+  dark: "Dark",
 };
 
 const themeOrder: ThemePreference[] = ["auto", "light", "dark"];
 
-const themeLabels: Record<ThemePreference, string> = {
-  auto: "Auto (system)",
-  light: "Light mode",
-  dark: "Dark mode",
-};
-
 export function Header({ page, navigate, cartCount }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const customer = getCustomerSession();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const panelRef = useRef<HTMLDialogElement>(null);
 
-  const cycleTheme = () => {
-    const idx = themeOrder.indexOf(theme);
-    const next = themeOrder[(idx + 1) % themeOrder.length];
-    setTheme(next);
-  };
+  const isDark = resolvedTheme === "dark";
 
-  const navLinks: { label: string; page: Page }[] = [
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Close panel on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        menuOpen &&
+        panelRef.current &&
+        !panelRef.current.contains(e.target as Node)
+      ) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuOpen]);
+
+  const navLinks: { label: string; page: Page; icon?: React.ReactNode }[] = [
     { label: "Home", page: "home" },
     { label: "Shop", page: "shop" },
-    { label: "Document Converter", page: "converter" },
-    { label: "Image Tools", page: "image-tools" },
-    { label: "Job Updates", page: "job-updates" },
-    { label: "Gov Documents", page: "gov-documents" },
-    { label: "PAN Portal", page: "pan-card" },
-    { label: "Contact Us", page: "contact-us" },
-    { label: "Manash 2.0", page: "ai-chat" },
-    { label: "\uD83C\uDFAE Entertainment", page: "entertainment" },
-    { label: "\uD83C\uDFD4\uFE0F Assam Tourism", page: "assam-tourism" },
+    { label: "Converter", page: "converter", icon: <FileText size={13} /> },
+    {
+      label: "Image Tools",
+      page: "image-tools",
+      icon: <FileImage size={13} />,
+    },
+    {
+      label: "Job Updates",
+      page: "job-updates",
+      icon: <Briefcase size={13} />,
+    },
+    {
+      label: "Gov Docs",
+      page: "gov-documents",
+      icon: <ScrollText size={13} />,
+    },
+    { label: "PAN Portal", page: "pan-card", icon: <CreditCard size={13} /> },
+    { label: "Contact", page: "contact-us", icon: <Mail size={13} /> },
+    { label: "Manash 2.0", page: "ai-chat", icon: <Bot size={13} /> },
+    { label: "🎮 Entertainment", page: "entertainment" },
+    {
+      label: "🏔️ Assam Tourism",
+      page: "assam-tourism",
+      icon: <Mountain size={13} />,
+    },
     { label: "⚙️ Admin Panel", page: "admin" },
   ];
 
-  return (
-    <header
-      className="sticky top-0 z-50"
-      style={{ boxShadow: "0 4px 24px oklch(0 0 0 / 0.4)" }}
-    >
-      {/* Top utility bar */}
-      <div
-        className="text-xs py-1.5 px-4 text-right animate-slide-in-top"
-        style={{
-          background: "oklch(0.10 0.03 250)",
-          color: "oklch(0.6 0.04 240)",
-          borderBottom: "1px solid oklch(0.22 0.05 250)",
-        }}
-      >
-        Formerly Manash PC World &nbsp;|&nbsp; NextGen IT Hub
-      </div>
+  const headerBg = isDark ? "rgba(26,10,20,0.92)" : "rgba(255,255,255,0.88)";
+  const headerBorder = isDark
+    ? "1px solid rgba(255,182,217,0.18)"
+    : "1px solid rgba(180,231,255,0.5)";
+  const boxShadow = scrolled
+    ? isDark
+      ? "0 4px 24px rgba(0,0,0,0.35)"
+      : "0 4px 20px rgba(255,182,217,0.25)"
+    : "none";
 
-      {/* Main header */}
+  return (
+    <>
+      {/* Safe area spacer for iOS notch */}
       <div
-        className="px-4 py-3"
         style={{
-          background: "oklch(0.13 0.04 250 / 0.95)",
-          backdropFilter: "blur(16px)",
-          borderBottom: "1px solid oklch(0.25 0.06 250 / 0.6)",
+          height: "env(safe-area-inset-top)",
+          background: headerBg,
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 51,
+        }}
+      />
+
+      <header
+        className="sticky z-50 transition-all duration-300"
+        style={{
+          top: "env(safe-area-inset-top)",
+          background: headerBg,
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderBottom: headerBorder,
+          boxShadow,
         }}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        {/* Subtle pink-sky gradient bar at very top */}
+        <div
+          className="absolute top-0 left-0 right-0 h-0.5"
+          style={{
+            background:
+              "linear-gradient(90deg, #FFB6D9 0%, #B4E7FF 50%, #FFB6D9 100%)",
+            opacity: 0.7,
+          }}
+        />
+
+        <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-3">
           {/* Logo */}
           <button
             type="button"
             onClick={() => navigate("home")}
-            className="flex items-center gap-3 min-w-0 hover-scale"
+            className="flex items-center gap-2.5 flex-shrink-0 hover-scale"
             data-ocid="nav.link"
           >
             <img
               src="/assets/uploads/picsart_26-03-20_17-21-03-596-019d37d3-67cb-70ae-b887-e779e514ed62-1.png"
               alt="NextGen IT Hub"
-              className="h-12 w-12 object-contain rounded"
+              className="h-10 w-10 object-contain rounded-xl"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}
             />
-            <div className="text-left">
+            <div className="text-left leading-tight">
               <div
-                className="font-bold text-lg leading-tight tracking-wide font-display"
-                style={{ color: "oklch(0.95 0.02 240)" }}
+                className="font-bold text-base tracking-tight"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #E85D8A 0%, #4FA8E0 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
               >
                 NextGen IT Hub
               </div>
-              <div className="text-xs" style={{ color: "oklch(0.78 0.18 65)" }}>
-                Formerly Manash PC World
+              <div
+                className="text-[10px] font-medium"
+                style={{
+                  color: isDark
+                    ? "rgba(255,182,217,0.6)"
+                    : "rgba(160,100,130,0.8)",
+                }}
+              >
+                Chamata, Nalbari
               </div>
             </div>
           </button>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-5 text-sm">
-            {navLinks.map((l) => (
-              <button
-                type="button"
-                key={l.page}
-                onClick={() => navigate(l.page)}
-                data-ocid={`nav.${l.page}.link`}
-                className={`nav-underline transition-all duration-200 flex items-center gap-1 ${
-                  page === l.page ? "active-link font-semibold" : ""
-                }`}
-                style={{
-                  color:
-                    page === l.page
-                      ? "oklch(0.78 0.18 65)"
-                      : "oklch(0.75 0.04 240)",
-                }}
-              >
-                {l.page === "converter" && <FileText size={14} />}
-                {l.page === "image-tools" && <FileImage size={14} />}
-                {l.page === "job-updates" && <Briefcase size={14} />}
-                {l.page === "gov-documents" && <ScrollText size={14} />}
-                {l.page === "pan-card" && <CreditCard size={14} />}
-                {l.page === "contact-us" && <Mail size={14} />}
-                {l.page === "ai-chat" && <Bot size={14} />}
-                {l.page === "assam-tourism" && <Mountain size={14} />}
-                {l.label}
-              </button>
-            ))}
+          {/* Desktop nav — scrollable pill chips */}
+          <nav className="hidden lg:flex items-center gap-1 flex-1 overflow-x-auto scrollbar-none ml-2">
+            {navLinks.map((l) => {
+              const isActive = page === l.page;
+              return (
+                <button
+                  type="button"
+                  key={l.page}
+                  onClick={() => navigate(l.page)}
+                  data-ocid={`nav.${l.page}.link`}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all duration-200"
+                  style={{
+                    background: isActive
+                      ? "linear-gradient(135deg, rgba(232,93,138,0.18) 0%, rgba(79,168,224,0.18) 100%)"
+                      : "transparent",
+                    color: isActive
+                      ? isDark
+                        ? "#FFB6D9"
+                        : "#C84880"
+                      : isDark
+                        ? "rgba(255,240,248,0.75)"
+                        : "rgba(80,50,70,0.75)",
+                    border: isActive
+                      ? "1px solid rgba(232,93,138,0.35)"
+                      : "1px solid transparent",
+                    fontWeight: isActive ? 600 : 400,
+                  }}
+                >
+                  {l.icon}
+                  {l.label}
+                </button>
+              );
+            })}
           </nav>
 
-          {/* Right icons */}
-          <div className="flex items-center gap-3">
-            {/* Theme toggle */}
-            <button
-              type="button"
-              onClick={cycleTheme}
-              title={themeLabels[theme]}
-              className="flex items-center transition-colors duration-200 rounded-lg p-1.5 hover:opacity-80"
-              style={{ color: "oklch(0.75 0.04 240)" }}
-              data-ocid="nav.theme.toggle"
-              aria-label={themeLabels[theme]}
+          {/* Right actions */}
+          <div className="flex items-center gap-1 ml-auto flex-shrink-0">
+            {/* iOS Segmented Theme Toggle */}
+            <div
+              className="hidden md:flex items-center rounded-full p-0.5 gap-0.5"
+              style={{
+                background: isDark
+                  ? "rgba(255,182,217,0.10)"
+                  : "rgba(0,0,0,0.06)",
+              }}
             >
-              {themeIcons[theme]}
-            </button>
+              {themeOrder.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setTheme(t)}
+                  title={themeLabels[t]}
+                  aria-label={themeLabels[t]}
+                  data-ocid="nav.theme.toggle"
+                  className="flex items-center justify-center w-7 h-7 rounded-full transition-all duration-200"
+                  style={{
+                    background:
+                      theme === t
+                        ? isDark
+                          ? "rgba(255,182,217,0.22)"
+                          : "rgba(255,255,255,0.95)"
+                        : "transparent",
+                    color:
+                      theme === t
+                        ? isDark
+                          ? "#FFB6D9"
+                          : "#C84880"
+                        : isDark
+                          ? "rgba(255,240,248,0.5)"
+                          : "rgba(80,50,70,0.5)",
+                    boxShadow:
+                      theme === t ? "0 1px 4px rgba(0,0,0,0.12)" : "none",
+                  }}
+                >
+                  {themeIcons[t]}
+                </button>
+              ))}
+            </div>
 
+            {/* User */}
             <button
               type="button"
               onClick={() => navigate(customer ? "account" : "auth")}
-              className="flex items-center gap-1 transition-colors text-sm duration-200"
-              style={{ color: "oklch(0.75 0.04 240)" }}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200"
+              style={{
+                color: isDark ? "rgba(255,240,248,0.8)" : "rgba(80,50,70,0.8)",
+              }}
               data-ocid="nav.auth.link"
             >
-              <User size={20} />
+              <User size={18} />
               <span className="hidden md:inline">
                 {customer ? customer.name.split(" ")[0] : "Login"}
               </span>
             </button>
 
+            {/* Cart */}
             <button
               type="button"
               onClick={() => navigate("cart")}
-              className="relative flex items-center transition-colors"
-              style={{ color: "oklch(0.75 0.04 240)" }}
+              className="relative flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200"
+              style={{
+                background:
+                  cartCount > 0
+                    ? "linear-gradient(135deg, rgba(232,93,138,0.15) 0%, rgba(79,168,224,0.15) 100%)"
+                    : "transparent",
+              }}
               data-ocid="nav.cart.link"
             >
-              <ShoppingCart size={22} />
+              <ShoppingCart
+                size={20}
+                style={{
+                  color: isDark
+                    ? "rgba(255,240,248,0.85)"
+                    : "rgba(80,50,70,0.85)",
+                }}
+              />
               {cartCount > 0 && (
                 <span
-                  className="absolute -top-2 -right-2 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-bounce"
+                  className="absolute -top-0.5 -right-0.5 text-white text-[10px] rounded-full w-4.5 h-4.5 min-w-[18px] min-h-[18px] flex items-center justify-center font-bold"
                   style={{
-                    background: "oklch(0.78 0.18 65)",
-                    color: "oklch(0.12 0.03 250)",
+                    background: "linear-gradient(135deg, #E85D8A, #B04070)",
+                    fontSize: "10px",
+                    lineHeight: 1,
+                    padding: "2px 4px",
                   }}
                 >
-                  {cartCount}
+                  {cartCount > 99 ? "99+" : cartCount}
                 </span>
               )}
             </button>
 
+            {/* Hamburger */}
             <button
               type="button"
-              className="md:hidden transition-transform duration-200 hover:scale-110"
-              style={{ color: "oklch(0.75 0.04 240)" }}
               onClick={() => setMenuOpen(!menuOpen)}
+              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200"
+              style={{
+                color: isDark
+                  ? "rgba(255,240,248,0.85)"
+                  : "rgba(80,50,70,0.85)",
+                background: menuOpen
+                  ? isDark
+                    ? "rgba(255,182,217,0.15)"
+                    : "rgba(232,93,138,0.10)"
+                  : "transparent",
+              }}
+              aria-label="Menu"
             >
-              {menuOpen ? <X size={22} /> : <Menu size={22} />}
+              {menuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Mobile menu — slide down animation */}
+      {/* Mobile slide-in panel from right */}
       {menuOpen && (
         <div
-          className="md:hidden px-4 pb-4 animate-slide-down"
-          style={{
-            background: "oklch(0.13 0.04 250 / 0.98)",
-            borderBottom: "1px solid oklch(0.25 0.06 250)",
-            backdropFilter: "blur(16px)",
-          }}
+          role="presentation"
+          className="fixed inset-0 z-[60]"
+          style={{ background: "rgba(0,0,0,0.4)" }}
+          onClick={() => setMenuOpen(false)}
+          onKeyDown={(e) => e.key === "Escape" && setMenuOpen(false)}
         >
-          {navLinks.map((l, i) => (
-            <button
-              type="button"
-              key={l.page}
-              onClick={() => {
-                navigate(l.page);
-                setMenuOpen(false);
-              }}
-              className="block w-full text-left py-2.5 text-sm transition-colors"
+          <dialog
+            ref={panelRef}
+            open
+            aria-label="Navigation menu"
+            className="absolute top-0 right-0 bottom-0 w-72 flex flex-col overflow-y-auto m-0 p-0"
+            style={{
+              background: isDark
+                ? "rgba(26,10,20,0.97)"
+                : "rgba(255,252,254,0.97)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              borderLeft: isDark
+                ? "1px solid rgba(255,182,217,0.2)"
+                : "1px solid rgba(180,231,255,0.5)",
+              paddingTop: "env(safe-area-inset-top)",
+              paddingBottom: "env(safe-area-inset-bottom)",
+              animation:
+                "slideInFromRight 0.28s cubic-bezier(0.34,1.56,0.64,1) both",
+            }}
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            {/* Panel header */}
+            <div
+              className="flex items-center justify-between px-5 py-4"
               style={{
-                color: "oklch(0.75 0.04 240)",
-                animationDelay: `${i * 40}ms`,
-                borderBottom: "1px solid oklch(0.20 0.04 250)",
+                borderBottom: isDark
+                  ? "1px solid rgba(255,182,217,0.12)"
+                  : "1px solid rgba(180,231,255,0.4)",
               }}
             >
-              {l.label}
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => {
-              navigate(customer ? "account" : "auth");
-              setMenuOpen(false);
-            }}
-            className="block w-full text-left py-2.5 text-sm transition-colors"
-            style={{ color: "oklch(0.75 0.04 240)" }}
-          >
-            {customer ? `My Account (${customer.name})` : "Login / Register"}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              navigate("admin");
-              setMenuOpen(false);
-            }}
-            className="block w-full text-left py-2 text-xs transition-colors"
-            style={{ color: "oklch(0.5 0.03 240)" }}
-          >
-            Admin Panel
-          </button>
-          {/* Mobile theme toggle */}
-          <div
-            className="flex items-center gap-3 pt-3 mt-1"
-            style={{ borderTop: "1px solid oklch(0.20 0.04 250)" }}
-          >
-            <span className="text-xs" style={{ color: "oklch(0.5 0.03 240)" }}>
-              Theme:
-            </span>
-            {themeOrder.map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setTheme(t)}
-                title={themeLabels[t]}
-                className="p-1.5 rounded-lg transition-all duration-200"
+              <div
+                className="font-bold text-base"
                 style={{
-                  color:
-                    theme === t ? "oklch(0.78 0.18 65)" : "oklch(0.5 0.03 240)",
                   background:
-                    theme === t ? "oklch(0.78 0.18 65 / 0.12)" : "transparent",
-                  border:
-                    theme === t
-                      ? "1px solid oklch(0.78 0.18 65 / 0.4)"
-                      : "1px solid transparent",
+                    "linear-gradient(135deg, #E85D8A 0%, #4FA8E0 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
                 }}
               >
-                {themeIcons[t]}
+                NextGen IT Hub
+              </div>
+              <button
+                type="button"
+                onClick={() => setMenuOpen(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center"
+                style={{
+                  background: isDark
+                    ? "rgba(255,182,217,0.12)"
+                    : "rgba(232,93,138,0.08)",
+                  color: isDark ? "#FFB6D9" : "#C84880",
+                }}
+              >
+                <X size={16} />
               </button>
-            ))}
-          </div>
+            </div>
+
+            {/* Nav links */}
+            <div className="flex flex-col px-3 py-3 gap-1">
+              {navLinks.map((l) => {
+                const isActive = page === l.page;
+                return (
+                  <button
+                    type="button"
+                    key={l.page}
+                    onClick={() => {
+                      navigate(l.page);
+                      setMenuOpen(false);
+                    }}
+                    className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-left transition-all duration-200"
+                    style={{
+                      background: isActive
+                        ? "linear-gradient(135deg, rgba(232,93,138,0.15) 0%, rgba(79,168,224,0.15) 100%)"
+                        : "transparent",
+                      color: isActive
+                        ? isDark
+                          ? "#FFB6D9"
+                          : "#C84880"
+                        : isDark
+                          ? "rgba(255,240,248,0.8)"
+                          : "rgba(60,30,50,0.85)",
+                      fontWeight: isActive ? 600 : 400,
+                      borderLeft: isActive
+                        ? "3px solid #E85D8A"
+                        : "3px solid transparent",
+                    }}
+                  >
+                    {l.icon && <span style={{ opacity: 0.7 }}>{l.icon}</span>}
+                    {l.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Bottom section: user + theme */}
+            <div
+              className="mt-auto px-4 py-4 flex flex-col gap-3"
+              style={{
+                borderTop: isDark
+                  ? "1px solid rgba(255,182,217,0.12)"
+                  : "1px solid rgba(180,231,255,0.4)",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  navigate(customer ? "account" : "auth");
+                  setMenuOpen(false);
+                }}
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium"
+                style={{
+                  background: isDark
+                    ? "rgba(255,182,217,0.08)"
+                    : "rgba(232,93,138,0.06)",
+                  color: isDark
+                    ? "rgba(255,240,248,0.85)"
+                    : "rgba(60,30,50,0.85)",
+                }}
+              >
+                <User size={16} />
+                {customer
+                  ? `${customer.name.split(" ")[0]}'s Account`
+                  : "Login / Register"}
+              </button>
+
+              {/* Theme segmented */}
+              <div
+                className="flex items-center rounded-2xl p-1 gap-1"
+                style={{
+                  background: isDark
+                    ? "rgba(255,182,217,0.08)"
+                    : "rgba(0,0,0,0.05)",
+                }}
+              >
+                {themeOrder.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setTheme(t)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-medium transition-all duration-200"
+                    style={{
+                      background:
+                        theme === t
+                          ? isDark
+                            ? "rgba(255,182,217,0.20)"
+                            : "rgba(255,255,255,0.95)"
+                          : "transparent",
+                      color:
+                        theme === t
+                          ? isDark
+                            ? "#FFB6D9"
+                            : "#C84880"
+                          : isDark
+                            ? "rgba(255,240,248,0.5)"
+                            : "rgba(80,50,70,0.5)",
+                      boxShadow:
+                        theme === t ? "0 1px 4px rgba(0,0,0,0.10)" : "none",
+                    }}
+                  >
+                    {themeIcons[t]}
+                    {themeLabels[t]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </dialog>
         </div>
       )}
-    </header>
+
+      {/* Slide-in keyframe */}
+      <style>{`
+        @keyframes slideInFromRight {
+          from { transform: translateX(100%); opacity: 0.6; }
+          to   { transform: translateX(0);    opacity: 1;   }
+        }
+      `}</style>
+    </>
   );
 }

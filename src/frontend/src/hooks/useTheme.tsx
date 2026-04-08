@@ -16,9 +16,9 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: "dark",
+  theme: "light",
   setTheme: () => {},
-  resolvedTheme: "dark",
+  resolvedTheme: "light",
 });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
@@ -32,7 +32,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     } catch {
       // ignore
     }
-    return "dark";
+    return "light";
   });
 
   const getSystemTheme = (): "light" | "dark" => {
@@ -48,6 +48,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const html = document.documentElement;
     html.classList.remove("light", "dark");
     html.classList.add(resolved);
+
+    // Update meta theme-color for iOS status bar
+    const themeColor = resolved === "dark" ? "#1a0a14" : "#FFB6D9";
+    let meta = document.querySelector<HTMLMetaElement>(
+      'meta[name="theme-color"]',
+    );
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "theme-color";
+      document.head.appendChild(meta);
+    }
+    meta.content = themeColor;
   }, []);
 
   useEffect(() => {

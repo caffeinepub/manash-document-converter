@@ -287,24 +287,24 @@ const BIHU_INFO = [
     name: "Rongali Bihu (Bohag Bihu)",
     month: "April",
     description:
-      "The most celebrated Bihu festival marking the Assamese New Year and the start of the agricultural season. It's a time of joy, dance, music, and new beginnings. Young men and women perform the traditional Bihu dance wearing colourful traditional attire.",
-    color: "from-amber-500 to-orange-500",
+      "The most celebrated Bihu festival marking the Assamese New Year and the start of the agricultural season. Young men and women perform the traditional Bihu dance wearing colourful traditional attire.",
+    gradient: "linear-gradient(135deg,#FFB6D9,#f9a8d4)",
     emoji: "🌸",
   },
   {
     name: "Kongali Bihu (Kati Bihu)",
     month: "October",
     description:
-      "A more sombre and spiritual festival observed when the granaries are empty waiting for the harvest. Oil lamps (saki) are lit in paddy fields and tulsi plants as a prayer for a good harvest. It reflects the Assamese farmer's deep connection with nature.",
-    color: "from-orange-600 to-red-600",
+      "A more sombre festival observed when the granaries are empty waiting for harvest. Oil lamps are lit in paddy fields as a prayer for a good harvest. It reflects the Assamese farmer's deep connection with nature.",
+    gradient: "linear-gradient(135deg,#fcd34d,#fb923c)",
     emoji: "🪔",
   },
   {
     name: "Bhogali Bihu (Magh Bihu)",
     month: "January",
     description:
-      "The harvest festival celebrated after the paddy is stored in granaries. Communities build large bonfires (meji) and temporary community huts (bhelaghar) filled with food. It's a festival of feasting, community bonding, and gratitude for the harvest.",
-    color: "from-yellow-500 to-amber-600",
+      "The harvest festival celebrated after the paddy is stored in granaries. Communities build large bonfires and community huts filled with food. A festival of feasting, community bonding, and gratitude.",
+    gradient: "linear-gradient(135deg,#B4E7FF,#93c5fd)",
     emoji: "🔥",
   },
 ];
@@ -422,12 +422,10 @@ function SnakeGame() {
     if (!ctx) return;
     const s = stateRef.current;
 
-    // Background
-    ctx.fillStyle = "#0a1628";
+    ctx.fillStyle = "#fff5fb";
     ctx.fillRect(0, 0, COLS * CELL, ROWS * CELL);
 
-    // Grid
-    ctx.strokeStyle = "rgba(255,255,255,0.03)";
+    ctx.strokeStyle = "rgba(255,182,217,0.15)";
     ctx.lineWidth = 0.5;
     for (let x = 0; x <= COLS; x++) {
       ctx.beginPath();
@@ -442,10 +440,9 @@ function SnakeGame() {
       ctx.stroke();
     }
 
-    // Food
-    ctx.fillStyle = "#f59e0b";
-    ctx.shadowColor = "#f59e0b";
-    ctx.shadowBlur = 12;
+    ctx.fillStyle = "#FF6B9D";
+    ctx.shadowColor = "#FFB6D9";
+    ctx.shadowBlur = 10;
     ctx.beginPath();
     ctx.arc(
       s.food.x * CELL + CELL / 2,
@@ -457,13 +454,12 @@ function SnakeGame() {
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    // Snake
     s.snake.forEach((seg, i) => {
       const ratio = i / s.snake.length;
       ctx.fillStyle =
-        i === 0 ? "#22d3ee" : `rgba(34, 211, 238, ${0.9 - ratio * 0.5})`;
-      ctx.shadowColor = i === 0 ? "#22d3ee" : "transparent";
-      ctx.shadowBlur = i === 0 ? 8 : 0;
+        i === 0 ? "#c05c9e" : `rgba(180,105,178,${0.9 - ratio * 0.5})`;
+      ctx.shadowColor = i === 0 ? "#FFB6D9" : "transparent";
+      ctx.shadowBlur = i === 0 ? 6 : 0;
       ctx.beginPath();
       ctx.roundRect(seg.x * CELL + 1, seg.y * CELL + 1, CELL - 2, CELL - 2, 4);
       ctx.fill();
@@ -535,8 +531,7 @@ function SnakeGame() {
   }, [tick, draw, randomFood]);
 
   const pauseGame = useCallback(() => {
-    const s = stateRef.current;
-    s.running = !s.running;
+    stateRef.current.running = !stateRef.current.running;
   }, []);
 
   useEffect(() => {
@@ -584,50 +579,48 @@ function SnakeGame() {
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="flex items-center gap-6 text-sm">
-        <span style={{ color: "oklch(0.78 0.18 65)" }}>
+        <span style={{ color: "#c05c9e" }}>
           Score: <strong>{score}</strong>
         </span>
-        <span style={{ color: "oklch(0.75 0.04 240)" }}>
-          Use Arrow Keys / WASD
-        </span>
+        <span style={{ color: "#8a6a9a" }}>Arrow Keys / WASD</span>
       </div>
       <div className="relative">
         <canvas
           ref={canvasRef}
           width={COLS * CELL}
           height={ROWS * CELL}
-          className="rounded-xl border"
+          className="rounded-2xl"
           style={{
-            border: "1px solid oklch(0.78 0.18 65 / 0.4)",
+            border: "2px solid rgba(255,182,217,0.4)",
             maxWidth: "100%",
           }}
           tabIndex={0}
         />
         {(!started || gameOver) && (
           <div
-            className="absolute inset-0 flex flex-col items-center justify-center rounded-xl"
-            style={{ background: "oklch(0.10 0.03 250 / 0.85)" }}
+            className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl"
+            style={{
+              background: "rgba(255,245,251,0.92)",
+              backdropFilter: "blur(8px)",
+            }}
           >
             {gameOver && (
               <p
                 className="text-2xl font-bold mb-1"
-                style={{ color: "oklch(0.65 0.25 27)" }}
+                style={{ color: "#d44d6e" }}
               >
                 Game Over!
               </p>
             )}
             {gameOver && (
-              <p
-                className="text-sm mb-4"
-                style={{ color: "oklch(0.75 0.04 240)" }}
-              >
+              <p className="text-sm mb-4" style={{ color: "#8a6a9a" }}>
                 Score: {score}
               </p>
             )}
             {!started && !gameOver && (
               <p
                 className="text-xl font-bold mb-4"
-                style={{ color: "oklch(0.78 0.18 65)" }}
+                style={{ color: "#c05c9e" }}
               >
                 🐍 Snake Game
               </p>
@@ -639,10 +632,10 @@ function SnakeGame() {
         <button
           type="button"
           onClick={startGame}
-          className="px-5 py-2 rounded-lg font-semibold text-sm transition-all hover:opacity-90"
+          className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105"
           style={{
-            background: "oklch(0.78 0.18 65)",
-            color: "oklch(0.12 0.03 250)",
+            background: "linear-gradient(135deg,#FFB6D9,#c05c9e)",
+            color: "#fff",
           }}
           data-ocid="snake.primary_button"
         >
@@ -652,10 +645,11 @@ function SnakeGame() {
           <button
             type="button"
             onClick={pauseGame}
-            className="px-5 py-2 rounded-lg font-semibold text-sm border transition-all hover:opacity-90"
+            className="px-5 py-2.5 rounded-xl font-semibold text-sm border transition-all hover:scale-105"
             style={{
-              border: "1px solid oklch(0.78 0.18 65)",
-              color: "oklch(0.78 0.18 65)",
+              border: "1.5px solid rgba(255,182,217,0.6)",
+              color: "#c05c9e",
+              background: "rgba(255,182,217,0.1)",
             }}
             data-ocid="snake.secondary_button"
           >
@@ -695,21 +689,17 @@ function bestMove(board: TCell[]): number {
   const empty = board
     .map((v, i) => (v === null ? i : -1))
     .filter((i) => i !== -1);
-  // Try to win
   for (const i of empty) {
     const b = [...board];
     b[i] = "O";
     if (checkWinner(b) === "O") return i;
   }
-  // Block player
   for (const i of empty) {
     const b = [...board];
     b[i] = "X";
     if (checkWinner(b) === "X") return i;
   }
-  // Prefer center
   if (board[4] === null) return 4;
-  // Corners
   const corners = [0, 2, 6, 8].filter((i) => board[i] === null);
   if (corners.length)
     return corners[Math.floor(Math.random() * corners.length)];
@@ -743,13 +733,12 @@ function TicTacToe() {
     const w = checkWinner(next);
     setBoard(next);
     setXIsNext(!xIsNext);
-    if (w) {
+    if (w)
       setScores((prev) => ({
         ...prev,
         [w === "draw" ? "draw" : w]:
           prev[w === "draw" ? "draw" : (w as "X" | "O")] + 1,
       }));
-    }
   };
 
   useEffect(() => {
@@ -762,13 +751,12 @@ function TicTacToe() {
         const w = checkWinner(next);
         setBoard(next);
         setXIsNext(true);
-        if (w) {
+        if (w)
           setScores((prev) => ({
             ...prev,
             [w === "draw" ? "draw" : w]:
               prev[w === "draw" ? "draw" : (w as "X" | "O")] + 1,
           }));
-        }
       }, 400);
       return () => clearTimeout(t);
     }
@@ -778,7 +766,6 @@ function TicTacToe() {
     setBoard(Array(9).fill(null));
     setXIsNext(true);
   };
-
   const status = winner
     ? winner === "draw"
       ? "It's a Draw! 🤝"
@@ -790,18 +777,14 @@ function TicTacToe() {
       <div className="flex gap-4 text-sm">
         {(["X", "O", "draw"] as const).map((k) => (
           <div key={k} className="text-center">
-            <div className="text-xs" style={{ color: "oklch(0.60 0.04 240)" }}>
+            <div className="text-xs" style={{ color: "#8a6a9a" }}>
               {k === "draw" ? "Draws" : k}
             </div>
             <div
               className="font-bold text-lg"
               style={{
                 color:
-                  k === "X"
-                    ? "oklch(0.65 0.25 240)"
-                    : k === "O"
-                      ? "oklch(0.78 0.18 65)"
-                      : "oklch(0.75 0.04 240)",
+                  k === "X" ? "#3a8fd4" : k === "O" ? "#c05c9e" : "#8a6a9a",
               }}
             >
               {scores[k]}
@@ -809,30 +792,25 @@ function TicTacToe() {
           </div>
         ))}
       </div>
-
       <p
         className="text-sm font-semibold"
-        style={{
-          color: winner ? "oklch(0.78 0.18 65)" : "oklch(0.75 0.04 240)",
-        }}
+        style={{ color: winner ? "#c05c9e" : "#8a6a9a" }}
       >
         {status}
       </p>
-
       <div className="grid grid-cols-3 gap-2">
         {board.map((cell, i) => (
           <button
             type="button"
             key={CELL_KEYS[i]}
             onClick={() => handleClick(i)}
-            className="w-20 h-20 rounded-xl flex items-center justify-center text-3xl font-bold transition-all duration-150 hover:opacity-80"
+            className="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-bold transition-all duration-150 hover:scale-105"
             style={{
               background: cell
-                ? "oklch(0.20 0.06 250)"
-                : "oklch(0.16 0.04 250)",
-              border: `2px solid ${cell === "X" ? "oklch(0.65 0.25 240 / 0.6)" : cell === "O" ? "oklch(0.78 0.18 65 / 0.6)" : "oklch(0.25 0.05 250)"}`,
-              color:
-                cell === "X" ? "oklch(0.65 0.25 240)" : "oklch(0.78 0.18 65)",
+                ? "rgba(255,182,217,0.12)"
+                : "rgba(255,182,217,0.06)",
+              border: `2px solid ${cell === "X" ? "rgba(58,143,212,0.5)" : cell === "O" ? "rgba(192,92,158,0.5)" : "rgba(255,182,217,0.25)"}`,
+              color: cell === "X" ? "#3a8fd4" : "#c05c9e",
             }}
             data-ocid={`ttt.item.${i + 1}`}
           >
@@ -840,15 +818,14 @@ function TicTacToe() {
           </button>
         ))}
       </div>
-
       <div className="flex gap-3 flex-wrap justify-center">
         <button
           type="button"
           onClick={reset}
-          className="px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-90"
+          className="px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:scale-105"
           style={{
-            background: "oklch(0.78 0.18 65)",
-            color: "oklch(0.12 0.03 250)",
+            background: "linear-gradient(135deg,#FFB6D9,#c05c9e)",
+            color: "#fff",
           }}
           data-ocid="ttt.primary_button"
         >
@@ -860,10 +837,11 @@ function TicTacToe() {
             setVsComputer(!vsComputer);
             reset();
           }}
-          className="px-4 py-2 rounded-lg text-sm font-semibold border transition-all hover:opacity-90"
+          className="px-4 py-2 rounded-xl text-sm font-semibold border transition-all hover:scale-105"
           style={{
-            border: "1px solid oklch(0.78 0.18 65)",
-            color: "oklch(0.78 0.18 65)",
+            border: "1.5px solid rgba(255,182,217,0.5)",
+            color: "#c05c9e",
+            background: "rgba(255,182,217,0.1)",
           }}
           data-ocid="ttt.toggle"
         >
@@ -916,7 +894,6 @@ function QuizGame() {
     setFinished(false);
     setTimeLeft(15);
   };
-
   const q = QUIZ_QUESTIONS[current];
   const pct = (timeLeft / 15) * 100;
 
@@ -927,24 +904,18 @@ function QuizGame() {
         <div className="text-5xl">
           {pctScore >= 70 ? "🎉" : pctScore >= 40 ? "👏" : "😅"}
         </div>
-        <h3
-          className="text-xl font-bold"
-          style={{ color: "oklch(0.78 0.18 65)" }}
-        >
+        <h3 className="text-xl font-bold" style={{ color: "#c05c9e" }}>
           Quiz Complete!
         </h3>
-        <p style={{ color: "oklch(0.75 0.04 240)" }}>
+        <p style={{ color: "#5a3a6e" }}>
           Your Score:{" "}
-          <strong style={{ color: "oklch(0.90 0.05 240)" }}>
+          <strong style={{ color: "#3d1a5c" }}>
             {score} / {QUIZ_QUESTIONS.length}
           </strong>
         </p>
         <p
           className="text-sm"
-          style={{
-            color:
-              pctScore >= 70 ? "oklch(0.75 0.20 145)" : "oklch(0.65 0.20 27)",
-          }}
+          style={{ color: pctScore >= 70 ? "#16a34a" : "#dc2626" }}
         >
           {pctScore >= 70
             ? "Excellent! 🌟"
@@ -955,10 +926,10 @@ function QuizGame() {
         <button
           type="button"
           onClick={restart}
-          className="mt-2 px-6 py-2 rounded-lg font-semibold transition-all hover:opacity-90"
+          className="mt-2 px-6 py-2.5 rounded-xl font-semibold transition-all hover:scale-105"
           style={{
-            background: "oklch(0.78 0.18 65)",
-            color: "oklch(0.12 0.03 250)",
+            background: "linear-gradient(135deg,#FFB6D9,#c05c9e)",
+            color: "#fff",
           }}
           data-ocid="quiz.primary_button"
         >
@@ -971,53 +942,46 @@ function QuizGame() {
   return (
     <div className="max-w-lg mx-auto flex flex-col gap-4">
       <div className="flex items-center justify-between text-sm">
-        <span style={{ color: "oklch(0.78 0.18 65)" }}>
+        <span style={{ color: "#c05c9e" }}>
           Q {current + 1} / {QUIZ_QUESTIONS.length}
         </span>
-        <span
-          style={{
-            color:
-              timeLeft <= 5 ? "oklch(0.65 0.25 27)" : "oklch(0.75 0.04 240)",
-          }}
-        >
+        <span style={{ color: timeLeft <= 5 ? "#dc2626" : "#8a6a9a" }}>
           ⏱ {timeLeft}s
         </span>
-        <span style={{ color: "oklch(0.78 0.18 65)" }}>Score: {score}</span>
+        <span style={{ color: "#c05c9e" }}>Score: {score}</span>
       </div>
-
-      {/* Timer bar */}
       <div
-        className="h-1.5 rounded-full overflow-hidden"
-        style={{ background: "oklch(0.20 0.04 250)" }}
+        className="h-2 rounded-full overflow-hidden"
+        style={{ background: "rgba(255,182,217,0.2)" }}
       >
         <div
           className="h-full rounded-full transition-all duration-1000"
           style={{
             width: `${pct}%`,
             background:
-              timeLeft <= 5 ? "oklch(0.65 0.25 27)" : "oklch(0.78 0.18 65)",
+              timeLeft <= 5
+                ? "#dc2626"
+                : "linear-gradient(90deg,#FFB6D9,#c05c9e)",
           }}
         />
       </div>
-
       <p
         className="text-base font-semibold text-center"
-        style={{ color: "oklch(0.90 0.05 240)" }}
+        style={{ color: "#3d1a5c" }}
       >
         {q.question}
       </p>
-
       <div className="grid grid-cols-1 gap-2">
         {q.options.map((opt, i) => {
-          let bg = "oklch(0.16 0.04 250)";
-          let border = "oklch(0.25 0.05 250)";
+          let bg = "rgba(255,182,217,0.06)";
+          let border = "rgba(255,182,217,0.2)";
           if (selected !== null) {
             if (i === q.answer) {
-              bg = "oklch(0.25 0.12 145)";
-              border = "oklch(0.55 0.20 145)";
+              bg = "rgba(34,197,94,0.12)";
+              border = "rgba(34,197,94,0.5)";
             } else if (i === selected) {
-              bg = "oklch(0.22 0.12 27)";
-              border = "oklch(0.55 0.20 27)";
+              bg = "rgba(239,68,68,0.1)";
+              border = "rgba(239,68,68,0.4)";
             }
           }
           return (
@@ -1025,15 +989,15 @@ function QuizGame() {
               type="button"
               key={opt}
               onClick={() => handleSelect(i)}
-              className="px-4 py-3 rounded-xl text-sm text-left font-medium transition-all duration-200 hover:opacity-90"
+              className="px-4 py-3 rounded-xl text-sm text-left font-medium transition-all duration-200 hover:scale-[1.01]"
               style={{
                 background: bg,
                 border: `1.5px solid ${border}`,
-                color: "oklch(0.88 0.04 240)",
+                color: "#3d1a5c",
               }}
               data-ocid={`quiz.item.${i + 1}`}
             >
-              <span style={{ color: "oklch(0.78 0.18 65)" }}>
+              <span style={{ color: "#c05c9e" }}>
                 {String.fromCharCode(65 + i)}.
               </span>{" "}
               {opt}
@@ -1041,15 +1005,14 @@ function QuizGame() {
           );
         })}
       </div>
-
       {selected !== null && (
         <button
           type="button"
           onClick={handleNext}
-          className="mx-auto px-6 py-2 rounded-lg font-semibold text-sm transition-all hover:opacity-90"
+          className="mx-auto px-6 py-2 rounded-xl font-semibold text-sm transition-all hover:scale-105"
           style={{
-            background: "oklch(0.78 0.18 65)",
-            color: "oklch(0.12 0.03 250)",
+            background: "linear-gradient(135deg,#FFB6D9,#c05c9e)",
+            color: "#fff",
           }}
           data-ocid="quiz.primary_button"
         >
@@ -1093,7 +1056,6 @@ interface MusicSong {
 }
 
 const DEFAULT_MUSIC_SONGS: MusicSong[] = [
-  // ── BIHU ─────────────────────────────────────────────────────────────────
   {
     id: "b1",
     title: "O Mur Apunar Desh",
@@ -1170,7 +1132,6 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     platformLink: "https://www.youtube.com/watch?v=hW1xK8rB9tV",
     label: "Assam Music",
   },
-  // ── FOLK ──────────────────────────────────────────────────────────────────
   {
     id: "f1",
     title: "Mur Ghar Suwali",
@@ -1216,7 +1177,6 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     platformLink: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     label: "Folk Heritage",
   },
-  // ── MOVIE ─────────────────────────────────────────────────────────────────
   {
     id: "mv1",
     title: "Mayabini",
@@ -1296,7 +1256,6 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     composer: "Zubeen Garg",
     label: "Assam Music",
   },
-  // ── DEVOTIONAL ────────────────────────────────────────────────────────────
   {
     id: "d1",
     title: "Naam Kirtan",
@@ -1343,7 +1302,6 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     composer: "Khagen Mahanta",
     label: "Saregama",
   },
-  // ── MODERN ────────────────────────────────────────────────────────────────
   {
     id: "mod1",
     title: "Mor Minar",
@@ -1390,7 +1348,6 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
     platformLink: "https://www.youtube.com/watch?v=lp-EO5I60KA",
     label: "Assam Music",
   },
-  // ── ZUBEEN GARG SPECIAL ───────────────────────────────────────────────────
   {
     id: "zg1",
     title: "Xewali Phool",
@@ -1457,35 +1414,39 @@ const DEFAULT_MUSIC_SONGS: MusicSong[] = [
   },
 ];
 
-const CATEGORY_COLORS: Record<string, string> = {
-  Bihu: "oklch(0.72 0.20 145)",
-  Folk: "oklch(0.72 0.18 55)",
-  Movie: "oklch(0.65 0.22 280)",
-  Devotional: "oklch(0.70 0.18 30)",
-  Modern: "oklch(0.65 0.20 200)",
-  "Zubeen Garg": "oklch(0.78 0.18 65)",
+const CATEGORY_PALETTE: Record<
+  string,
+  { from: string; to: string; text: string }
+> = {
+  Bihu: { from: "#FFB6D9", to: "#f9a8d4", text: "#9d174d" },
+  Folk: { from: "#fde68a", to: "#fbbf24", text: "#92400e" },
+  Movie: { from: "#c4b5fd", to: "#a78bfa", text: "#4c1d95" },
+  Devotional: { from: "#fed7aa", to: "#fb923c", text: "#7c2d12" },
+  Modern: { from: "#B4E7FF", to: "#60c2f0", text: "#0c4a6e" },
+  "Zubeen Garg": { from: "#FFB6D9", to: "#B4E7FF", text: "#3d1a5c" },
+};
+
+const CATEGORY_EMOJIS_MUSIC: Record<string, string> = {
+  Bihu: "🌸",
+  Folk: "🪘",
+  Movie: "🎬",
+  Devotional: "🙏",
+  Modern: "🎸",
+  "Zubeen Garg": "⭐",
 };
 
 type BrowseTab = "category" | "singer" | "movie";
 
-function SongCard({
-  song,
-  idx,
-}: {
-  song: MusicSong;
-  idx: number;
-}) {
-  const catColor = CATEGORY_COLORS[song.category] ?? "oklch(0.78 0.18 65)";
+function SongCard({ song, idx }: { song: MusicSong; idx: number }) {
+  const pal = CATEGORY_PALETTE[song.category] ?? CATEGORY_PALETTE.Modern;
   const [playing, setPlaying] = useState(false);
 
-  // Extract YouTube ID from youtubeVideoId or platformLink
   const ytId =
     song.youtubeVideoId ??
     (song.platformLink?.includes("youtube.com/watch?v=")
       ? song.platformLink.split("v=")[1]?.split("&")[0]
       : null);
 
-  // Cover image: admin URL > YouTube thumbnail > fallback
   const coverImageSrc = song.coverImage
     ? song.coverImage
     : ytId
@@ -1502,16 +1463,18 @@ function SongCard({
     <div
       className="rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
       style={{
-        background: "oklch(0.14 0.04 250)",
-        border: "1px solid oklch(0.22 0.05 250)",
-        boxShadow: "0 2px 8px oklch(0.08 0.04 250 / 0.6)",
+        background: "rgba(255,255,255,0.82)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        border: "1px solid rgba(255,182,217,0.3)",
+        boxShadow: "0 2px 16px rgba(255,182,217,0.12)",
       }}
       data-ocid={`entertainment.music.item.${idx + 1}`}
     >
       {/* Cover Image */}
       <div
         className="relative w-full overflow-hidden"
-        style={{ height: "180px" }}
+        style={{ height: "170px" }}
       >
         {coverImageSrc ? (
           <img
@@ -1523,86 +1486,66 @@ function SongCard({
               (e.target as HTMLImageElement).style.display = "none";
               const parent = (e.target as HTMLImageElement).parentElement;
               if (parent) {
-                parent.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${catColor}10;font-size:3rem;">🎵</div>`;
+                parent.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,${pal.from},${pal.to});font-size:3rem;">🎵</div>`;
               }
             }}
           />
         ) : (
           <div
             className="w-full h-full flex items-center justify-center text-5xl"
-            style={{ background: `${catColor}10` }}
+            style={{
+              background: `linear-gradient(135deg,${pal.from},${pal.to})`,
+            }}
           >
             🎵
           </div>
         )}
-        {/* Gradient overlay */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to top, oklch(0.14 0.04 250) 0%, oklch(0.14 0.04 250 / 0.3) 60%, transparent 100%)",
+              "linear-gradient(to top, rgba(255,245,251,0.85) 0%, transparent 55%)",
           }}
         />
-        {/* Category badge on image */}
         <div className="absolute top-2 left-2">
           <span
             className="px-2 py-0.5 rounded-full text-xs font-bold"
             style={{
-              background: `${catColor}cc`,
-              color: "oklch(0.10 0.03 250)",
+              background: `linear-gradient(135deg,${pal.from},${pal.to})`,
+              color: pal.text,
             }}
           >
-            {song.category}
+            {CATEGORY_EMOJIS_MUSIC[song.category]} {song.category}
           </span>
         </div>
       </div>
 
       {/* Content */}
       <div className="p-3">
-        <p
-          className="font-bold text-sm truncate"
-          style={{ color: "oklch(0.78 0.18 65)" }}
-        >
+        <p className="font-bold text-sm truncate" style={{ color: "#3d1a5c" }}>
           {song.title}
         </p>
-        <p
-          className="text-xs mt-0.5 truncate"
-          style={{ color: "oklch(0.65 0.05 240)" }}
-        >
+        <p className="text-xs mt-0.5 truncate" style={{ color: "#8a6a9a" }}>
           {song.singerName}
         </p>
         {song.movieName && (
           <p
             className="text-xs italic mt-0.5 truncate"
-            style={{ color: "oklch(0.52 0.06 280)" }}
+            style={{ color: "#7a4d9a" }}
           >
             🎬 {song.movieName}
           </p>
         )}
         {song.releaseDate && (
-          <p
-            className="text-xs mt-0.5"
-            style={{ color: "oklch(0.45 0.04 240)" }}
-          >
+          <p className="text-xs mt-0.5" style={{ color: "#b09ac0" }}>
             {song.releaseDate}
           </p>
         )}
 
-        {/* Cover image URL display */}
-        {song.coverImage && (
-          <p
-            className="text-xs truncate mt-0.5"
-            style={{ color: "oklch(0.45 0.04 240)" }}
-          >
-            🖼 {song.coverImage}
-          </p>
-        )}
-
-        {/* Inline player area */}
         {playing && (
           <div
-            className="mt-3 rounded-lg overflow-hidden"
-            style={{ background: "oklch(0.10 0.03 250)" }}
+            className="mt-3 rounded-xl overflow-hidden"
+            style={{ background: "rgba(255,182,217,0.1)" }}
           >
             {song.audioFileUrl ? (
               <audio
@@ -1627,7 +1570,7 @@ function SongCard({
             ) : (
               <p
                 className="text-xs text-center py-4"
-                style={{ color: "oklch(0.55 0.05 240)" }}
+                style={{ color: "#8a6a9a" }}
               >
                 No playable source available
               </p>
@@ -1635,17 +1578,16 @@ function SongCard({
           </div>
         )}
 
-        {/* Action Buttons */}
         <div className="flex gap-2 mt-3 flex-wrap">
           <button
             type="button"
             onClick={() => setPlaying((p) => !p)}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-90 active:scale-95"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105 active:scale-95"
             style={{
               background: playing
-                ? "oklch(0.60 0.20 25)"
-                : "oklch(0.78 0.18 65)",
-              color: "oklch(0.10 0.03 250)",
+                ? "linear-gradient(135deg,#fca5a5,#ef4444)"
+                : `linear-gradient(135deg,${pal.from},${pal.to})`,
+              color: pal.text,
               minWidth: "70px",
             }}
             data-ocid="entertainment.music.button"
@@ -1655,11 +1597,11 @@ function SongCard({
           <button
             type="button"
             onClick={openSongPage}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-90 active:scale-95"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105 active:scale-95"
             style={{
-              background: "transparent",
-              color: "oklch(0.78 0.18 65)",
-              border: "1.5px solid oklch(0.78 0.18 65)",
+              background: "rgba(255,182,217,0.1)",
+              color: "#c05c9e",
+              border: "1.5px solid rgba(255,182,217,0.4)",
               minWidth: "80px",
             }}
             data-ocid="entertainment.music.button"
@@ -1689,7 +1631,6 @@ function MusicLibrary() {
   }, []);
 
   const songs: MusicSong[] = (() => {
-    // refreshTick forces re-evaluation when admin saves or window regains focus
     void refreshTick;
     try {
       const savedData = JSON.parse(
@@ -1710,7 +1651,6 @@ function MusicLibrary() {
   const [browseTab, setBrowseTab] = useState<BrowseTab>("category");
   const [search, setSearch] = useState("");
 
-  // All unique categories
   const ALL_CATEGORIES: MusicCategory[] = [
     "Bihu",
     "Folk",
@@ -1719,65 +1659,21 @@ function MusicLibrary() {
     "Modern",
     "Zubeen Garg",
   ];
-  const CATEGORY_EMOJIS: Record<MusicCategory, string> = {
-    Bihu: "🌸",
-    Folk: "🪘",
-    Movie: "🎬",
-    Devotional: "🙏",
-    Modern: "🎸",
-    "Zubeen Garg": "⭐",
-  };
 
-  // All unique artists A-Z
   const allArtists = [...new Set(songs.map((s) => s.singerName))].sort((a, b) =>
     a.localeCompare(b),
   );
-  // All unique movies
   const allMovies = [
     ...new Set(songs.filter((s) => s.movieName).map((s) => s.movieName!)),
   ].sort((a, b) => a.localeCompare(b));
-
   const base = `${window.location.origin}${window.location.pathname}`;
 
-  const openCategory = (cat: MusicCategory) => {
+  const openCategory = (cat: MusicCategory) =>
     window.open(`${base}?cat=${encodeURIComponent(cat)}`, "_blank");
-  };
-  const openSinger = (singer: string) => {
+  const openSinger = (singer: string) =>
     window.open(`${base}?singer=${encodeURIComponent(singer)}`, "_blank");
-  };
-  const openMovie = (movie: string) => {
+  const openMovie = (movie: string) =>
     window.open(`${base}?movie=${encodeURIComponent(movie)}`, "_blank");
-  };
-
-  const tabBtn = (tab: BrowseTab, label: string) => (
-    <button
-      key={tab}
-      type="button"
-      onClick={() => {
-        setBrowseTab(tab);
-        setSearch("");
-      }}
-      className="px-5 py-2 rounded-full text-sm font-bold transition-all duration-200"
-      style={{
-        background:
-          browseTab === tab ? "oklch(0.78 0.18 65)" : "oklch(0.16 0.05 250)",
-        color:
-          browseTab === tab ? "oklch(0.10 0.03 250)" : "oklch(0.75 0.04 240)",
-        border: `1.5px solid ${browseTab === tab ? "oklch(0.78 0.18 65)" : "oklch(0.28 0.06 250)"}`,
-      }}
-      data-ocid={`entertainment.music.${tab}.tab`}
-    >
-      {label}
-    </button>
-  );
-
-  // Preview songs for the selected browse tab (first 6)
-  const previewSongs =
-    browseTab === "category"
-      ? songs.slice(0, 6)
-      : browseTab === "singer"
-        ? songs.slice(0, 6)
-        : songs.filter((s) => !!s.movieName).slice(0, 6);
 
   const filteredArtists = allArtists.filter((a) =>
     a.toLowerCase().includes(search.toLowerCase()),
@@ -1786,16 +1682,49 @@ function MusicLibrary() {
     m.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const previewSongs =
+    browseTab === "movie"
+      ? songs.filter((s) => !!s.movieName).slice(0, 6)
+      : songs.slice(0, 6);
+
+  // iOS segmented control style
+  const segBtn = (tab: BrowseTab, label: string) => (
+    <button
+      key={tab}
+      type="button"
+      onClick={() => {
+        setBrowseTab(tab);
+        setSearch("");
+      }}
+      className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
+      style={{
+        background:
+          browseTab === tab ? "rgba(255,255,255,0.95)" : "transparent",
+        color: browseTab === tab ? "#c05c9e" : "#8a6a9a",
+        boxShadow:
+          browseTab === tab ? "0 2px 8px rgba(255,182,217,0.3)" : "none",
+      }}
+      data-ocid={`entertainment.music.${tab}.tab`}
+    >
+      {label}
+    </button>
+  );
+
   return (
     <div className="space-y-5">
-      {/* Browse tab switcher */}
-      <div className="flex gap-2 flex-wrap">
-        {tabBtn("category", "By Category")}
-        {tabBtn("singer", "By Singer")}
-        {tabBtn("movie", "By Movie")}
+      {/* iOS segmented control */}
+      <div
+        className="flex gap-1 p-1 rounded-2xl"
+        style={{
+          background: "rgba(255,182,217,0.15)",
+          border: "1px solid rgba(255,182,217,0.2)",
+        }}
+      >
+        {segBtn("category", "By Category")}
+        {segBtn("singer", "By Singer")}
+        {segBtn("movie", "By Movie")}
       </div>
 
-      {/* Search bar (for singer/movie tabs) */}
       {browseTab !== "category" && (
         <input
           type="text"
@@ -1804,24 +1733,23 @@ function MusicLibrary() {
           }
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
+          className="w-full px-4 py-3 rounded-xl text-sm outline-none"
           style={{
-            background: "oklch(0.14 0.04 250)",
-            border: "1px solid oklch(0.25 0.06 250)",
-            color: "oklch(0.90 0.02 240)",
+            background: "rgba(255,255,255,0.8)",
+            border: "1.5px solid rgba(255,182,217,0.3)",
+            color: "#3d1a5c",
           }}
           data-ocid="entertainment.music.search_input"
         />
       )}
 
-      {/* ── CATEGORY TAB ── */}
+      {/* Category Tab */}
       {browseTab === "category" && (
         <div className="space-y-5">
-          {/* Category cards grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {ALL_CATEGORIES.map((cat) => {
+              const pal = CATEGORY_PALETTE[cat] ?? CATEGORY_PALETTE.Modern;
               const catSongs = songs.filter((s) => s.category === cat);
-              const catColor = CATEGORY_COLORS[cat] ?? "oklch(0.78 0.18 65)";
               return (
                 <button
                   key={cat}
@@ -1829,39 +1757,34 @@ function MusicLibrary() {
                   onClick={() => openCategory(cat)}
                   className="relative rounded-2xl p-4 text-left transition-all duration-200 hover:scale-105 active:scale-95"
                   style={{
-                    background: `${catColor}12`,
-                    border: `1.5px solid ${catColor}40`,
+                    background: `linear-gradient(135deg,${pal.from}22,${pal.to}11)`,
+                    border: `1.5px solid ${pal.from}55`,
+                    backdropFilter: "blur(8px)",
                   }}
                   data-ocid="entertainment.music.tab"
                 >
-                  <div className="text-2xl mb-1">{CATEGORY_EMOJIS[cat]}</div>
-                  <p className="text-sm font-bold" style={{ color: catColor }}>
+                  <div className="text-2xl mb-1">
+                    {CATEGORY_EMOJIS_MUSIC[cat]}
+                  </div>
+                  <p className="text-sm font-bold" style={{ color: pal.text }}>
                     {cat}
                   </p>
-                  <p
-                    className="text-xs"
-                    style={{ color: "oklch(0.55 0.04 240)" }}
-                  >
+                  <p className="text-xs" style={{ color: "#8a6a9a" }}>
                     {catSongs.length} songs
                   </p>
-                  <p
-                    className="text-xs mt-1"
-                    style={{ color: "oklch(0.50 0.06 65)" }}
-                  >
-                    Click to open ↗
+                  <p className="text-xs mt-1" style={{ color: "#c05c9e" }}>
+                    Open all ↗
                   </p>
                 </button>
               );
             })}
           </div>
-
-          {/* Preview songs */}
           <div>
             <p
               className="text-xs font-semibold mb-3"
-              style={{ color: "oklch(0.60 0.05 240)" }}
+              style={{ color: "#8a6a9a" }}
             >
-              Recent Songs — Click a category card to see all songs in a new tab
+              Recent Songs — Click a category to see all in new tab
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {previewSongs.map((song, idx) => (
@@ -1872,88 +1795,68 @@ function MusicLibrary() {
         </div>
       )}
 
-      {/* ── SINGER TAB ── */}
+      {/* Singer Tab */}
       {browseTab === "singer" && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {filteredArtists.length === 0 ? (
-              <div
-                className="col-span-2 text-center py-10 rounded-2xl"
-                style={{
-                  background: "oklch(0.14 0.04 250)",
-                  color: "oklch(0.55 0.04 240)",
-                }}
-                data-ocid="entertainment.music.empty_state"
-              >
-                No singers found.
-              </div>
-            ) : (
-              filteredArtists.map((artist) => {
-                const artistSongCount = songs.filter(
-                  (s) => s.singerName === artist,
-                ).length;
-                const initial = artist[0]?.toUpperCase() ?? "?";
-                return (
-                  <button
-                    key={artist}
-                    type="button"
-                    onClick={() => openSinger(artist)}
-                    className="flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:scale-105 active:scale-95"
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {filteredArtists.length === 0 ? (
+            <div
+              className="col-span-2 text-center py-10 rounded-2xl"
+              style={{ background: "rgba(255,182,217,0.08)", color: "#8a6a9a" }}
+              data-ocid="entertainment.music.empty_state"
+            >
+              No singers found.
+            </div>
+          ) : (
+            filteredArtists.map((artist) => {
+              const count = songs.filter((s) => s.singerName === artist).length;
+              return (
+                <button
+                  key={artist}
+                  type="button"
+                  onClick={() => openSinger(artist)}
+                  className="flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:scale-105 active:scale-95"
+                  style={{
+                    background: "rgba(255,255,255,0.75)",
+                    border: "1px solid rgba(255,182,217,0.25)",
+                    backdropFilter: "blur(8px)",
+                  }}
+                  data-ocid="entertainment.music.button"
+                >
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
                     style={{
-                      background: "oklch(0.14 0.04 250)",
-                      border: "1px solid oklch(0.22 0.05 250)",
+                      background: "linear-gradient(135deg,#FFB6D9,#B4E7FF)",
+                      color: "#3d1a5c",
                     }}
-                    data-ocid="entertainment.music.button"
                   >
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-                      style={{
-                        background: "oklch(0.78 0.18 65 / 0.15)",
-                        border: "1px solid oklch(0.78 0.18 65 / 0.4)",
-                        color: "oklch(0.78 0.18 65)",
-                      }}
+                    {artist[0]?.toUpperCase() ?? "?"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p
+                      className="text-sm font-semibold truncate"
+                      style={{ color: "#3d1a5c" }}
                     >
-                      {initial}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className="text-sm font-semibold truncate"
-                        style={{ color: "oklch(0.90 0.03 240)" }}
-                      >
-                        {artist}
-                      </p>
-                      <p
-                        className="text-xs"
-                        style={{ color: "oklch(0.55 0.04 240)" }}
-                      >
-                        {artistSongCount} song{artistSongCount !== 1 ? "s" : ""}{" "}
-                        · Opens in new tab ↗
-                      </p>
-                    </div>
-                    <span
-                      className="text-xs"
-                      style={{ color: "oklch(0.50 0.04 240)" }}
-                    >
-                      ›
-                    </span>
-                  </button>
-                );
-              })
-            )}
-          </div>
+                      {artist}
+                    </p>
+                    <p className="text-xs" style={{ color: "#8a6a9a" }}>
+                      {count} song{count !== 1 ? "s" : ""} · Opens in new tab ↗
+                    </p>
+                  </div>
+                  <span style={{ color: "#c05c9e" }}>›</span>
+                </button>
+              );
+            })
+          )}
         </div>
       )}
 
-      {/* ── MOVIE TAB ── */}
+      {/* Movie Tab */}
       {browseTab === "movie" && (
-        <div className="space-y-4">
+        <div>
           {filteredMovies.length === 0 ? (
             <div
               className="text-center py-10 rounded-2xl"
-              style={{
-                background: "oklch(0.14 0.04 250)",
-                color: "oklch(0.55 0.04 240)",
-              }}
+              style={{ background: "rgba(255,182,217,0.08)", color: "#8a6a9a" }}
               data-ocid="entertainment.music.empty_state"
             >
               No movie songs available yet.
@@ -1969,16 +1872,16 @@ function MusicLibrary() {
                     onClick={() => openMovie(movie)}
                     className="flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:scale-105 active:scale-95"
                     style={{
-                      background: "oklch(0.14 0.04 250)",
-                      border: "1px solid oklch(0.65 0.22 280 / 0.25)",
+                      background: "rgba(255,255,255,0.75)",
+                      border: "1px solid rgba(196,181,253,0.3)",
+                      backdropFilter: "blur(8px)",
                     }}
                     data-ocid="entertainment.music.button"
                   >
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
                       style={{
-                        background: "oklch(0.65 0.22 280 / 0.15)",
-                        border: "1px solid oklch(0.65 0.22 280 / 0.35)",
+                        background: "linear-gradient(135deg,#c4b5fd,#a78bfa)",
                       }}
                     >
                       🎬
@@ -1986,24 +1889,16 @@ function MusicLibrary() {
                     <div className="flex-1 min-w-0">
                       <p
                         className="text-sm font-semibold truncate"
-                        style={{ color: "oklch(0.90 0.03 240)" }}
+                        style={{ color: "#3d1a5c" }}
                       >
                         {movie}
                       </p>
-                      <p
-                        className="text-xs"
-                        style={{ color: "oklch(0.55 0.04 240)" }}
-                      >
+                      <p className="text-xs" style={{ color: "#8a6a9a" }}>
                         {movSongs.length} song{movSongs.length !== 1 ? "s" : ""}{" "}
                         · Opens in new tab ↗
                       </p>
                     </div>
-                    <span
-                      className="text-xs"
-                      style={{ color: "oklch(0.50 0.04 240)" }}
-                    >
-                      ›
-                    </span>
+                    <span style={{ color: "#a78bfa" }}>›</span>
                   </button>
                 );
               })}
@@ -2029,21 +1924,27 @@ function Section({
       className={`transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
     >
       <div className="flex items-center gap-3 mb-6">
-        <span className="text-2xl">{emoji}</span>
-        <h2
-          className="text-xl md:text-2xl font-bold tracking-wide"
+        <div
+          className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl flex-shrink-0"
           style={{
-            background:
-              "linear-gradient(90deg, oklch(0.78 0.18 65), oklch(0.90 0.12 80))",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            background: "linear-gradient(135deg,#FFB6D9,#B4E7FF)",
+            boxShadow: "0 2px 10px rgba(255,182,217,0.35)",
           }}
+        >
+          {emoji}
+        </div>
+        <h2
+          className="text-xl md:text-2xl font-bold"
+          style={{ color: "#3d1a5c" }}
         >
           {title}
         </h2>
         <div
           className="flex-1 h-px"
-          style={{ background: "oklch(0.78 0.18 65 / 0.25)" }}
+          style={{
+            background:
+              "linear-gradient(90deg,rgba(255,182,217,0.4),transparent)",
+          }}
         />
       </div>
       {children}
@@ -2051,10 +1952,36 @@ function Section({
   );
 }
 
+// iOS glassmorphism card wrapper
+function GlassCard({
+  children,
+  className = "",
+  extraStyle,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  extraStyle?: React.CSSProperties;
+}) {
+  return (
+    <div
+      className={`rounded-2xl ${className}`}
+      style={{
+        background: "rgba(255,255,255,0.78)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        border: "1px solid rgba(255,182,217,0.25)",
+        boxShadow: "0 4px 20px rgba(255,182,217,0.12)",
+        ...extraStyle,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 // ── Main EntertainmentPage ────────────────────────────────────────────────────
 
 export function EntertainmentPage({ navigate }: Props) {
-  // Load admin-customized content from localStorage (with fallbacks to hardcoded defaults)
   const _savedEntData = (() => {
     try {
       return JSON.parse(
@@ -2080,17 +2007,12 @@ export function EntertainmentPage({ navigate }: Props) {
       | { setup: string; punchline: string }[]
       | undefined) ?? JOKES;
 
-  // Facts & Jokes state
   const day = new Date().getDate();
   const weekday = new Date().getDay();
   const [factIdx, setFactIdx] = useState((day * 3) % ACTIVE_FACTS.length);
   const [jokeIdx, setJokeIdx] = useState((day * 2) % ACTIVE_JOKES.length);
   const [jokeRevealed, setJokeRevealed] = useState(false);
-
-  // Horoscope state
   const [selectedSign, setSelectedSign] = useState<string | null>(null);
-
-  // Active game tab
   const [gameTab, setGameTab] = useState<"snake" | "tictactoe" | "quiz">(
     "snake",
   );
@@ -2100,53 +2022,52 @@ export function EntertainmentPage({ navigate }: Props) {
   return (
     <main
       className="min-h-screen"
-      style={{ background: "oklch(0.10 0.03 250)" }}
+      style={{
+        background:
+          "linear-gradient(160deg,#fff5fb 0%,#f0f8ff 50%,#fdf0f8 100%)",
+      }}
     >
-      {/* Hero Banner */}
+      {/* Hero Banner — Pink→Sky gradient, iOS style */}
       <div
         ref={heroRef}
-        className="relative overflow-hidden py-14 px-6 text-center"
+        className="relative overflow-hidden py-16 px-6 text-center"
         style={{
           background:
-            "linear-gradient(135deg, oklch(0.12 0.05 250) 0%, oklch(0.16 0.06 270) 50%, oklch(0.12 0.04 250) 100%)",
-          borderBottom: "1px solid oklch(0.78 0.18 65 / 0.25)",
+            "linear-gradient(135deg,#FFB6D9 0%,#e0b8f5 45%,#B4E7FF 100%)",
         }}
       >
-        {/* Decorative orbs */}
+        {/* Bokeh orbs */}
         <div
-          className="absolute -top-20 -left-20 w-72 h-72 rounded-full blur-3xl pointer-events-none"
-          style={{ background: "oklch(0.78 0.18 65 / 0.08)" }}
+          className="absolute top-0 right-0 w-72 h-72 rounded-full blur-3xl pointer-events-none opacity-40"
+          style={{ background: "#fff" }}
         />
         <div
-          className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full blur-3xl pointer-events-none"
-          style={{ background: "oklch(0.65 0.25 290 / 0.08)" }}
+          className="absolute bottom-0 left-0 w-56 h-56 rounded-full blur-3xl pointer-events-none opacity-30"
+          style={{ background: "#e0f4ff" }}
         />
         <div className="relative max-w-3xl mx-auto">
           <div className="text-4xl mb-3">🎮 🎬 🎵 🎯</div>
           <h1
             className="text-3xl md:text-5xl font-bold mb-3 tracking-tight"
-            style={{
-              background:
-                "linear-gradient(90deg, oklch(0.78 0.18 65), oklch(0.90 0.12 85), oklch(0.78 0.18 65))",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
+            style={{ color: "#3d1a5c" }}
           >
             Entertainment Hub
           </h1>
           <p
             className="text-base md:text-lg mb-6"
-            style={{ color: "oklch(0.70 0.06 240)" }}
+            style={{ color: "rgba(90,30,110,0.7)" }}
           >
             Games · Music Library · Horoscope · Fun Facts · Bihu & Assam Culture
           </p>
           <button
             type="button"
             onClick={() => navigate("home")}
-            className="text-sm px-4 py-2 rounded-full border transition-all hover:opacity-80"
+            className="text-sm px-5 py-2.5 rounded-full border transition-all hover:scale-105"
             style={{
-              border: "1px solid oklch(0.78 0.18 65 / 0.5)",
-              color: "oklch(0.78 0.18 65)",
+              border: "1.5px solid rgba(255,255,255,0.7)",
+              color: "#3d1a5c",
+              background: "rgba(255,255,255,0.35)",
+              backdropFilter: "blur(8px)",
             }}
             data-ocid="entertainment.link"
           >
@@ -2158,24 +2079,28 @@ export function EntertainmentPage({ navigate }: Props) {
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 space-y-16">
         {/* ── Section 1: Mini Games ── */}
         <Section title="Mini Games" emoji="🎮">
-          {/* Tab switcher */}
-          <div className="flex gap-2 mb-6 flex-wrap">
+          {/* iOS segmented game tab */}
+          <div
+            className="flex gap-1 p-1 rounded-2xl mb-6"
+            style={{
+              background: "rgba(255,182,217,0.12)",
+              border: "1px solid rgba(255,182,217,0.2)",
+            }}
+          >
             {(["snake", "tictactoe", "quiz"] as const).map((tab) => (
               <button
                 type="button"
                 key={tab}
                 onClick={() => setGameTab(tab)}
-                className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200"
+                className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
                 style={{
                   background:
+                    gameTab === tab ? "rgba(255,255,255,0.95)" : "transparent",
+                  color: gameTab === tab ? "#c05c9e" : "#8a6a9a",
+                  boxShadow:
                     gameTab === tab
-                      ? "oklch(0.78 0.18 65)"
-                      : "oklch(0.18 0.05 250)",
-                  color:
-                    gameTab === tab
-                      ? "oklch(0.12 0.03 250)"
-                      : "oklch(0.75 0.04 240)",
-                  border: `1.5px solid ${gameTab === tab ? "oklch(0.78 0.18 65)" : "oklch(0.30 0.05 250)"}`,
+                      ? "0 2px 8px rgba(255,182,217,0.25)"
+                      : "none",
                 }}
                 data-ocid={`entertainment.${tab}.tab`}
               >
@@ -2187,29 +2112,18 @@ export function EntertainmentPage({ navigate }: Props) {
               </button>
             ))}
           </div>
-
-          <div
-            className="rounded-2xl p-6 md:p-8"
-            style={{
-              background: "oklch(0.14 0.04 250)",
-              border: "1px solid oklch(0.25 0.06 250)",
-            }}
-          >
+          <GlassCard className="p-6 md:p-8">
             {gameTab === "snake" && <SnakeGame />}
             {gameTab === "tictactoe" && <TicTacToe />}
             {gameTab === "quiz" && <QuizGame />}
-          </div>
+          </GlassCard>
         </Section>
 
         {/* ── Section 2: YouTube Videos ── */}
         <Section title="Popular Music Videos" emoji="🎵">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {ACTIVE_YOUTUBE.map((v) => (
-              <div
-                key={v.id}
-                className="rounded-xl overflow-hidden"
-                style={{ border: "1px solid oklch(0.25 0.06 250)" }}
-              >
+              <GlassCard key={v.id} className="overflow-hidden">
                 <div className="relative" style={{ paddingBottom: "56.25%" }}>
                   <iframe
                     className="absolute inset-0 w-full h-full"
@@ -2222,20 +2136,17 @@ export function EntertainmentPage({ navigate }: Props) {
                 </div>
                 <div
                   className="px-3 py-2 text-xs font-medium truncate"
-                  style={{
-                    background: "oklch(0.14 0.04 250)",
-                    color: "oklch(0.75 0.04 240)",
-                  }}
+                  style={{ color: "#5a3a6e" }}
                 >
                   {v.title}
                 </div>
-              </div>
+              </GlassCard>
             ))}
           </div>
         </Section>
 
         {/* ── Section 2.5: Music Library ── */}
-        <Section title="Music Library" emoji="🎵">
+        <Section title="Music Library" emoji="🎶">
           <MusicLibrary />
         </Section>
 
@@ -2243,73 +2154,62 @@ export function EntertainmentPage({ navigate }: Props) {
         <Section title="Fun Facts & Jokes" emoji="💡">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Fun Facts */}
-            <div
-              className="rounded-2xl p-6"
-              style={{
-                background: "oklch(0.14 0.04 250)",
-                border: "1px solid oklch(0.78 0.18 65 / 0.2)",
-              }}
+            <GlassCard
+              className="p-6"
+              extraStyle={{ border: "1px solid rgba(255,182,217,0.3)" }}
             >
               <h3
                 className="font-bold mb-3 flex items-center gap-2"
-                style={{ color: "oklch(0.78 0.18 65)" }}
+                style={{ color: "#c05c9e" }}
               >
                 <span>💡</span> Did You Know?
               </h3>
               <p
                 className="text-sm leading-relaxed mb-4"
-                style={{ color: "oklch(0.80 0.04 240)" }}
+                style={{ color: "#5a3a6e" }}
               >
                 {ACTIVE_FACTS[factIdx % ACTIVE_FACTS.length]}
               </p>
               <div className="flex items-center justify-between">
-                <span
-                  className="text-xs"
-                  style={{ color: "oklch(0.55 0.04 240)" }}
-                >
+                <span className="text-xs" style={{ color: "#b09ac0" }}>
                   Fact {(factIdx % ACTIVE_FACTS.length) + 1} /{" "}
                   {ACTIVE_FACTS.length}
                 </span>
                 <button
                   type="button"
                   onClick={() => setFactIdx((p) => p + 1)}
-                  className="text-xs px-3 py-1.5 rounded-full font-medium transition-all hover:opacity-80"
+                  className="text-xs px-3 py-1.5 rounded-full font-medium transition-all hover:scale-105"
                   style={{
-                    background: "oklch(0.78 0.18 65 / 0.15)",
-                    color: "oklch(0.78 0.18 65)",
-                    border: "1px solid oklch(0.78 0.18 65 / 0.3)",
+                    background:
+                      "linear-gradient(135deg,rgba(255,182,217,0.3),rgba(180,231,255,0.3))",
+                    color: "#c05c9e",
+                    border: "1px solid rgba(255,182,217,0.4)",
                   }}
                   data-ocid="facts.button"
                 >
                   Next Fact →
                 </button>
               </div>
-            </div>
+            </GlassCard>
 
             {/* Jokes */}
-            <div
-              className="rounded-2xl p-6"
-              style={{
-                background: "oklch(0.14 0.04 250)",
-                border: "1px solid oklch(0.65 0.20 290 / 0.3)",
-              }}
+            <GlassCard
+              className="p-6"
+              extraStyle={{ border: "1px solid rgba(180,231,255,0.4)" }}
             >
               <h3
                 className="font-bold mb-3 flex items-center gap-2"
-                style={{ color: "oklch(0.72 0.20 290)" }}
+                style={{ color: "#3a8fd4" }}
               >
                 <span>😄</span> Daily Joke
               </h3>
-              <p
-                className="text-sm mb-2"
-                style={{ color: "oklch(0.80 0.04 240)" }}
-              >
+              <p className="text-sm mb-2" style={{ color: "#5a3a6e" }}>
                 {ACTIVE_JOKES[jokeIdx % ACTIVE_JOKES.length].setup}
               </p>
               {jokeRevealed ? (
                 <p
                   className="text-sm font-semibold mb-4"
-                  style={{ color: "oklch(0.78 0.18 65)" }}
+                  style={{ color: "#c05c9e" }}
                 >
                   👉 {ACTIVE_JOKES[jokeIdx % ACTIVE_JOKES.length].punchline}
                 </p>
@@ -2317,11 +2217,11 @@ export function EntertainmentPage({ navigate }: Props) {
                 <button
                   type="button"
                   onClick={() => setJokeRevealed(true)}
-                  className="text-xs px-3 py-1.5 rounded-full font-medium mb-4 transition-all hover:opacity-80"
+                  className="text-xs px-3 py-1.5 rounded-full font-medium mb-4 transition-all hover:scale-105"
                   style={{
-                    background: "oklch(0.65 0.20 290 / 0.15)",
-                    color: "oklch(0.72 0.20 290)",
-                    border: "1px solid oklch(0.65 0.20 290 / 0.3)",
+                    background: "rgba(180,231,255,0.25)",
+                    color: "#3a8fd4",
+                    border: "1px solid rgba(180,231,255,0.4)",
                   }}
                   data-ocid="jokes.button"
                 >
@@ -2335,18 +2235,18 @@ export function EntertainmentPage({ navigate }: Props) {
                     setJokeIdx((p) => p + 1);
                     setJokeRevealed(false);
                   }}
-                  className="text-xs px-3 py-1.5 rounded-full font-medium transition-all hover:opacity-80"
+                  className="text-xs px-3 py-1.5 rounded-full font-medium transition-all hover:scale-105"
                   style={{
-                    background: "oklch(0.65 0.20 290 / 0.15)",
-                    color: "oklch(0.72 0.20 290)",
-                    border: "1px solid oklch(0.65 0.20 290 / 0.3)",
+                    background: "rgba(180,231,255,0.25)",
+                    color: "#3a8fd4",
+                    border: "1px solid rgba(180,231,255,0.4)",
                   }}
                   data-ocid="jokes.secondary_button"
                 >
                   Next Joke →
                 </button>
               )}
-            </div>
+            </GlassCard>
           </div>
         </Section>
 
@@ -2360,13 +2260,14 @@ export function EntertainmentPage({ navigate }: Props) {
                 onClick={() =>
                   setSelectedSign(selectedSign === z.sign ? null : z.sign)
                 }
-                className="flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 hover:scale-105"
+                className="flex flex-col items-center gap-1 p-2 rounded-2xl transition-all duration-200 hover:scale-105"
                 style={{
                   background:
                     selectedSign === z.sign
-                      ? "oklch(0.78 0.18 65 / 0.15)"
-                      : "oklch(0.14 0.04 250)",
-                  border: `1.5px solid ${selectedSign === z.sign ? "oklch(0.78 0.18 65)" : "oklch(0.25 0.05 250)"}`,
+                      ? "linear-gradient(135deg,rgba(255,182,217,0.35),rgba(180,231,255,0.35))"
+                      : "rgba(255,255,255,0.6)",
+                  border: `1.5px solid ${selectedSign === z.sign ? "rgba(255,182,217,0.6)" : "rgba(255,182,217,0.2)"}`,
+                  backdropFilter: "blur(8px)",
                 }}
                 data-ocid={`horoscope.${z.sign.toLowerCase()}.button`}
               >
@@ -2374,10 +2275,7 @@ export function EntertainmentPage({ navigate }: Props) {
                 <span
                   className="text-xs font-medium"
                   style={{
-                    color:
-                      selectedSign === z.sign
-                        ? "oklch(0.78 0.18 65)"
-                        : "oklch(0.65 0.04 240)",
+                    color: selectedSign === z.sign ? "#c05c9e" : "#8a6a9a",
                   }}
                 >
                   {z.sign.slice(0, 3)}
@@ -2392,49 +2290,35 @@ export function EntertainmentPage({ navigate }: Props) {
               const messages = HOROSCOPE_MESSAGES[selectedSign];
               const msg = messages[weekday % messages.length];
               return (
-                <div
-                  className="rounded-2xl p-6"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, oklch(0.14 0.06 250), oklch(0.16 0.04 260))",
-                    border: "1px solid oklch(0.78 0.18 65 / 0.3)",
-                  }}
-                >
+                <GlassCard className="p-6">
                   <div className="flex items-center gap-4 mb-4">
                     <span className="text-5xl">{z.emoji}</span>
                     <div>
                       <h3
                         className="text-xl font-bold"
-                        style={{ color: "oklch(0.78 0.18 65)" }}
+                        style={{ color: "#c05c9e" }}
                       >
                         {z.sign}
                       </h3>
-                      <p
-                        className="text-sm"
-                        style={{ color: "oklch(0.65 0.04 240)" }}
-                      >
+                      <p className="text-sm" style={{ color: "#8a6a9a" }}>
                         {z.dates}
                       </p>
                     </div>
                     <div className="ml-auto flex gap-4 text-xs text-center">
                       <div>
-                        <div style={{ color: "oklch(0.55 0.04 240)" }}>
-                          Element
-                        </div>
+                        <div style={{ color: "#b09ac0" }}>Element</div>
                         <div
                           className="font-semibold"
-                          style={{ color: "oklch(0.80 0.12 80)" }}
+                          style={{ color: "#3d1a5c" }}
                         >
                           {z.element}
                         </div>
                       </div>
                       <div>
-                        <div style={{ color: "oklch(0.55 0.04 240)" }}>
-                          Planet
-                        </div>
+                        <div style={{ color: "#b09ac0" }}>Planet</div>
                         <div
                           className="font-semibold"
-                          style={{ color: "oklch(0.80 0.12 80)" }}
+                          style={{ color: "#3d1a5c" }}
                         >
                           {z.planet}
                         </div>
@@ -2443,23 +2327,26 @@ export function EntertainmentPage({ navigate }: Props) {
                   </div>
                   <div
                     className="rounded-xl p-4"
-                    style={{ background: "oklch(0.10 0.03 250 / 0.6)" }}
+                    style={{
+                      background:
+                        "linear-gradient(135deg,rgba(255,182,217,0.12),rgba(180,231,255,0.12))",
+                    }}
                   >
                     <p
                       className="text-sm leading-relaxed font-medium"
-                      style={{ color: "oklch(0.85 0.05 240)" }}
+                      style={{ color: "#5a3a6e" }}
                     >
                       ✨ {msg}
                     </p>
                   </div>
-                </div>
+                </GlassCard>
               );
             })()}
 
           {!selectedSign && (
             <p
               className="text-center text-sm"
-              style={{ color: "oklch(0.55 0.04 240)" }}
+              style={{ color: "#8a6a9a" }}
               data-ocid="horoscope.empty_state"
             >
               Select your zodiac sign above to see today's horoscope
@@ -2469,24 +2356,18 @@ export function EntertainmentPage({ navigate }: Props) {
 
         {/* ── Section 5: News Ticker ── */}
         <Section title="Latest Headlines" emoji="📰">
-          <div
-            className="rounded-xl py-3 px-4 overflow-hidden relative"
-            style={{
-              background: "oklch(0.14 0.04 250)",
-              border: "1px solid oklch(0.25 0.06 250)",
-            }}
-          >
+          <GlassCard className="py-3 px-4 overflow-hidden">
             <div className="flex items-center gap-3 mb-2">
               <span
-                className="text-xs font-bold px-2 py-0.5 rounded"
-                style={{ background: "oklch(0.65 0.25 27)", color: "white" }}
+                className="text-xs font-bold px-2 py-0.5 rounded-lg"
+                style={{
+                  background: "linear-gradient(135deg,#FFB6D9,#c05c9e)",
+                  color: "#fff",
+                }}
               >
                 LIVE
               </span>
-              <span
-                className="text-xs"
-                style={{ color: "oklch(0.65 0.04 240)" }}
-              >
+              <span className="text-xs" style={{ color: "#8a6a9a" }}>
                 Breaking News
               </span>
             </div>
@@ -2499,88 +2380,66 @@ export function EntertainmentPage({ navigate }: Props) {
             >
               <div
                 className="flex gap-12 whitespace-nowrap news-ticker"
-                style={{ color: "oklch(0.85 0.04 240)", fontSize: "0.875rem" }}
+                style={{ color: "#5a3a6e", fontSize: "0.875rem" }}
               >
                 {[
                   ...ACTIVE_HEADLINES.map((h, j) => ({ h, k: `a-${j}` })),
                   ...ACTIVE_HEADLINES.map((h, j) => ({ h, k: `b-${j}` })),
                 ].map(({ h, k }) => (
                   <span key={k} className="flex-shrink-0">
-                    <span style={{ color: "oklch(0.78 0.18 65)" }}>● </span>
+                    <span style={{ color: "#c05c9e" }}>● </span>
                     {h}
                   </span>
                 ))}
               </div>
             </div>
-          </div>
+          </GlassCard>
           <style>{`
-            @keyframes ticker {
-              0% { transform: translateX(0); }
-              100% { transform: translateX(-50%); }
-            }
-            .news-ticker {
-              animation: ticker 40s linear infinite;
-            }
-            .news-ticker:hover {
-              animation-play-state: paused;
-            }
+            @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+            .news-ticker { animation: ticker 40s linear infinite; }
+            .news-ticker:hover { animation-play-state: paused; }
           `}</style>
         </Section>
 
         {/* ── Section 6: Assam & Bihu Content ── */}
         <Section title="Assam & Bihu Culture" emoji="🌿">
-          {/* Bihu Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             {BIHU_INFO.map((b) => (
-              <div
-                key={b.name}
-                className="rounded-2xl p-5"
-                style={{
-                  background: "oklch(0.14 0.04 250)",
-                  border: "1px solid oklch(0.25 0.06 250)",
-                }}
-              >
+              <GlassCard key={b.name} className="p-5">
                 <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3 bg-gradient-to-br ${b.color}`}
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-3"
+                  style={{ background: b.gradient }}
                 >
                   {b.emoji}
                 </div>
                 <h3
                   className="font-bold text-sm mb-1"
-                  style={{ color: "oklch(0.78 0.18 65)" }}
+                  style={{ color: "#3d1a5c" }}
                 >
                   {b.name}
                 </h3>
-                <p
-                  className="text-xs mb-2"
-                  style={{ color: "oklch(0.55 0.04 240)" }}
-                >
+                <p className="text-xs mb-2" style={{ color: "#8a6a9a" }}>
                   📅 {b.month}
                 </p>
                 <p
                   className="text-xs leading-relaxed"
-                  style={{ color: "oklch(0.72 0.04 240)" }}
+                  style={{ color: "#5a3a6e" }}
                 >
                   {b.description}
                 </p>
-              </div>
+              </GlassCard>
             ))}
           </div>
 
-          {/* Bihu Videos */}
           <h3
             className="font-bold mb-3 flex items-center gap-2"
-            style={{ color: "oklch(0.78 0.18 65)" }}
+            style={{ color: "#3d1a5c" }}
           >
             🎶 Bihu Songs & Cultural Videos
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             {ACTIVE_BIHU.map((v) => (
-              <div
-                key={v.id}
-                className="rounded-xl overflow-hidden"
-                style={{ border: "1px solid oklch(0.25 0.06 250)" }}
-              >
+              <GlassCard key={v.id} className="overflow-hidden">
                 <div className="relative" style={{ paddingBottom: "56.25%" }}>
                   <iframe
                     className="absolute inset-0 w-full h-full"
@@ -2593,59 +2452,45 @@ export function EntertainmentPage({ navigate }: Props) {
                 </div>
                 <div
                   className="px-3 py-2 text-xs font-medium truncate"
-                  style={{
-                    background: "oklch(0.14 0.04 250)",
-                    color: "oklch(0.75 0.04 240)",
-                  }}
+                  style={{ color: "#5a3a6e" }}
                 >
                   {v.title}
                 </div>
-              </div>
+              </GlassCard>
             ))}
           </div>
 
-          {/* Assam at a Glance */}
           <h3
             className="font-bold mb-3 flex items-center gap-2"
-            style={{ color: "oklch(0.78 0.18 65)" }}
+            style={{ color: "#3d1a5c" }}
           >
             🏔️ Assam at a Glance
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
             {ASSAM_FACTS.map((f) => (
-              <div
-                key={f.label}
-                className="rounded-xl p-4 text-center"
-                style={{
-                  background: "oklch(0.14 0.04 250)",
-                  border: "1px solid oklch(0.25 0.06 250)",
-                }}
-              >
-                <p
-                  className="text-xs mb-1"
-                  style={{ color: "oklch(0.55 0.04 240)" }}
-                >
+              <GlassCard key={f.label} className="p-4 text-center">
+                <p className="text-xs mb-1" style={{ color: "#b09ac0" }}>
                   {f.label}
                 </p>
                 <p
                   className="text-xs font-semibold leading-tight"
-                  style={{ color: "oklch(0.85 0.05 240)" }}
+                  style={{ color: "#3d1a5c" }}
                 >
                   {f.value}
                 </p>
-              </div>
+              </GlassCard>
             ))}
           </div>
         </Section>
       </div>
 
-      {/* Footer */}
       <footer
         className="mt-12 py-8 px-6 text-center text-xs"
         style={{
-          background: "oklch(0.10 0.03 250)",
-          borderTop: "1px solid oklch(0.20 0.04 250)",
-          color: "oklch(0.55 0.04 240)",
+          background:
+            "linear-gradient(135deg,rgba(255,182,217,0.15),rgba(180,231,255,0.15))",
+          borderTop: "1px solid rgba(255,182,217,0.2)",
+          color: "#8a6a9a",
         }}
       >
         © {new Date().getFullYear()}. Built with ❤️ using{" "}
@@ -2653,7 +2498,7 @@ export function EntertainmentPage({ navigate }: Props) {
           href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
           target="_blank"
           rel="noopener noreferrer"
-          style={{ color: "oklch(0.78 0.18 65)" }}
+          style={{ color: "#c05c9e" }}
         >
           caffeine.ai
         </a>

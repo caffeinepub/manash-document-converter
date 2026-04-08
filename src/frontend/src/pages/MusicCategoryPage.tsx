@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
+// ── Types ─────────────────────────────────────────────────────────────────────
+
 type MusicCategory =
   | "Bihu"
   | "Folk"
@@ -27,13 +29,18 @@ interface ExtendedSong {
   coverImage?: string;
 }
 
-const CATEGORY_COLORS: Record<string, string> = {
-  Bihu: "oklch(0.72 0.20 140)",
-  Folk: "oklch(0.72 0.18 55)",
-  Movie: "oklch(0.65 0.22 280)",
-  Devotional: "oklch(0.70 0.18 30)",
-  Modern: "oklch(0.65 0.20 200)",
-  "Zubeen Garg": "oklch(0.78 0.18 65)",
+// ── Colors ────────────────────────────────────────────────────────────────────
+
+const PINK = "#FFB6D9";
+const SKY = "#B4E7FF";
+
+const CATEGORY_BADGE_COLORS: Record<string, string> = {
+  Bihu: "#4ade80",
+  Folk: "#fb923c",
+  Movie: "#a78bfa",
+  Devotional: "#fbbf24",
+  Modern: "#38bdf8",
+  "Zubeen Garg": "#f472b6",
 };
 
 // ── Extended Song Dataset ────────────────────────────────────────────────────
@@ -1592,14 +1599,12 @@ const EXTENDED_SONGS: ExtendedSong[] = [
   },
 ];
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 interface Props {
   category: string;
 }
 
-// Parse the category prop — it may be a plain category name, or prefixed with
-// __cat__, __singer__, or __movie__ for the new filter modes.
 function parseFilterMode(raw: string): {
   mode: "category" | "singer" | "movie";
   value: string;
@@ -1613,12 +1618,683 @@ function parseFilterMode(raw: string): {
   return { mode: "category", value: raw };
 }
 
+// ── More Info Modal (iOS Bottom Sheet) ────────────────────────────────────────
+
+function MoreInfoModal({
+  song,
+  onClose,
+}: { song: ExtendedSong; onClose: () => void }) {
+  const effectiveYoutubeId =
+    song.youtubeId ??
+    (song.platformLink?.includes("youtube.com/watch?v=")
+      ? song.platformLink.split("v=")[1]?.split("&")[0]
+      : undefined);
+  const effectivePlatformLink =
+    song.platformLink ??
+    (effectiveYoutubeId
+      ? `https://www.youtube.com/watch?v=${effectiveYoutubeId}`
+      : undefined);
+
+  const hasAudio = !!song.audioFileUrl;
+  const hasYoutube = !!effectiveYoutubeId;
+  const badgeColor = CATEGORY_BADGE_COLORS[song.category] ?? PINK;
+
+  // Close on backdrop click
+  const handleBackdropClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  return (
+    <dialog
+      open
+      onClick={handleBackdropClick}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 1000,
+        background: "rgba(0,0,0,0.5)",
+        backdropFilter: "blur(4px)",
+        display: "flex",
+        alignItems: "flex-end",
+        justifyContent: "center",
+        animation: "fadeInUp 0.25s ease both",
+        border: "none",
+        padding: 0,
+        margin: 0,
+        width: "100%",
+        height: "100%",
+        maxWidth: "100%",
+        maxHeight: "100%",
+      }}
+      aria-label={`More info for ${song.title}`}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "600px",
+          maxHeight: "90vh",
+          background: "rgba(255,255,255,0.97)",
+          backdropFilter: "blur(20px)",
+          borderRadius: "24px 24px 0 0",
+          overflowY: "auto",
+          boxShadow: "0 -8px 40px rgba(255,182,217,0.25)",
+          animation: "slideInSheet 0.3s cubic-bezier(0.34,1.56,0.64,1) both",
+        }}
+      >
+        {/* Handle + Header */}
+        <div
+          style={{
+            background: `linear-gradient(135deg, ${PINK}, ${SKY})`,
+            borderRadius: "24px 24px 0 0",
+            padding: "0.75rem 1.25rem 1.25rem",
+            position: "sticky",
+            top: 0,
+            zIndex: 10,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "0.75rem",
+            }}
+          >
+            <div
+              style={{
+                width: "40px",
+                height: "4px",
+                borderRadius: "9999px",
+                background: "rgba(255,255,255,0.6)",
+              }}
+            />
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: "0.75rem",
+            }}
+          >
+            <div style={{ minWidth: 0 }}>
+              <h2
+                style={{
+                  fontSize: "1.2rem",
+                  fontWeight: 800,
+                  color: "#fff",
+                  margin: 0,
+                  lineHeight: 1.2,
+                  textShadow: "0 1px 4px rgba(0,0,0,0.15)",
+                }}
+              >
+                {song.title}
+              </h2>
+              <p
+                style={{
+                  fontSize: "0.875rem",
+                  color: "rgba(255,255,255,0.85)",
+                  margin: "0.25rem 0 0",
+                  fontWeight: 500,
+                }}
+              >
+                {song.artist}
+              </p>
+              <span
+                style={{
+                  display: "inline-block",
+                  marginTop: "0.5rem",
+                  padding: "0.2rem 0.65rem",
+                  borderRadius: "9999px",
+                  background: "rgba(255,255,255,0.3)",
+                  border: "1px solid rgba(255,255,255,0.4)",
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  color: "#fff",
+                }}
+              >
+                {song.category}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                flexShrink: 0,
+                width: "2.25rem",
+                height: "2.25rem",
+                borderRadius: "9999px",
+                background: "rgba(255,255,255,0.3)",
+                border: "none",
+                color: "#fff",
+                fontSize: "1.1rem",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 700,
+              }}
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <div style={{ padding: "1.25rem" }}>
+          {/* Player */}
+          {hasAudio ? (
+            <audio
+              controls
+              style={{
+                width: "100%",
+                marginBottom: "1rem",
+                borderRadius: "12px",
+              }}
+              src={song.audioFileUrl}
+            >
+              <track kind="captions" />
+            </audio>
+          ) : hasYoutube ? (
+            <div
+              style={{
+                borderRadius: "16px",
+                overflow: "hidden",
+                marginBottom: "1rem",
+                boxShadow: "0 4px 20px rgba(255,182,217,0.3)",
+              }}
+            >
+              <iframe
+                width="100%"
+                height="220"
+                src={`https://www.youtube.com/embed/${effectiveYoutubeId}?autoplay=1`}
+                title={song.title}
+                frameBorder="0"
+                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                style={{ display: "block" }}
+              />
+            </div>
+          ) : effectivePlatformLink ? (
+            <a
+              href={effectivePlatformLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                padding: "0.875rem",
+                borderRadius: "14px",
+                marginBottom: "1rem",
+                background: `linear-gradient(135deg, ${PINK}, ${SKY})`,
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: "1rem",
+                textDecoration: "none",
+                boxShadow: "0 4px 16px rgba(255,182,217,0.4)",
+              }}
+            >
+              ▶ Play on Platform
+            </a>
+          ) : null}
+
+          {/* Metadata grid */}
+          {(song.composer ||
+            song.lyricist ||
+            song.musicDirector ||
+            song.label ||
+            song.movieName) && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "0.75rem",
+                marginBottom: "1rem",
+                padding: "1rem",
+                borderRadius: "16px",
+                background: "rgba(255,182,217,0.06)",
+                border: "1px solid rgba(255,182,217,0.15)",
+              }}
+            >
+              {song.movieName && (
+                <MetaField label="Movie" value={song.movieName} color={PINK} />
+              )}
+              {song.composer && (
+                <MetaField
+                  label="Composer"
+                  value={song.composer}
+                  color={PINK}
+                />
+              )}
+              {song.lyricist && (
+                <MetaField label="Lyricist" value={song.lyricist} color={SKY} />
+              )}
+              {song.musicDirector && (
+                <MetaField
+                  label="Music Director"
+                  value={song.musicDirector}
+                  color={SKY}
+                />
+              )}
+              {song.label && (
+                <MetaField
+                  label="Label"
+                  value={song.label}
+                  color={badgeColor}
+                />
+              )}
+            </div>
+          )}
+
+          {/* Lyrics */}
+          {song.lyrics && (
+            <div style={{ marginBottom: "1rem" }}>
+              <h3
+                style={{
+                  fontSize: "0.8rem",
+                  fontWeight: 700,
+                  marginBottom: "0.5rem",
+                  background: `linear-gradient(90deg, ${PINK}, ${SKY})`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                }}
+              >
+                📝 Lyrics
+              </h3>
+              <pre
+                style={{
+                  fontSize: "0.8rem",
+                  whiteSpace: "pre-wrap",
+                  lineHeight: 1.75,
+                  padding: "1rem",
+                  borderRadius: "14px",
+                  background:
+                    "linear-gradient(135deg, rgba(255,182,217,0.06), rgba(180,231,255,0.06))",
+                  border: "1px solid rgba(180,231,255,0.2)",
+                  color: "#334155",
+                  fontFamily: "inherit",
+                  maxHeight: "240px",
+                  overflowY: "auto",
+                  margin: 0,
+                }}
+              >
+                {song.lyrics}
+              </pre>
+            </div>
+          )}
+
+          {/* Download button */}
+          {song.downloadLink && (
+            <a
+              href={song.downloadLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                padding: "0.875rem",
+                borderRadius: "14px",
+                background: `linear-gradient(135deg, ${SKY}, #7dd3fc)`,
+                color: "#1e3a5f",
+                fontWeight: 700,
+                fontSize: "0.9rem",
+                textDecoration: "none",
+                boxShadow: "0 4px 16px rgba(180,231,255,0.4)",
+              }}
+              data-ocid="music_category.button"
+            >
+              ⬇ Free Download
+            </a>
+          )}
+        </div>
+      </div>
+    </dialog>
+  );
+}
+
+function MetaField({
+  label,
+  value,
+  color,
+}: { label: string; value: string; color: string }) {
+  return (
+    <div>
+      <p
+        style={{
+          fontSize: "0.65rem",
+          fontWeight: 600,
+          color,
+          margin: 0,
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+        }}
+      >
+        {label}
+      </p>
+      <p
+        style={{
+          fontSize: "0.8rem",
+          fontWeight: 600,
+          color: "#334155",
+          margin: "0.15rem 0 0",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+// ── Song Card ─────────────────────────────────────────────────────────────────
+
+function SongCard({ song, index }: { song: ExtendedSong; index: number }) {
+  const effectiveYoutubeId =
+    song.youtubeId ??
+    (song.platformLink?.includes("youtube.com/watch?v=")
+      ? song.platformLink.split("v=")[1]?.split("&")[0]
+      : undefined);
+
+  const [coverError, setCoverError] = useState(false);
+  const [thumbError, setThumbError] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  const displayImage =
+    song.coverImage && !coverError
+      ? song.coverImage
+      : effectiveYoutubeId && !thumbError
+        ? `https://img.youtube.com/vi/${effectiveYoutubeId}/mqdefault.jpg`
+        : null;
+
+  const badgeColor = CATEGORY_BADGE_COLORS[song.category] ?? PINK;
+
+  return (
+    <>
+      <div
+        style={{
+          borderRadius: "20px",
+          overflow: "hidden",
+          background: "rgba(255,255,255,0.85)",
+          backdropFilter: "blur(10px)",
+          border: `1px solid ${isPlaying ? "rgba(255,182,217,0.5)" : "rgba(255,182,217,0.2)"}`,
+          boxShadow: isPlaying
+            ? "0 8px 32px rgba(255,182,217,0.3), 0 2px 8px rgba(0,0,0,0.06)"
+            : "0 2px 12px rgba(0,0,0,0.06)",
+          transition: "box-shadow 0.2s ease, border-color 0.2s ease",
+        }}
+        data-ocid={`music_category.item.${index}`}
+      >
+        {/* Cover image / YouTube player */}
+        {isPlaying && effectiveYoutubeId ? (
+          <div style={{ borderRadius: "16px 16px 0 0", overflow: "hidden" }}>
+            <iframe
+              width="100%"
+              height="200"
+              src={`https://www.youtube.com/embed/${effectiveYoutubeId}?autoplay=1`}
+              title={song.title}
+              frameBorder="0"
+              allowFullScreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              style={{ display: "block" }}
+            />
+          </div>
+        ) : isPlaying && song.audioFileUrl ? (
+          <div style={{ padding: "0.75rem 0.75rem 0" }}>
+            <audio
+              controls
+              style={{ width: "100%", borderRadius: "12px" }}
+              src={song.audioFileUrl}
+              autoPlay
+            >
+              <track kind="captions" />
+            </audio>
+          </div>
+        ) : displayImage ? (
+          <div
+            style={{
+              position: "relative",
+              aspectRatio: "16/9",
+              overflow: "hidden",
+            }}
+          >
+            <img
+              src={displayImage}
+              alt={song.title}
+              onError={() => {
+                if (song.coverImage && !coverError) setCoverError(true);
+                else setThumbError(true);
+              }}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: "block",
+              }}
+              loading="lazy"
+            />
+            {/* Pink→Sky gradient overlay */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background:
+                  "linear-gradient(to top, rgba(255,182,217,0.5) 0%, transparent 55%)",
+              }}
+            />
+            {/* Music note icon overlay */}
+            <div
+              style={{
+                position: "absolute",
+                top: "0.5rem",
+                left: "0.5rem",
+                padding: "0.25rem 0.6rem",
+                borderRadius: "9999px",
+                background: "rgba(255,255,255,0.8)",
+                backdropFilter: "blur(6px)",
+                fontSize: "0.65rem",
+                fontWeight: 700,
+                color: "#e879a0",
+              }}
+            >
+              🎵 {song.category}
+            </div>
+          </div>
+        ) : (
+          <div
+            style={{
+              aspectRatio: "16/9",
+              background:
+                "linear-gradient(135deg, rgba(255,182,217,0.25), rgba(180,231,255,0.25))",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "2.5rem",
+            }}
+          >
+            🎵
+          </div>
+        )}
+
+        {/* Card body */}
+        <div style={{ padding: "0.875rem 1rem 1rem" }}>
+          <h3
+            style={{
+              fontSize: "0.9rem",
+              fontWeight: 700,
+              color: "#1e293b",
+              margin: "0 0 0.2rem",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {song.title}
+          </h3>
+          <p
+            style={{
+              fontSize: "0.78rem",
+              color: "#64748b",
+              margin: "0 0 0.6rem",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {song.artist}
+          </p>
+
+          {/* Category badge */}
+          <span
+            style={{
+              display: "inline-block",
+              marginBottom: "0.75rem",
+              padding: "0.2rem 0.6rem",
+              borderRadius: "9999px",
+              background: `${badgeColor}18`,
+              border: `1px solid ${badgeColor}40`,
+              fontSize: "0.68rem",
+              fontWeight: 700,
+              color: badgeColor,
+            }}
+          >
+            {song.category}
+          </span>
+
+          {/* Action row */}
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            {/* Play button */}
+            <button
+              type="button"
+              onClick={() => setIsPlaying((v) => !v)}
+              style={{
+                flex: 1,
+                minWidth: "80px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.4rem",
+                padding: "0.5rem 0.75rem",
+                borderRadius: "12px",
+                background: isPlaying
+                  ? "linear-gradient(135deg, #e879a0, #c2185b)"
+                  : `linear-gradient(135deg, ${PINK}, #f9a8d4)`,
+                border: "none",
+                color: "#fff",
+                fontSize: "0.78rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                boxShadow: "0 3px 12px rgba(255,182,217,0.4)",
+                transition: "opacity 0.15s ease",
+              }}
+              data-ocid="music_category.button"
+            >
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  d={
+                    isPlaying
+                      ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z"
+                      : "M8 5v14l11-7z"
+                  }
+                />
+              </svg>
+              {isPlaying ? "Stop" : "▶ Play"}
+            </button>
+
+            {/* More Info button */}
+            <button
+              type="button"
+              onClick={() => setShowModal(true)}
+              style={{
+                flex: 1,
+                minWidth: "80px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.4rem",
+                padding: "0.5rem 0.75rem",
+                borderRadius: "12px",
+                background: `linear-gradient(135deg, ${SKY}, #7dd3fc)`,
+                border: "none",
+                color: "#1e3a5f",
+                fontSize: "0.78rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                boxShadow: "0 3px 12px rgba(180,231,255,0.4)",
+                transition: "opacity 0.15s ease",
+              }}
+              data-ocid="music_category.button"
+            >
+              ℹ More Info
+            </button>
+
+            {/* Download shortcut */}
+            {song.downloadLink && (
+              <a
+                href={song.downloadLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0.5rem 0.65rem",
+                  borderRadius: "12px",
+                  background: "rgba(52,211,153,0.12)",
+                  border: "1px solid rgba(52,211,153,0.3)",
+                  color: "#059669",
+                  fontSize: "0.85rem",
+                  textDecoration: "none",
+                  fontWeight: 700,
+                }}
+                aria-label="Download"
+                data-ocid="music_category.button"
+              >
+                ⬇
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {showModal && (
+        <MoreInfoModal song={song} onClose={() => setShowModal(false)} />
+      )}
+    </>
+  );
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
+
 export function MusicCategoryPage({ category: categoryProp }: Props) {
   const { mode: filterMode, value: filterValue } =
     parseFilterMode(categoryProp);
-
-  // For backwards-compat: category is the actual category name when mode === "category"
-  const category = filterMode === "category" ? filterValue : filterValue;
+  const category = filterValue;
 
   const [search, setSearch] = useState("");
   const [activeLetterFilter, setActiveLetterFilter] = useState<string | null>(
@@ -1640,16 +2316,9 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
     };
   }, []);
 
-  const catColor =
-    filterMode === "category"
-      ? (CATEGORY_COLORS[category] ?? "oklch(0.78 0.18 65)")
-      : "oklch(0.78 0.18 65)";
-
   // Build all songs from defaults + admin-added songs, then filter by mode
   const categorySongs = useMemo(() => {
-    // refreshTick forces re-read from localStorage when window regains focus
     void refreshTick;
-    // Get all admin songs (all categories) then filter per mode
     let allAdminSongs: ExtendedSong[] = [];
     try {
       const entData = JSON.parse(
@@ -1703,18 +2372,13 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
       ...allAdminSongs,
     ];
 
-    // Filter based on mode
-    if (filterMode === "singer") {
+    if (filterMode === "singer")
       return allSongs.filter((s) => (s.singerName ?? s.artist) === filterValue);
-    }
-    if (filterMode === "movie") {
+    if (filterMode === "movie")
       return allSongs.filter((s) => s.movieName === filterValue);
-    }
-    // mode === "category"
     return allSongs.filter((s) => s.category === category);
   }, [filterMode, filterValue, category, refreshTick]);
 
-  // Filter by search
   const filteredSongs = useMemo(() => {
     if (!search.trim()) return categorySongs;
     const q = search.toLowerCase();
@@ -1726,28 +2390,21 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
     );
   }, [categorySongs, search]);
 
-  // Group songs by appropriate key based on filter mode
-  // Singer mode: group by movie (or "Singles" if no movie)
-  // Movie mode: group by singer
-  // Category mode: group by artist/singer (A-Z)
   const artistGroups = useMemo(() => {
     const groups: Record<string, ExtendedSong[]> = {};
     for (const song of filteredSongs) {
-      let key: string;
-      if (filterMode === "singer") {
-        key = song.movieName || "Singles / Albums";
-      } else if (filterMode === "movie") {
-        key = song.singerName ?? song.artist;
-      } else {
-        key = song.singerName ?? song.artist;
-      }
+      const key =
+        filterMode === "singer"
+          ? song.movieName || "Singles / Albums"
+          : filterMode === "movie"
+            ? (song.singerName ?? song.artist)
+            : (song.singerName ?? song.artist);
       if (!groups[key]) groups[key] = [];
       groups[key].push(song);
     }
     return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
   }, [filteredSongs, filterMode]);
 
-  // A-Z navigation letters
   const availableLetters = useMemo(() => {
     const letters = new Set<string>();
     for (const [artist] of artistGroups) {
@@ -1767,90 +2424,114 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
     }
   };
 
-  // Reset letter filter when search changes
   useEffect(() => {
     if (search) setActiveLetterFilter(null);
   }, [search]);
 
   const totalSongs = categorySongs.length;
 
+  const heroTitle =
+    filterMode === "singer"
+      ? `${filterValue}`
+      : filterMode === "movie"
+        ? `${filterValue}`
+        : `${category} Songs`;
+
+  const heroSubtitle =
+    filterMode === "singer"
+      ? "Singer Collection"
+      : filterMode === "movie"
+        ? "Movie Songs"
+        : "Assamese Music Library";
+
+  const heroEmoji =
+    filterMode === "singer" ? "🎤" : filterMode === "movie" ? "🎬" : "🎵";
+
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: "oklch(0.10 0.03 250)",
-        color: "oklch(0.92 0.03 240)",
+        background:
+          "linear-gradient(160deg, #fff5fb 0%, #f0f8ff 50%, #fdf0ff 100%)",
         fontFamily:
-          "'Plus Jakarta Sans', 'General Sans', system-ui, sans-serif",
+          "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'DM Sans', system-ui, sans-serif",
       }}
     >
-      {/* ── Page Header ── */}
+      {/* Inline keyframe for sheet animation */}
+      <style>{`
+        @keyframes slideInSheet {
+          from { transform: translateY(100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+      `}</style>
+
+      {/* ── Hero Header ── */}
       <header
         style={{
-          background:
-            "linear-gradient(135deg, oklch(0.14 0.05 250), oklch(0.12 0.04 260))",
-          borderBottom: `2px solid ${catColor}44`,
-          padding: "1.5rem 1.5rem 1rem",
+          background: `linear-gradient(135deg, ${PINK} 0%, #e8b4ff 50%, ${SKY} 100%)`,
+          padding: "1.5rem 1.25rem 1.75rem",
           position: "sticky",
           top: 0,
           zIndex: 50,
+          boxShadow: "0 4px 24px rgba(255,182,217,0.3)",
         }}
       >
-        <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              gap: "1rem",
+              gap: "0.75rem",
               flexWrap: "wrap",
             }}
           >
             <div
-              style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
+              style={{ display: "flex", alignItems: "center", gap: "0.875rem" }}
             >
               <div
                 style={{
-                  width: "2.5rem",
-                  height: "2.5rem",
-                  borderRadius: "0.75rem",
-                  background: `${catColor}22`,
-                  border: `1px solid ${catColor}44`,
+                  width: "3rem",
+                  height: "3rem",
+                  borderRadius: "14px",
+                  background: "rgba(255,255,255,0.35)",
+                  backdropFilter: "blur(8px)",
+                  border: "1px solid rgba(255,255,255,0.5)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "1.25rem",
+                  fontSize: "1.5rem",
+                  flexShrink: 0,
                 }}
               >
-                🎵
+                {heroEmoji}
               </div>
               <div>
                 <h1
                   style={{
-                    fontSize: "clamp(1.25rem, 3vw, 1.75rem)",
+                    fontSize: "clamp(1.25rem, 4vw, 1.75rem)",
                     fontWeight: 800,
-                    background: `linear-gradient(90deg, ${catColor}, oklch(0.90 0.12 80))`,
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    lineHeight: 1.2,
+                    color: "#fff",
                     margin: 0,
+                    lineHeight: 1.1,
+                    textShadow: "0 1px 6px rgba(0,0,0,0.15)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    maxWidth: "clamp(200px, 50vw, 400px)",
                   }}
                 >
-                  {filterMode === "singer"
-                    ? `${filterValue} — All Songs`
-                    : filterMode === "movie"
-                      ? `${filterValue} — Movie Songs`
-                      : `${category} Songs`}
+                  {heroTitle}
                 </h1>
                 <p
                   style={{
-                    fontSize: "0.75rem",
-                    color: "oklch(0.55 0.05 240)",
-                    margin: 0,
+                    fontSize: "0.78rem",
+                    color: "rgba(255,255,255,0.85)",
+                    margin: "0.2rem 0 0",
+                    fontWeight: 500,
                   }}
                 >
-                  {totalSongs.toLocaleString()} songs &nbsp;·&nbsp; Singer-wise
-                  collection
+                  {heroSubtitle} · {totalSongs.toLocaleString()} songs
                 </p>
               </div>
             </div>
@@ -1859,11 +2540,13 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
               onClick={() => window.close()}
               style={{
                 padding: "0.5rem 1rem",
-                borderRadius: "0.625rem",
-                background: "oklch(0.18 0.05 250)",
-                border: "1px solid oklch(0.28 0.06 250)",
-                color: "oklch(0.70 0.05 240)",
-                fontSize: "0.8rem",
+                borderRadius: "12px",
+                background: "rgba(255,255,255,0.3)",
+                backdropFilter: "blur(8px)",
+                border: "1px solid rgba(255,255,255,0.4)",
+                color: "#fff",
+                fontSize: "0.78rem",
+                fontWeight: 700,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -1871,21 +2554,21 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
               }}
               data-ocid="music_category.close_button"
             >
-              ✕ Close Tab
+              ✕ Close
             </button>
           </div>
 
-          {/* Search box */}
-          <div style={{ marginTop: "0.75rem", position: "relative" }}>
+          {/* Search bar */}
+          <div style={{ marginTop: "1rem", position: "relative" }}>
             <span
               style={{
                 position: "absolute",
-                left: "0.75rem",
+                left: "0.875rem",
                 top: "50%",
                 transform: "translateY(-50%)",
-                color: "oklch(0.50 0.05 240)",
-                fontSize: "1rem",
+                fontSize: "0.9rem",
                 pointerEvents: "none",
+                color: "#64748b",
               }}
             >
               🔍
@@ -1903,14 +2586,16 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
               onChange={(e) => setSearch(e.target.value)}
               style={{
                 width: "100%",
-                padding: "0.65rem 1rem 0.65rem 2.5rem",
-                borderRadius: "0.75rem",
-                background: "oklch(0.14 0.04 250)",
-                border: "1px solid oklch(0.25 0.06 250)",
-                color: "oklch(0.92 0.03 240)",
+                padding: "0.7rem 1rem 0.7rem 2.5rem",
+                borderRadius: "14px",
+                background: "rgba(255,255,255,0.85)",
+                backdropFilter: "blur(8px)",
+                border: "1.5px solid rgba(255,255,255,0.6)",
+                color: "#1e293b",
                 fontSize: "0.875rem",
                 outline: "none",
                 boxSizing: "border-box",
+                boxShadow: "0 2px 10px rgba(255,182,217,0.2)",
               }}
               data-ocid="music_category.search_input"
             />
@@ -1918,24 +2603,25 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
         </div>
       </header>
 
-      {/* ── A-Z Navigation Bar ── */}
+      {/* ── A-Z Navigation ── */}
       <nav
+        aria-label="A-Z Artist Navigation"
         style={{
-          background: "oklch(0.13 0.04 255)",
-          borderBottom: "1px solid oklch(0.20 0.05 250)",
-          padding: "0.5rem 1.5rem",
+          background: "rgba(255,255,255,0.8)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid rgba(255,182,217,0.2)",
+          padding: "0.6rem 1rem",
           position: "sticky",
-          top: search.length > 0 ? "140px" : "132px",
+          top: search.length > 0 ? "148px" : "140px",
           zIndex: 40,
           overflowX: "auto",
           scrollbarWidth: "none",
         }}
-        aria-label="A-Z Artist Navigation"
       >
         <div
           style={{
             display: "flex",
-            gap: "0.25rem",
+            gap: "0.2rem",
             justifyContent: "center",
             minWidth: "max-content",
             margin: "0 auto",
@@ -1951,26 +2637,27 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
                 onClick={() => hasArtist && scrollToLetter(letter)}
                 disabled={!hasArtist}
                 style={{
-                  width: "2rem",
-                  height: "2rem",
-                  borderRadius: "0.4rem",
-                  border: isActive
-                    ? `1px solid ${catColor}`
-                    : "1px solid transparent",
-                  background: isActive ? `${catColor}22` : "transparent",
-                  color: hasArtist
-                    ? isActive
-                      ? catColor
-                      : "oklch(0.80 0.04 240)"
-                    : "oklch(0.30 0.04 250)",
-                  fontSize: "0.75rem",
+                  width: "1.875rem",
+                  height: "1.875rem",
+                  borderRadius: "10px",
+                  border: "none",
+                  background: isActive
+                    ? `linear-gradient(135deg, ${PINK}, ${SKY})`
+                    : hasArtist
+                      ? "rgba(255,182,217,0.12)"
+                      : "transparent",
+                  color: isActive ? "#fff" : hasArtist ? "#e879a0" : "#c4b5c0",
+                  fontSize: "0.72rem",
                   fontWeight: hasArtist ? 700 : 400,
                   cursor: hasArtist ? "pointer" : "default",
-                  transition: "all 0.15s ease",
+                  transition: "all 0.15s cubic-bezier(0.34,1.56,0.64,1)",
                   flexShrink: 0,
+                  boxShadow: isActive
+                    ? "0 3px 10px rgba(255,182,217,0.45)"
+                    : "none",
                 }}
                 aria-label={`Jump to artists starting with ${letter}`}
-                data-ocid={"music_category.tab"}
+                data-ocid="music_category.tab"
               >
                 {letter}
               </button>
@@ -1980,30 +2667,36 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
       </nav>
 
       {/* ── Main Content ── */}
-      <main style={{ maxWidth: "1400px", margin: "0 auto", padding: "1.5rem" }}>
+      <main
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "1.5rem 1.25rem",
+        }}
+      >
         {/* Stats bar */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "1rem",
+            gap: "0.75rem",
+            flexWrap: "wrap",
             marginBottom: "1.5rem",
             padding: "0.75rem 1rem",
-            borderRadius: "0.75rem",
-            background: "oklch(0.14 0.04 250)",
-            border: "1px solid oklch(0.22 0.05 250)",
-            flexWrap: "wrap",
+            borderRadius: "16px",
+            background: "rgba(255,255,255,0.7)",
+            backdropFilter: "blur(8px)",
+            border: "1px solid rgba(255,182,217,0.2)",
+            boxShadow: "0 2px 10px rgba(255,182,217,0.1)",
           }}
         >
           <span
             style={{
-              display: "inline-block",
               padding: "0.25rem 0.75rem",
               borderRadius: "9999px",
-              background: `${catColor}22`,
-              border: `1px solid ${catColor}44`,
-              color: catColor,
-              fontSize: "0.8rem",
+              background: `linear-gradient(135deg, ${PINK}, ${SKY})`,
+              color: "#fff",
+              fontSize: "0.75rem",
               fontWeight: 700,
             }}
           >
@@ -2011,37 +2704,37 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
               ? `🎤 ${filterValue}`
               : filterMode === "movie"
                 ? `🎬 ${filterValue}`
-                : category}
+                : `🎵 ${category}`}
           </span>
-          <span style={{ color: "oklch(0.60 0.05 240)", fontSize: "0.8rem" }}>
+          <span style={{ color: "#94a3b8", fontSize: "0.78rem" }}>
             {filteredSongs.length} song{filteredSongs.length !== 1 ? "s" : ""} ·{" "}
-            {artistGroups.length} artist{artistGroups.length !== 1 ? "s" : ""}
+            {artistGroups.length} group{artistGroups.length !== 1 ? "s" : ""}
           </span>
           {search && (
             <span
-              style={{
-                color: "oklch(0.65 0.12 130)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-              }}
+              style={{ color: "#e879a0", fontSize: "0.78rem", fontWeight: 600 }}
             >
-              Search: "{search}"
+              🔍 "{search}"
             </span>
           )}
         </div>
 
-        {/* No results */}
+        {/* Empty state */}
         {filteredSongs.length === 0 && (
           <div
             style={{
               textAlign: "center",
-              padding: "4rem 1rem",
-              color: "oklch(0.50 0.04 240)",
+              padding: "5rem 1rem",
+              color: "#94a3b8",
             }}
             data-ocid="music_category.empty_state"
           >
-            <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>🎵</div>
-            <p style={{ fontSize: "1rem", fontWeight: 600 }}>No songs found</p>
+            <div style={{ fontSize: "3.5rem", marginBottom: "1rem" }}>🎵</div>
+            <p
+              style={{ fontSize: "1.1rem", fontWeight: 700, color: "#64748b" }}
+            >
+              No songs found
+            </p>
             <p style={{ fontSize: "0.875rem" }}>Try a different search term</p>
           </div>
         )}
@@ -2049,7 +2742,6 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
         {/* Artist groups */}
         {artistGroups.map(([artist, songs], groupIdx) => {
           const firstLetter = artist[0]?.toUpperCase() ?? "#";
-          // Set ref on the first occurrence of each letter
           const isFirstOfLetter =
             groupIdx === 0 ||
             artistGroups[groupIdx - 1]?.[0]?.[0]?.toUpperCase() !== firstLetter;
@@ -2059,14 +2751,13 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
               key={artist}
               style={{ marginBottom: "2.5rem" }}
               ref={(el) => {
-                if (isFirstOfLetter) {
+                if (isFirstOfLetter)
                   sectionRefs.current[firstLetter] =
                     el as HTMLDivElement | null;
-                }
               }}
-              data-ocid={"music_category.panel"}
+              data-ocid="music_category.panel"
             >
-              {/* Letter divider for first of letter */}
+              {/* Letter divider */}
               {isFirstOfLetter && (
                 <div
                   style={{
@@ -2074,23 +2765,23 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
                     alignItems: "center",
                     gap: "0.75rem",
                     marginBottom: "1rem",
-                    paddingTop: groupIdx > 0 ? "1rem" : 0,
+                    paddingTop: groupIdx > 0 ? "0.75rem" : 0,
                   }}
                 >
                   <div
                     style={{
-                      width: "2rem",
-                      height: "2rem",
-                      borderRadius: "0.5rem",
-                      background: `${catColor}22`,
-                      border: `1px solid ${catColor}55`,
+                      width: "2.25rem",
+                      height: "2.25rem",
+                      borderRadius: "10px",
+                      flexShrink: 0,
+                      background: `linear-gradient(135deg, ${PINK}, ${SKY})`,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       fontWeight: 800,
                       fontSize: "1rem",
-                      color: catColor,
-                      flexShrink: 0,
+                      color: "#fff",
+                      boxShadow: "0 3px 12px rgba(255,182,217,0.4)",
                     }}
                   >
                     {firstLetter}
@@ -2099,23 +2790,26 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
                     style={{
                       flex: 1,
                       height: "1px",
-                      background: `${catColor}25`,
+                      background:
+                        "linear-gradient(90deg, rgba(255,182,217,0.4), rgba(180,231,255,0.4))",
                     }}
                   />
                 </div>
               )}
 
-              {/* Artist header */}
+              {/* Artist/group header */}
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: "0.75rem",
-                  marginBottom: "0.75rem",
+                  marginBottom: "0.875rem",
                   padding: "0.75rem 1rem",
-                  borderRadius: "0.75rem",
-                  background: "oklch(0.14 0.04 250)",
-                  border: `1px solid ${catColor}22`,
+                  borderRadius: "16px",
+                  background: "rgba(255,255,255,0.7)",
+                  backdropFilter: "blur(8px)",
+                  border: "1px solid rgba(255,182,217,0.15)",
+                  boxShadow: "0 2px 8px rgba(255,182,217,0.08)",
                 }}
               >
                 <div
@@ -2123,15 +2817,16 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
                     width: "2.25rem",
                     height: "2.25rem",
                     borderRadius: "9999px",
-                    background: `${catColor}18`,
-                    border: `1px solid ${catColor}40`,
+                    flexShrink: 0,
+                    background:
+                      "linear-gradient(135deg, rgba(255,182,217,0.3), rgba(180,231,255,0.3))",
+                    border: "1.5px solid rgba(255,182,217,0.4)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "0.9rem",
                     fontWeight: 800,
-                    color: catColor,
-                    flexShrink: 0,
+                    fontSize: "0.9rem",
+                    color: "#e879a0",
                   }}
                 >
                   {artist[0]?.toUpperCase()}
@@ -2139,9 +2834,9 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <h2
                     style={{
-                      fontSize: "1rem",
+                      fontSize: "0.95rem",
                       fontWeight: 700,
-                      color: "oklch(0.92 0.03 240)",
+                      color: "#1e293b",
                       margin: 0,
                       overflow: "hidden",
                       textOverflow: "ellipsis",
@@ -2152,9 +2847,9 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
                   </h2>
                   <p
                     style={{
-                      fontSize: "0.75rem",
-                      color: "oklch(0.55 0.05 240)",
-                      margin: 0,
+                      fontSize: "0.72rem",
+                      color: "#94a3b8",
+                      margin: "0.1rem 0 0",
                     }}
                   >
                     {songs.length} song{songs.length !== 1 ? "s" : ""}
@@ -2166,17 +2861,12 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-                  gap: "0.75rem",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+                  gap: "0.875rem",
                 }}
               >
                 {songs.map((song, songIdx) => (
-                  <SongCard
-                    key={song.id}
-                    song={song}
-                    catColor={catColor}
-                    index={songIdx + 1}
-                  />
+                  <SongCard key={song.id} song={song} index={songIdx + 1} />
                 ))}
               </div>
             </section>
@@ -2187,445 +2877,39 @@ export function MusicCategoryPage({ category: categoryProp }: Props) {
       {/* Footer */}
       <footer
         style={{
-          borderTop: "1px solid oklch(0.18 0.05 250)",
+          borderTop: "1px solid rgba(255,182,217,0.2)",
           padding: "1.5rem",
           textAlign: "center",
-          color: "oklch(0.45 0.04 240)",
-          fontSize: "0.8rem",
+          background: "rgba(255,255,255,0.6)",
+          backdropFilter: "blur(8px)",
+          fontSize: "0.78rem",
+          color: "#94a3b8",
         }}
       >
-        <p>
+        <p style={{ margin: 0 }}>
           🎵{" "}
           {filterMode === "singer"
             ? filterValue
             : filterMode === "movie"
               ? filterValue
               : category}{" "}
-          Songs Library &nbsp;·&nbsp; {totalSongs.toLocaleString()} songs
-          &nbsp;·&nbsp; © {new Date().getFullYear()}&nbsp;
+          Library &nbsp;·&nbsp;
+          {totalSongs.toLocaleString()} songs &nbsp;·&nbsp; ©{" "}
+          {new Date().getFullYear()} &nbsp;
           <a
             href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: "oklch(0.65 0.10 65)", textDecoration: "none" }}
+            style={{
+              color: "#e879a0",
+              textDecoration: "none",
+              fontWeight: 600,
+            }}
           >
-            Built with ❤️ using caffeine.ai
+            Built with ❤️ caffeine.ai
           </a>
         </p>
       </footer>
-    </div>
-  );
-}
-
-// ── Song Card ─────────────────────────────────────────────────────────────────
-
-function SongCard({
-  song,
-  catColor,
-  index,
-}: {
-  song: ExtendedSong;
-  catColor: string;
-  index: number;
-}) {
-  const effectiveYoutubeId =
-    song.youtubeId ??
-    (song.platformLink?.includes("youtube.com/watch?v=")
-      ? song.platformLink.split("v=")[1]?.split("&")[0]
-      : null);
-  const effectivePlatformLink =
-    song.platformLink ??
-    (effectiveYoutubeId
-      ? `https://www.youtube.com/watch?v=${effectiveYoutubeId}`
-      : "#");
-  // thumbnailUrl removed - using displayThumbnail below
-  const [imgError, setImgError] = useState(false);
-  const [coverImgError, setCoverImgError] = useState(false);
-  const displayThumbnail =
-    song.coverImage && !coverImgError
-      ? song.coverImage
-      : effectiveYoutubeId
-        ? `https://img.youtube.com/vi/${effectiveYoutubeId}/mqdefault.jpg`
-        : null;
-  const [isOpen, setIsOpen] = useState(false);
-
-  const hasAudio = !!song.audioFileUrl;
-  const hasYoutube = !!effectiveYoutubeId;
-  const hasPlatformLink = !!song.platformLink;
-
-  return (
-    <div
-      style={{
-        borderRadius: "0.875rem",
-        overflow: "hidden",
-        background: "oklch(0.14 0.04 250)",
-        border: `1px solid ${isOpen ? `${catColor}55` : "oklch(0.22 0.05 250)"}`,
-        boxShadow: isOpen ? `0 0 16px ${catColor}20` : "none",
-        transition: "border-color 0.18s ease, box-shadow 0.18s ease",
-      }}
-      data-ocid={`music_category.item.${index}`}
-    >
-      {/* Thumbnail — hidden when open to show player instead */}
-      {!isOpen && !imgError && displayThumbnail ? (
-        <div
-          style={{
-            position: "relative",
-            aspectRatio: "16/9",
-            overflow: "hidden",
-          }}
-        >
-          <img
-            src={displayThumbnail}
-            alt={song.title}
-            onError={(_e) => {
-              if (song.coverImage && !coverImgError) {
-                setCoverImgError(true);
-              } else {
-                setImgError(true);
-              }
-            }}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              display: "block",
-            }}
-            loading="lazy"
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "linear-gradient(to top, oklch(0.10 0.03 250) 0%, transparent 60%)",
-            }}
-          />
-        </div>
-      ) : !isOpen ? (
-        <div
-          style={{
-            aspectRatio: "16/9",
-            background: `${catColor}0f`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "2.5rem",
-          }}
-        >
-          🎵
-        </div>
-      ) : null}
-
-      {/* Info */}
-      <div style={{ padding: "0.75rem 1rem 0.75rem" }}>
-        <h3
-          style={{
-            fontSize: "0.875rem",
-            fontWeight: 700,
-            color: "oklch(0.92 0.03 240)",
-            margin: "0 0 0.2rem",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {song.title}
-        </h3>
-        <p
-          style={{
-            fontSize: "0.75rem",
-            color: "oklch(0.60 0.05 240)",
-            margin: "0 0 0.5rem",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {song.artist}
-        </p>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            flexWrap: "wrap",
-          }}
-        >
-          <span
-            style={{
-              padding: "0.2rem 0.6rem",
-              borderRadius: "9999px",
-              background: `${catColor}18`,
-              border: `1px solid ${catColor}35`,
-              color: catColor,
-              fontSize: "0.7rem",
-              fontWeight: 600,
-              flexShrink: 0,
-            }}
-          >
-            {song.category}
-          </span>
-          <button
-            type="button"
-            onClick={() => setIsOpen((v) => !v)}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.35rem",
-              padding: "0.35rem 0.75rem",
-              borderRadius: "0.5rem",
-              background: isOpen ? catColor : "oklch(0.22 0.06 250)",
-              color: isOpen ? "oklch(0.10 0.03 250)" : "oklch(0.85 0.04 240)",
-              border: `1px solid ${isOpen ? catColor : "oklch(0.30 0.06 250)"}`,
-              fontSize: "0.72rem",
-              fontWeight: 700,
-              cursor: "pointer",
-              flexShrink: 0,
-              transition: "all 0.15s",
-            }}
-            data-ocid="music_category.button"
-          >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                d={isOpen ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z"}
-              />
-            </svg>
-            {isOpen ? "Close" : "Play / Info"}
-          </button>
-          {song.downloadLink && (
-            <a
-              href={song.downloadLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.35rem",
-                padding: "0.35rem 0.6rem",
-                borderRadius: "0.5rem",
-                background: "oklch(0.18 0.08 155)",
-                color: "oklch(0.72 0.18 155)",
-                border: "1px solid oklch(0.28 0.10 155)",
-                fontSize: "0.7rem",
-                fontWeight: 700,
-                textDecoration: "none",
-              }}
-              data-ocid="music_category.button"
-            >
-              ⬇
-            </a>
-          )}
-        </div>
-      </div>
-
-      {/* Expanded panel */}
-      {isOpen && (
-        <div
-          style={{
-            borderTop: `1px solid ${catColor}30`,
-            padding: "0.75rem 1rem 1rem",
-          }}
-        >
-          {/* Player */}
-          {hasAudio ? (
-            <audio
-              controls
-              style={{ width: "100%", marginBottom: "0.75rem" }}
-              src={song.audioFileUrl}
-            >
-              <track kind="captions" />
-            </audio>
-          ) : hasYoutube ? (
-            <div
-              style={{
-                borderRadius: "0.625rem",
-                overflow: "hidden",
-                background: "#000",
-                marginBottom: "0.75rem",
-              }}
-            >
-              <iframe
-                width="100%"
-                height="200"
-                src={`https://www.youtube.com/embed/${effectiveYoutubeId}`}
-                title={song.title}
-                frameBorder="0"
-                allowFullScreen
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                style={{ display: "block" }}
-              />
-            </div>
-          ) : hasPlatformLink ? (
-            <a
-              href={effectivePlatformLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.5rem",
-                width: "100%",
-                padding: "0.75rem",
-                borderRadius: "0.625rem",
-                background: catColor,
-                color: "oklch(0.10 0.03 250)",
-                fontWeight: 700,
-                fontSize: "0.875rem",
-                textDecoration: "none",
-                marginBottom: "0.75rem",
-              }}
-              data-ocid="music_category.button"
-            >
-              ▶ Play on Platform
-            </a>
-          ) : null}
-
-          {/* Metadata */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "0.4rem 1rem",
-              marginBottom: "0.5rem",
-            }}
-          >
-            {song.composer && (
-              <div>
-                <p
-                  style={{
-                    fontSize: "0.65rem",
-                    color: "oklch(0.50 0.04 240)",
-                    margin: 0,
-                  }}
-                >
-                  Composer
-                </p>
-                <p
-                  style={{
-                    fontSize: "0.72rem",
-                    fontWeight: 600,
-                    color: "oklch(0.82 0.04 240)",
-                    margin: 0,
-                  }}
-                >
-                  {song.composer}
-                </p>
-              </div>
-            )}
-            {song.lyricist && (
-              <div>
-                <p
-                  style={{
-                    fontSize: "0.65rem",
-                    color: "oklch(0.50 0.04 240)",
-                    margin: 0,
-                  }}
-                >
-                  Lyricist
-                </p>
-                <p
-                  style={{
-                    fontSize: "0.72rem",
-                    fontWeight: 600,
-                    color: "oklch(0.82 0.04 240)",
-                    margin: 0,
-                  }}
-                >
-                  {song.lyricist}
-                </p>
-              </div>
-            )}
-            {song.musicDirector && (
-              <div>
-                <p
-                  style={{
-                    fontSize: "0.65rem",
-                    color: "oklch(0.50 0.04 240)",
-                    margin: 0,
-                  }}
-                >
-                  Music Director
-                </p>
-                <p
-                  style={{
-                    fontSize: "0.72rem",
-                    fontWeight: 600,
-                    color: "oklch(0.82 0.04 240)",
-                    margin: 0,
-                  }}
-                >
-                  {song.musicDirector}
-                </p>
-              </div>
-            )}
-            {song.label && (
-              <div>
-                <p
-                  style={{
-                    fontSize: "0.65rem",
-                    color: "oklch(0.50 0.04 240)",
-                    margin: 0,
-                  }}
-                >
-                  Label
-                </p>
-                <p
-                  style={{
-                    fontSize: "0.72rem",
-                    fontWeight: 600,
-                    color: "oklch(0.82 0.04 240)",
-                    margin: 0,
-                  }}
-                >
-                  {song.label}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Lyrics */}
-          {song.lyrics && (
-            <div>
-              <p
-                style={{
-                  fontSize: "0.7rem",
-                  fontWeight: 700,
-                  color: catColor,
-                  marginBottom: "0.4rem",
-                }}
-              >
-                📝 Lyrics
-              </p>
-              <pre
-                style={{
-                  fontSize: "0.7rem",
-                  whiteSpace: "pre-wrap",
-                  borderRadius: "0.5rem",
-                  padding: "0.75rem",
-                  background: "oklch(0.11 0.03 250)",
-                  border: `1px solid ${catColor}20`,
-                  color: "oklch(0.80 0.04 240)",
-                  fontFamily: "inherit",
-                  lineHeight: 1.6,
-                  maxHeight: "200px",
-                  overflowY: "auto",
-                  margin: 0,
-                }}
-              >
-                {song.lyrics}
-              </pre>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
